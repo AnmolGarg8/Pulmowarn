@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulmoCare | The First Step</title>
+  
+  <!-- Google Fonts: Syne (700, 800) and Inter (400, 500) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="./src/style.css">
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
+        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- WebGL Canvas — fills entire screen -->
+  <canvas id="webgl-canvas"></canvas>
+  
+  <!-- 2D overlay canvas for annotation lines -->
+  <canvas id="overlay-canvas"></canvas>
+  
+  <!-- All HTML text content lives here -->
+  <div id="html-root">
+    <div id="s1-text" style="
+      position:fixed; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      text-align:center; width:90%; max-width:900px;
+      opacity:0; transition:none;
+    ">
+      <p id="s1-eyebrow" style="
+        font-family:'Syne',sans-serif;
+        font-size:12px; font-weight:700;
+        letter-spacing:0.25em; color:#00D4AA;
+        text-transform:uppercase; margin-bottom:20px; opacity:0;
+      ">Every year, thousands of families</p>
+      <h1 id="s1-headline" style="
+        font-family:'Syne',sans-serif;
+        font-size:clamp(36px,7vw,90px); font-weight:800;
+        line-height:1.08; color:#F0F4FF;
+        letter-spacing:-0.03em; margin-bottom:20px; opacity:0;
+        text-shadow: 0 4px 40px rgba(0,0,0,0.9);
+      ">discover too late that<br/>something was wrong.</h1>
+    </div>
+
+    <div id="s1-product" style="
+      position:fixed; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      text-align:center; opacity:0;
+    ">
+      <h1 style="
+        font-family:'Syne',sans-serif;
+        font-size:clamp(48px,10vw,120px); font-weight:800;
+        color:#F0F4FF; letter-spacing:-0.04em;
+        line-height:1.0;
+      ">PULMOCARE</h1>
+      <p style="
+        font-family:'Inter',sans-serif;
+        font-size:clamp(14px,2vw,20px); color:#00D4AA;
+        letter-spacing:0.08em; margin-top:16px;
+        font-weight:500;
+      ">Catching the cause before the consequence.</p>
+    </div>
+
+    <div id="s1-scroll" style="
+      position:fixed; bottom:40px; left:50%;
+      transform:translateX(-50%); text-align:center;
+      opacity:0; color:#00D4AA;
+    ">
+      <p style="font-size:11px;letter-spacing:0.2em;margin-bottom:8px;
+                color:#445566;font-family:monospace">SCROLL</p>
+      <div style="width:1px;height:50px;background:linear-gradient(
+        to bottom, #00D4AA, transparent);
+        margin:0 auto;animation:scrollPulse 1.5s ease-in-out infinite">
+      </div>
+    </div>
+
+    <!-- Section 2 text panels -->
+    <div id="s2-panel" style="
+      position:fixed; right:5%; top:50%;
+      transform:translateY(-50%);
+      width:min(380px, 38vw); opacity:0;
+      pointer-events:none;
+    ">
+      <!-- Panel A: Healthy airways -->
+      <div id="s2a" style="opacity:0; position:absolute; right:0; width:100%">
+        <p style="font-family:'Syne',sans-serif; font-size:11px; 
+                  font-weight:700; letter-spacing:0.2em; color:#00D4AA;
+                  text-transform:uppercase; margin-bottom:14px">
+          Healthy Lung Function
+        </p>
+        <h2 style="font-family:'Syne',sans-serif; font-size:clamp(28px,3.5vw,44px);
+                   font-weight:800; line-height:1.15; color:#F0F4FF;
+                   margin-bottom:16px; letter-spacing:-0.02em">
+          A perfect<br/>biological<br/>pump.
+        </h2>
+        <p style="font-family:'Inter',sans-serif; font-size:15px;
+                  line-height:1.8; color:#7A8DAA">
+          Coordinated cilia sweep mucus upward continuously.
+          Air flows freely into the alveoli.
+          Carbon dioxide exits cleanly.
+          The body maintains perfect chemical balance.
+        </p>
+      </div>
+      <!-- Panel B: Infection -->
+      <div id="s2b" style="opacity:0; position:absolute; right:0; width:100%">
+        <p style="font-family:'Syne',sans-serif; font-size:11px;
+                  font-weight:700; letter-spacing:0.2em; color:#F5A623;
+                  text-transform:uppercase; margin-bottom:14px">
+          Infection Strikes
+        </p>
+        <h2 style="font-family:'Syne',sans-serif; font-size:clamp(28px,3.5vw,44px);
+                   font-weight:800; line-height:1.15; color:#F0F4FF;
+                   margin-bottom:16px; letter-spacing:-0.02em">
+          Mucus fills the<br/>narrowing<br/>airway.
+        </h2>
+        <p style="font-family:'Inter',sans-serif; font-size:15px;
+                  line-height:1.8; color:#7A8DAA">
+          Infection paralyses cilia and triggers 10× mucus overproduction.
+          The airway narrows from the inside. The patient feels it
+          — but has no way to know how dangerous it has become.
+        </p>
+      </div>
+      <!-- Panel C: CO2 narcoisis -->
+      <div id="s2c" style="opacity:0; position:absolute; right:0; width:100%">
+        <p style="font-family:'Syne',sans-serif; font-size:11px;
+                  font-weight:700; letter-spacing:0.2em; color:#E84040;
+                  text-transform:uppercase; margin-bottom:14px">
+          CO₂ Narcosis
+        </p>
+        <h2 style="font-family:'Syne',sans-serif; font-size:clamp(28px,3.5vw,44px);
+                   font-weight:800; line-height:1.15; color:#F0F4FF;
+                   margin-bottom:16px; letter-spacing:-0.02em">
+          Carbon dioxide<br/>silences<br/>the brain.
+        </h2>
+        <p style="font-family:'Inter',sans-serif; font-size:15px;
+                  line-height:1.8; color:#7A8DAA">
+          CO₂ crosses the blood-brain barrier freely.
+          First headache at 55 mmHg. Drowsiness at 65.
+          Unconsciousness above 80 mmHg.
+          This is CO₂ narcosis — the patient sedated by their own chemistry.
+        </p>
+        <!-- CO2 level markers -->
+        <div style="margin-top:20px; display:flex; flex-direction:column; gap:6px">
+          <div style="display:flex;justify-content:space-between;
+                      font-family:monospace;font-size:11px">
+            <span style="color:#22C55E">35–45 mmHg</span>
+            <span style="color:#22C55E">Normal</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;
+                      font-family:monospace;font-size:11px">
+            <span style="color:#F5A623">45–55 mmHg</span>
+            <span style="color:#F5A623">Early retention</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;
+                      font-family:monospace;font-size:11px">
+            <span style="color:#EF6C00">55–65 mmHg</span>
+            <span style="color:#EF6C00">Headache, confusion</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;
+                      font-family:monospace;font-size:11px">
+            <span style="color:#E84040">65–75 mmHg</span>
+            <span style="color:#E84040">Drowsiness</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;
+                      font-family:monospace;font-size:11px">
+            <span style="color:#AA0000">75+ mmHg</span>
+            <span style="color:#AA0000">Loss of consciousness</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 — The Monitoring Gap -->
+    <div id="s3-cards" style="
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      gap:clamp(12px,2vw,28px); padding:0 4%;
+      opacity:0; pointer-events:none;
+    ">
+      <!-- Card 1 -->
+      <div style="flex:1; max-width:280px; padding:28px 24px;
+                  border:1px solid rgba(232,64,64,0.2);
+                  border-radius:16px; background:rgba(4,7,17,0.6)">
+        <div style="width:44px;height:44px;border-radius:10px;
+                    background:rgba(232,64,64,0.12);
+                    display:flex;align-items:center;justify-content:center;
+                    margin-bottom:16px">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <polyline points="2,14 7,8 11,11 16,5 20,8" 
+                      stroke="#E84040" stroke-width="2" 
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="20" y1="8" x2="20" y2="14" 
+                  stroke="#E84040" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:18px;
+                   font-weight:700;color:#F0F4FF;margin-bottom:10px">
+          Pulse Oximeter
+        </h3>
+        <p style="font-size:14px;line-height:1.75;color:#7A8DAA;
+                  margin-bottom:16px">
+          Measures oxygen only. Completely blind to CO₂.
+          A patient can show 98% SpO₂ while PaCO₂ climbs 
+          to narcotic levels. Millions trust it. It measures 
+          the wrong thing.
+        </p>
+        <span style="font-family:monospace;font-size:10px;
+                     letter-spacing:0.12em;color:#E84040;
+                     background:rgba(232,64,64,0.1);
+                     padding:4px 10px;border-radius:4px;
+                     border:1px solid rgba(232,64,64,0.3)">
+          MISSES CO₂ ENTIRELY
+        </span>
+      </div>
+      <!-- Card 2 -->
+      <div style="flex:1; max-width:280px; padding:28px 24px;
+                  border:1px solid rgba(245,166,35,0.2);
+                  border-radius:16px; background:rgba(4,7,17,0.6)">
+        <div style="width:44px;height:44px;border-radius:10px;
+                    background:rgba(245,166,35,0.12);
+                    display:flex;align-items:center;justify-content:center;
+                    margin-bottom:16px">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <rect x="2" y="4" width="18" height="14" rx="2" 
+                  stroke="#F5A623" stroke-width="2"/>
+            <line x1="7" y1="18" x2="7" y2="21" 
+                  stroke="#F5A623" stroke-width="2"/>
+            <line x1="15" y1="18" x2="15" y2="21" 
+                  stroke="#F5A623" stroke-width="2"/>
+            <circle cx="11" cy="11" r="3" stroke="#F5A623" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:18px;
+                   font-weight:700;color:#F0F4FF;margin-bottom:10px">
+          Hospital Monitors
+        </h3>
+        <p style="font-size:14px;line-height:1.75;color:#7A8DAA;
+                  margin-bottom:16px">
+          Clinical CO₂ monitors like the SenTec are accurate.
+          But at $10,000+ and requiring trained staff to operate,
+          they are not designed for a patient managing lung 
+          disease at home at 2 AM.
+        </p>
+        <span style="font-family:monospace;font-size:10px;
+                     letter-spacing:0.12em;color:#F5A623;
+                     background:rgba(245,166,35,0.1);
+                     padding:4px 10px;border-radius:4px;
+                     border:1px solid rgba(245,166,35,0.3)">
+          NOT HOME-DEPLOYABLE
+        </span>
+      </div>
+      <!-- Card 3 -->
+      <div style="flex:1; max-width:280px; padding:28px 24px;
+                  border:1px solid rgba(232,64,64,0.2);
+                  border-radius:16px; background:rgba(4,7,17,0.6)">
+        <div style="width:44px;height:44px;border-radius:10px;
+                    background:rgba(232,64,64,0.12);
+                    display:flex;align-items:center;justify-content:center;
+                    margin-bottom:16px">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M6 8 Q6 4 11 4 Q16 4 16 8 Q16 13 11 15 
+                     Q11 17 11 19" stroke="#E84040" stroke-width="2" 
+                  stroke-linecap="round" fill="none"/>
+            <circle cx="11" cy="20.5" r="1" fill="#E84040"/>
+            <line x1="4" y1="4" x2="18" y2="18" 
+                  stroke="#E84040" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:18px;
+                   font-weight:700;color:#F0F4FF;margin-bottom:10px">
+          Sputum Monitoring
+        </h3>
+        <p style="font-size:14px;line-height:1.75;color:#7A8DAA;
+                  margin-bottom:16px">
+          Nothing on the home market detects sputum accumulation.
+          No device alerts a patient that their airway is narrowing
+          before CO₂ rises. This is the earliest and most 
+          actionable point in the deterioration chain.
+        </p>
+        <span style="font-family:monospace;font-size:10px;
+                     letter-spacing:0.12em;color:#E84040;
+                     background:rgba(232,64,64,0.1);
+                     padding:4px 10px;border-radius:4px;
+                     border:1px solid rgba(232,64,64,0.3)">
+          NO EXISTING SOLUTION
+        </span>
+      </div>
+    </div>
+
+    <!-- Impact statement -->
+    <div id="s3-impact" style="
+      position:fixed; bottom:12%; left:50%;
+      transform:translateX(-50%);
+      text-align:center; opacity:0; width:90%;
+      pointer-events:none;
+    ">
+      <h2 style="font-family:'Syne',sans-serif;
+                 font-size:clamp(24px,4vw,52px);
+                 font-weight:800; color:#F0F4FF;
+                 line-height:1.2; letter-spacing:-0.02em">
+        The window to act is hours before the crisis.<br/>
+        <span style="color:#E84040">Nothing is watching.</span>
+      </h2>
+    </div>
+  </div>
+
+  <style>
+    @keyframes scrollPulse {
+      0%,100% { opacity:0.3; transform:scaleY(1); }
+      50% { opacity:1; transform:scaleY(1.1); }
+    }
+  </style>
+  
+  <!-- Scroll spacer — total page height -->
+  <div id="scroll-spacer" style="height:900vh"></div>
+  
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
