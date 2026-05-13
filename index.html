@@ -315,15 +315,270 @@
     </div>
   </div>
 
+  <!-- Section 4 — Device Reveal -->
+  <div id="s4-annotations" style="
+    position:fixed; inset:0; opacity:0; pointer-events:none;
+  ">
+    <canvas id="annotation-lines" style="
+      position:absolute; inset:0; width:100%; height:100%;
+    "></canvas>
+    <div class="anno" id="anno-0" style="position:absolute;opacity:0">
+      <span class="anno-label">MEMS acoustic sensor</span>
+      <span class="anno-sub">50–1000 Hz · −42 dBV/Pa</span>
+    </div>
+    <div class="anno" id="anno-1" style="position:absolute;opacity:0">
+      <span class="anno-label">OLED status display</span>
+      <span class="anno-sub">green / amber / red</span>
+    </div>
+    <div class="anno" id="anno-2" style="position:absolute;opacity:0">
+      <span class="anno-label">tcPCO₂ sensor</span>
+      <span class="anno-sub">blood CO₂ continuous trend</span>
+    </div>
+    <div class="anno" id="anno-3" style="position:absolute;opacity:0">
+      <span class="anno-label">ARM Cortex-M4</span>
+      <span class="anno-sub">dual-stream · &lt;8mW active</span>
+    </div>
+    <div class="anno" id="anno-4" style="position:absolute;opacity:0">
+      <span class="anno-label">BLE 5.0 radio</span>
+      <span class="anno-sub">caregiver app + SMS</span>
+    </div>
+    <div class="anno" id="anno-5" style="position:absolute;opacity:0">
+      <span class="anno-label">Li-Po 1400 mAh</span>
+      <span class="anno-sub">24h+ · USB-C charge</span>
+    </div>
+  </div>
+
+  <div id="s4-title" style="
+    position:fixed; bottom:14%; left:50%;
+    transform:translateX(-50%); text-align:center;
+    opacity:0; pointer-events:none;
+  ">
+    <h1 style="font-family:'Syne',sans-serif;
+               font-size:clamp(52px,8vw,96px);
+               font-weight:800; color:#F0F4FF;
+               letter-spacing:-0.04em; line-height:1.0;
+               margin-bottom:12px">
+      PulmoCare
+    </h1>
+    <p style="font-family:'Inter',sans-serif;
+              font-size:clamp(13px,1.5vw,18px);
+              color:#7A8DAA; max-width:480px; margin:0 auto;
+              line-height:1.7">
+      The first home device that monitors both the cause 
+      and the consequence — simultaneously.
+    </p>
+  </div>
+
+  <!-- Section 7 — Rajan's Story -->
+  <div id="s7-container" style="
+    position:fixed; inset:0; opacity:0; pointer-events:none;
+  ">
+    <!-- Beat info card — left side -->
+    <div id="s7-card" style="
+      position:absolute; left:5%; top:50%;
+      transform:translateY(-50%);
+      width:min(320px,30vw);
+      background:rgba(6,13,26,0.90);
+      border:1px solid rgba(0,212,170,0.15);
+      border-radius:14px; padding:24px 26px;
+    ">
+      <div id="s7-time" style="
+        font-family:'JetBrains Mono','Courier New',monospace;
+        font-size:13px; color:#00D4AA;
+        letter-spacing:0.1em; margin-bottom:10px;
+      ">2:00 AM</div>
+      <div id="s7-status" style="
+        font-family:'Syne',sans-serif;
+        font-size:11px; font-weight:700;
+        letter-spacing:0.15em; text-transform:uppercase;
+        margin-bottom:14px; color:#22C55E;
+      ">NORMAL</div>
+      <p id="s7-desc" style="
+        font-family:'Inter',sans-serif;
+        font-size:14px; line-height:1.75;
+        color:#7A8DAA; margin:0;
+      ">All readings stable. Rajan sleeps.</p>
+    </div>
+    <!-- CO2 mini-graph — bottom centre -->
+    <canvas id="s7-graph" style="
+      position:absolute; bottom:8%; left:50%;
+      transform:translateX(-50%);
+      width:min(600px,80vw); height:80px;
+      border-top:1px solid rgba(0,212,170,0.1);
+    "></canvas>
+    <!-- Final impact text -->
+    <div id="s7-final" style="
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      text-align:center; opacity:0;
+      background:rgba(6,13,26,0.7);
+    ">
+      <div>
+        <h1 style="
+          font-family:'Syne',sans-serif;
+          font-size:clamp(32px,5.5vw,72px);
+          font-weight:800; line-height:1.2;
+          color:#F0F4FF; letter-spacing:-0.03em;
+          text-shadow:0 4px 40px rgba(0,0,0,0.9);
+        ">
+          No ambulance.<br/>
+          No ICU. No crisis.<br/>
+          <span style="color:#00D4AA">
+            PulmoCare intervened<br/>
+            before Rajan lost the ability<br/>
+            to ask for help.
+          </span>
+        </h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 8 — Technical Architecture -->
+  <div id="s8-section" style="
+    position:fixed; inset:0; opacity:0; pointer-events:none;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:0 5%;
+  ">
+    <h2 style="
+      font-family:'Syne',sans-serif;
+      font-size:clamp(36px,6vw,72px); font-weight:800;
+      color:#F0F4FF; letter-spacing:-0.03em;
+      margin-bottom:48px; text-align:center;
+    ">Technical Architecture</h2>
+    <div style="
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:16px; width:100%; max-width:860px;
+    ">
+      <div class="spec-card">
+        <div class="spec-title">MEMS Microphone</div>
+        <div class="spec-meta">Freq: 50–1000 Hz · −42 dBV/Pa</div>
+        <div class="spec-desc">Rhonchi and sputum blockage detection</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">tcPCO₂ / NDIR Optical</div>
+        <div class="spec-meta">Range: 20–100 mmHg equivalent</div>
+        <div class="spec-desc">Blood CO₂ continuous trend monitoring</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">ARM Cortex-M4</div>
+        <div class="spec-meta">Power: &lt;8mW active · 32-bit</div>
+        <div class="spec-desc">Dual-stream signal processing</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">BLE 5.0 Radio</div>
+        <div class="spec-meta">Range: 10m · Power: &lt;1mW avg</div>
+        <div class="spec-desc">Caregiver app and SMS delivery</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">OLED Display</div>
+        <div class="spec-meta">0.96″ · 128×64px · 3-state</div>
+        <div class="spec-desc">Patient-facing colour status indicator</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-title">Li-Po 1400 mAh</div>
+        <div class="spec-meta">USB-C · 24h+ continuous</div>
+        <div class="spec-desc">Overnight dual-sensor operation</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 10 — Closing -->
+  <div id="s10-section" style="
+    position:fixed; inset:0; opacity:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center; padding:0 5%;
+  ">
+    <h1 style="
+      font-family:'Syne',sans-serif;
+      font-size:clamp(36px,6vw,80px); font-weight:800;
+      color:#F0F4FF; letter-spacing:-0.03em;
+      line-height:1.15; margin-bottom:16px;
+      max-width:800px;
+    ">
+      Every deterioration<br/>has a first step.
+    </h1>
+    <h2 style="
+      font-family:'Syne',sans-serif;
+      font-size:clamp(24px,4vw,52px); font-weight:700;
+      color:#00D4AA; letter-spacing:-0.02em;
+      margin-bottom:48px;
+    ">
+      PulmoCare is designed to find it.
+    </h2>
+    <div style="display:flex;gap:14px;margin-bottom:60px;pointer-events:all">
+      <button onclick="window.open('#','_blank')" style="
+        padding:14px 32px; font-family:'Syne',sans-serif;
+        font-size:14px; font-weight:700;
+        letter-spacing:0.05em; color:#00D4AA;
+        background:transparent; border:1.5px solid #00D4AA;
+        border-radius:8px; cursor:pointer; transition:all 0.2s;
+      "
+      onmouseover="this.style.background='#00D4AA';this.style.color='#060D1A'"
+      onmouseout="this.style.background='transparent';this.style.color='#00D4AA'">
+        Read the Research →
+      </button>
+      <button style="
+        padding:14px 32px; font-family:'Syne',sans-serif;
+        font-size:14px; font-weight:700;
+        letter-spacing:0.05em; color:#7A8DAA;
+        background:transparent; border:1.5px solid #2A3A4A;
+        border-radius:8px; cursor:pointer;
+      ">Contact the Team →</button>
+    </div>
+    <p style="
+      font-family:'Inter',sans-serif; font-size:13px;
+      color:#2A3A4A; letter-spacing:0.05em;
+      pointer-events:none;
+    ">
+      Anmol Garg · B.Tech AI &amp; Data Science<br/>
+      Vivekananda Institute of Professional Studies, New Delhi
+    </p>
+  </div>
+
   <style>
     @keyframes scrollPulse {
       0%,100% { opacity:0.3; transform:scaleY(1); }
       50% { opacity:1; transform:scaleY(1.1); }
     }
+    .anno {
+      display: flex; flex-direction: column; gap: 2px;
+      background: rgba(6,13,26,0.85);
+      border-left: 2px solid #00D4AA;
+      padding: 6px 10px 6px 8px;
+      border-radius: 0 6px 6px 0;
+    }
+    .anno-label {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 11px; color: #00D4AA; font-weight: 600;
+      white-space: nowrap;
+    }
+    .anno-sub {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 10px; color: #446655; white-space: nowrap;
+    }
+    .spec-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,212,170,0.15);
+      border-top: 2px solid #00D4AA;
+      border-radius: 12px; padding: 20px 18px;
+    }
+    .spec-title {
+      font-family: 'Syne', sans-serif; font-size: 15px;
+      font-weight: 700; color: #F0F4FF; margin-bottom: 6px;
+    }
+    .spec-meta {
+      font-family: monospace; font-size: 11px;
+      color: #00D4AA; margin-bottom: 8px;
+    }
+    .spec-desc {
+      font-size: 13px; color: #7A8DAA; line-height: 1.6;
+    }
   </style>
   
   <!-- Scroll spacer — total page height -->
-  <div id="scroll-spacer" style="height:900vh"></div>
+  <div id="scroll-spacer" style="height:1100vh"></div>
   
   <script type="module" src="./src/main.js"></script>
 </body>

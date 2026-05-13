@@ -16,6 +16,7 @@ body {
   top: 0; left: 0;
   width: 100vw; height: 100vh;
   z-index: 1;
+  pointer-events: none;
 }
 
 #overlay-canvas {
@@ -38,11 +39,8 @@ body {
   pointer-events: all;
 }
 
-/* Base scrollbar hidden for cinematic feel but scrollable */
-::-webkit-scrollbar {
-  display: none;
-}
+/* Scrollbar restored for better UX */
 body {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
 }
