@@ -508,24 +508,63 @@
       PulmoCare is designed to find it.
     </h2>
     <div style="display:flex;gap:14px;margin-bottom:60px;pointer-events:all">
-      <button onclick="window.open('#','_blank')" style="
-        padding:14px 32px; font-family:'Syne',sans-serif;
-        font-size:14px; font-weight:700;
-        letter-spacing:0.05em; color:#00D4AA;
-        background:transparent; border:1.5px solid #00D4AA;
-        border-radius:8px; cursor:pointer; transition:all 0.2s;
-      "
-      onmouseover="this.style.background='#00D4AA';this.style.color='#060D1A'"
-      onmouseout="this.style.background='transparent';this.style.color='#00D4AA'">
-        Read the Research →
-      </button>
-      <button style="
-        padding:14px 32px; font-family:'Syne',sans-serif;
-        font-size:14px; font-weight:700;
-        letter-spacing:0.05em; color:#7A8DAA;
-        background:transparent; border:1.5px solid #2A3A4A;
-        border-radius:8px; cursor:pointer;
-      ">Contact the Team →</button>
+      <button id="cta-research" 
+        style="
+          padding: 14px 32px;
+          font-family: 'Syne', sans-serif;
+          font-size: 14px; font-weight: 700;
+          letter-spacing: 0.06em;
+          color: #00D4AA;
+          background: transparent;
+          border: 1.5px solid #00D4AA;
+          border-radius: 8px;
+          cursor: pointer;
+          pointer-events: all;
+          transition: background 0.25s ease, color 0.25s ease,
+                      transform 0.15s ease, box-shadow 0.25s ease;
+        "
+        onmouseenter="
+          this.style.background='#00D4AA';
+          this.style.color='#060D1A';
+          this.style.transform='translateY(-2px)';
+          this.style.boxShadow='0 8px 30px rgba(0,212,170,0.35)';
+        "
+        onmouseleave="
+          this.style.background='transparent';
+          this.style.color='#00D4AA';
+          this.style.transform='translateY(0)';
+          this.style.boxShadow='none';
+        "
+      >Read the Research →</button>
+
+      <button id="cta-contact"
+        style="
+          padding: 14px 32px;
+          font-family: 'Syne', sans-serif;
+          font-size: 14px; font-weight: 700;
+          letter-spacing: 0.06em;
+          color: #7A8DAA;
+          background: transparent;
+          border: 1.5px solid #2A3A4A;
+          border-radius: 8px;
+          cursor: pointer;
+          pointer-events: all;
+          transition: background 0.25s ease, color 0.25s ease,
+                      transform 0.15s ease, border-color 0.25s ease;
+        "
+        onmouseenter="
+          this.style.background='rgba(255,255,255,0.06)';
+          this.style.color='#F0F4FF';
+          this.style.transform='translateY(-2px)';
+          this.style.borderColor='#7A8DAA';
+        "
+        onmouseleave="
+          this.style.background='transparent';
+          this.style.color='#7A8DAA';
+          this.style.transform='translateY(0)';
+          this.style.borderColor='#2A3A4A';
+        "
+      >Contact the Team →</button>
     </div>
     <p style="
       font-family:'Inter',sans-serif; font-size:13px;
@@ -538,31 +577,37 @@
   </div>
 
   <style>
-    /* Every direct section child of html-root starts hidden */
-    #s1-text,
-    #s1-product,
-    #s1-scroll,
-    #s2-panel,
-    #s3-cards,
-    #s3-impact,
-    #s4-annotations,
-    #s4-title,
-    #s7-container,
-    #s8-section,
-    #s10-section {
-      opacity: 0 !important;
-      transition: none !important;
-    }
+  /* ─── GLOBAL SECTION RESET ─── */
+  
+  /* Hero text starts hidden, shown on load via JS */
+  #s1-text { opacity: 0; }
+  #s1-product { opacity: 0; }
+  #s1-scroll { opacity: 0; }
+  
+  /* ALL other sections start completely hidden */
+  #s2-panel { opacity: 0; visibility: hidden; }
+  #s2a { opacity: 0; }
+  #s2b { opacity: 0; }
+  #s2c { opacity: 0; }
+  #s3-cards { opacity: 0; visibility: hidden; }
+  #s3-impact { opacity: 0; }
+  #s4-annotations { opacity: 0; visibility: hidden; }
+  #s4-title { opacity: 0; }
+  #s7-container { opacity: 0; visibility: hidden; }
+  #s7-final { opacity: 0; }
+  #s8-section { opacity: 0; visibility: hidden; }
+  #s10-section { opacity: 0; visibility: hidden; }
+  
+  /* Annotation labels start hidden */
+  .anno { opacity: 0; }
+  
+  /* Sub-panels inside story card */
+  #s7-time, #s7-status, #s7-desc { 
+    transition: none !important; 
+  }
 
-    /* Sub-panels inside s2 also start hidden */
-    #s2a, #s2b, #s2c {
-      opacity: 0 !important;
-    }
-
-    /* Annotation labels start hidden */
-    .anno {
-      opacity: 0 !important;
-    }
+  body { background-color: #060D1A !important; }
+  canvas#webgl-canvas { background: #060D1A !important; }
 
     @keyframes scrollPulse {
       0%,100% { opacity:0.3; transform:scaleY(1); }
@@ -589,6 +634,9 @@
       border: 1px solid rgba(0,212,170,0.15);
       border-top: 2px solid #00D4AA;
       border-radius: 12px; padding: 20px 18px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: none !important;
     }
     .spec-title {
       font-family: 'Syne', sans-serif; font-size: 15px;
@@ -604,7 +652,7 @@
   </style>
   
   <!-- Scroll spacer — total page height -->
-  <div id="scroll-spacer" style="height:1100vh"></div>
+  <div id="scroll-spacer" style="height:1100vh; width:100%;"></div>
   
   <script type="module" src="./src/main.js"></script>
 </body>

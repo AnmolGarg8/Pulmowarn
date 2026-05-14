@@ -7,14 +7,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+ScrollTrigger.config({
+  limitCallbacks: false,
+  ignoreMobileResize: true
+});
+
 // Force ScrollTrigger to use the correct scroll container
 ScrollTrigger.defaults({
   scroller: window
-});
-
-// Refresh after all triggers are registered
-window.addEventListener('load', () => {
-  ScrollTrigger.refresh(true);
 });
 
 function hideAllSections() {
@@ -39,9 +39,9 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x060D1A, 1);
+renderer.setClearColor(0x060D1A, 1.0);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 0.85;
 
 // SCENE + CAMERA
 const scene = new THREE.Scene();
@@ -55,9 +55,9 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.30,   // strength — DO NOT increase above 0.45
-  0.50,   // radius
-  0.60    // threshold — only brightest elements glow
+  0.28,    // strength — maximum 0.35, never higher
+  0.45,    // radius
+  0.62     // threshold — only very bright elements glow
 );
 composer.addPass(bloomPass);
 
@@ -88,55 +88,92 @@ window.addEventListener('resize', () => {
 
 // SECTION 1 — BUILD LUNG PARTICLES
 function buildLungParticles() {
-  const COUNT = 7000;
-  const positions = new Float32Array(COUNT * 3);
-  const targetPos = new Float32Array(COUNT * 3);
-  const randoms = new Float32Array(COUNT);
-
+  const COUNT = 6500;
+  const targetPositions = [];
+  
+  // Improved SDF — two clearly separated lobes + trachea
   function inLung(x, y, z) {
-    const leftLobe =
-      Math.pow((x + 0.55) / 0.55, 2) +
-      Math.pow(y / 1.15, 2) +
-      Math.pow(z / 0.42, 2) < 1.0;
-    const rightLobe =
-      Math.pow((x - 0.45) / 0.48, 2) +
-      Math.pow(y / 1.05, 2) +
-      Math.pow(z / 0.38, 2) < 1.0;
-    const trachea =
-      Math.pow(x / 0.12, 2) +
-      Math.pow((y - 1.2) / 0.35, 2) +
-      Math.pow(z / 0.10, 2) < 1.0;
-    return leftLobe || rightLobe || trachea;
+    // Left lobe — centred at (-0.55, -0.1, 0)
+    const lL = Math.pow((x + 0.55)/0.52, 2) +
+               Math.pow((y + 0.1)/1.10, 2) +
+               Math.pow(z/0.38, 2);
+    // Right lobe — centred at (0.48, -0.1, 0)
+    const rL = Math.pow((x - 0.48)/0.46, 2) +
+               Math.pow((y + 0.1)/1.02, 2) +
+               Math.pow(z/0.34, 2);
+    // Trachea — thin vertical stem at top centre
+    const tr = Math.pow(x/0.09, 2) +
+               Math.pow((y - 1.05)/0.38, 2) +
+               Math.pow(z/0.07, 2);
+    // IMPORTANT: use < 1.0 not <= 1.0 for hollow shell
+    // Mix shell (near-surface) with solid fill
+    const minDist = Math.min(lL, rL, tr);
+    return minDist < 1.0;
   }
-
-  let filled = 0;
-  while (filled < COUNT) {
-    const x = (Math.random() - 0.5) * 3.0;
-    const y = (Math.random() - 0.5) * 3.0;
-    const z = (Math.random() - 0.5) * 1.2;
-    if (inLung(x, y, z)) {
-      targetPos[filled * 3]     = x;
-      targetPos[filled * 3 + 1] = y;
-      targetPos[filled * 3 + 2] = z;
-      positions[filled * 3]     = (Math.random() - 0.5) * 12;
-      positions[filled * 3 + 1] = (Math.random() - 0.5) * 12;
-      positions[filled * 3 + 2] = (Math.random() - 0.5) * 6;
-      randoms[filled] = Math.random();
-      filled++;
+  
+  // Only keep points NEAR the surface for hollow lung look
+  function nearSurface(x, y, z) {
+    function sdf(px, py, pz) {
+      const lL = Math.pow((px+0.55)/0.52,2) + 
+                 Math.pow((py+0.1)/1.10,2) + 
+                 Math.pow(pz/0.38,2);
+      const rL = Math.pow((px-0.48)/0.46,2) + 
+                 Math.pow((py+0.1)/1.02,2) + 
+                 Math.pow(pz/0.34,2);
+      const tr = Math.pow(px/0.09,2) + 
+                 Math.pow((py-1.05)/0.38,2) + 
+                 Math.pow(pz/0.07,2);
+      return Math.min(lL, rL, tr);
     }
+    const d = sdf(x, y, z);
+    // Keep points between 0.85 and 1.0 of the surface
+    // This creates a hollow shell effect
+    return d >= 0.72 && d < 1.0;
   }
-
+  
+  // Sample points
+  let attempts = 0;
+  while(targetPositions.length < COUNT && attempts < 500000) {
+    const x = (Math.random() - 0.5) * 2.8;
+    const y = (Math.random() - 0.5) * 3.0;
+    const z = (Math.random() - 0.5) * 1.0;
+    // 70% shell points, 30% fill points for depth
+    if(Math.random() < 0.70 ? nearSurface(x,y,z) : inLung(x,y,z)) {
+      targetPositions.push(x, y, z);
+    }
+    attempts++;
+  }
+  
+  const COUNT_ACTUAL = targetPositions.length / 3;
+  const positions = new Float32Array(COUNT_ACTUAL * 3);
+  const targets   = new Float32Array(targetPositions);
+  const randoms   = new Float32Array(COUNT_ACTUAL);
+  
+  // Start positions: scattered in a sphere
+  for(let i = 0; i < COUNT_ACTUAL; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const r     = 6 + Math.random() * 4;
+    positions[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    positions[i*3+2] = r * Math.cos(phi);
+    randoms[i] = Math.random();
+  }
+  
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geo.setAttribute('aTarget', new THREE.BufferAttribute(targetPos, 3));
-  geo.setAttribute('aRandom', new THREE.BufferAttribute(randoms, 1));
-
+  geo.setAttribute('position', 
+    new THREE.BufferAttribute(positions.slice(), 3));
+  geo.setAttribute('aTarget', 
+    new THREE.BufferAttribute(targets, 3));
+  geo.setAttribute('aRandom', 
+    new THREE.BufferAttribute(randoms, 1));
+  
   const mat = new THREE.ShaderMaterial({
     uniforms: {
       uProgress: { value: 0.0 },
-      uTime: { value: 0.0 },
-      uStutter: { value: 0.0 },
-      uFade: { value: 1.0 },
+      uTime:     { value: 0.0 },
+      uStutter:  { value: 0.0 },
+      uFade:     { value: 1.0 },
     },
     vertexShader: `
       attribute vec3 aTarget;
@@ -144,38 +181,62 @@ function buildLungParticles() {
       uniform float uProgress;
       uniform float uTime;
       uniform float uStutter;
+      
       void main() {
-        vec3 pos = mix(position, aTarget, uProgress);
-        float breathe = 1.0 + sin(uTime * 0.9 + aRandom * 6.28) * 0.025;
+        // Smooth lerp from scattered to lung target
+        float ease = uProgress * uProgress * (3.0 - 2.0 * uProgress);
+        vec3 pos = mix(position, aTarget, ease);
+        
+        // Breathing pulse — very subtle
+        float breathe = 1.0 + 
+          sin(uTime * 0.85 + aRandom * 6.28318) * 0.018;
         pos *= breathe;
-        if(uStutter > 0.0) {
-          float stutX = sin(aRandom * 100.0 + uTime * 5.0) * uStutter * 0.18;
-          float stutY = cos(aRandom * 87.0 + uTime * 4.3) * uStutter * 0.12;
-          pos += vec3(stutX, stutY, 0.0);
+        
+        // Malfunction stutter displacement
+        if(uStutter > 0.01) {
+          float nx = sin(aRandom * 127.1 + uTime * 4.5);
+          float ny = sin(aRandom * 311.7 + uTime * 3.9);
+          float nz = sin(aRandom * 74.3  + uTime * 5.1);
+          pos += vec3(nx, ny, nz) * uStutter * 0.14;
         }
+        
         vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
-        gl_PointSize = (2.0 + aRandom * 1.5) * (1.0 / -mvPos.z * 10.0);
+        // Point size — small and crisp, never large blobs
+        gl_PointSize = clamp(
+          (1.8 + aRandom * 1.2) * (8.0 / -mvPos.z),
+          0.5, 4.0
+        );
         gl_Position = projectionMatrix * mvPos;
       }
     `,
     fragmentShader: `
       uniform float uFade;
+      
       void main() {
+        // Crisp circular points
         vec2 uv = gl_PointCoord - 0.5;
         float d = length(uv) * 2.0;
         if(d > 1.0) discard;
-        float alpha = 1.0 - smoothstep(0.3, 1.0, d);
-        vec3 innerCol = vec3(0.0, 0.95, 0.78);
-        vec3 outerCol = vec3(0.2, 0.6, 0.9);
-        vec3 col = mix(outerCol, innerCol, 1.0 - d);
-        gl_FragColor = vec4(col, alpha * 0.82 * uFade);
+        
+        // Sharp falloff — not blurry blobs
+        float alpha = 1.0 - smoothstep(0.2, 1.0, d);
+        
+        // Teal core, blue-teal edge — NOT white
+        vec3 core  = vec3(0.0,  0.82, 0.65);
+        vec3 edge  = vec3(0.15, 0.52, 0.78);
+        vec3 col   = mix(edge, core, 1.0 - d * d);
+        
+        // Cap brightness — no particle should be > 0.85 brightness
+        col = min(col, vec3(0.85));
+        
+        gl_FragColor = vec4(col, alpha * 0.78 * uFade);
       }
     `,
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
-
+  
   const points = new THREE.Points(geo, mat);
   scene.add(points);
   return { points, mat };
@@ -226,73 +287,157 @@ function buildStarField() {
 scene.add(buildStarField());
 
 // SECTION 1 — SCROLL ANIMATIONS
-const s1tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: '#scroll-spacer',
-    start: 'top top',
-    end: '130vh top',
-    scrub: 1.0,
-    pin: false,
+
+// Hero text entrance — fires on page load
+function startHeroEntrance() {
+  // Show hero text wrapper first
+  const textEl = document.getElementById('s1-text');
+  if(textEl) textEl.style.opacity = '1';
+  
+  const eyebrow = document.getElementById('s1-eyebrow');
+  const headline = document.getElementById('s1-headline');
+  const scroll = document.getElementById('s1-scroll');
+  
+  // Stagger in
+  if(eyebrow) {
+    eyebrow.style.transform = 'translateY(20px)';
+    eyebrow.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    setTimeout(() => {
+      eyebrow.style.opacity = '1';
+      eyebrow.style.transform = 'translateY(0)';
+    }, 400);
+  }
+  
+  if(headline) {
+    headline.style.transform = 'translateY(30px)';
+    headline.style.transition = 'opacity 1.0s ease, transform 1.0s ease';
+    setTimeout(() => {
+      headline.style.opacity = '1';
+      headline.style.transform = 'translateY(0)';
+    }, 700);
+  }
+  
+  if(scroll) {
+    scroll.style.transition = 'opacity 0.6s ease';
+    setTimeout(() => {
+      scroll.style.opacity = '1';
+    }, 1400);
+  }
+}
+
+// Also animate lung particles assembling on page load
+// (not wait for scroll — assemble on load, stutter on scroll)
+gsap.to(lungSystem.mat.uniforms.uProgress, {
+  value: 1.0,
+  duration: 2.5,
+  delay: 0.2,
+  ease: 'power2.out',
+  onComplete: () => startHeroEntrance()
+});
+
+// ─────────────────────────────────────────────
+// MASTER SECTION CONTROLLER
+// Called inside every ScrollTrigger onUpdate
+// to ensure only the active section is visible
+// ─────────────────────────────────────────────
+
+const ALL_SECTION_IDS = [
+  's1-text', 's1-product', 's1-scroll',
+  's2-panel',
+  's3-cards', 's3-impact',
+  's4-annotations', 's4-title',
+  's7-container',
+  's8-section',
+  's10-section'
+];
+
+function showOnly(activeIds, fadingIds = []) {
+  ALL_SECTION_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    
+    if(activeIds.includes(id)) {
+      // Active section — let the caller set opacity
+      el.style.visibility = 'visible';
+    } else if(fadingIds.includes(id)) {
+      // Fading section — let caller set opacity
+      el.style.visibility = 'visible';
+    } else {
+      // Inactive — force hide
+      el.style.opacity = '0';
+      el.style.visibility = 'hidden';
+    }
+  });
+}
+
+// Define which scroll ranges own which sections
+// So each section knows its "siblings" to hide
+const SECTION_RANGES = [
+  { start: 0,    end: 130,  active: ['s1-text','s1-product','s1-scroll'] },
+  { start: 130,  end: 430,  active: ['s2-panel'] },
+  { start: 430,  end: 560,  active: ['s3-cards','s3-impact'] },
+  { start: 560,  end: 730,  active: ['s4-annotations','s4-title'] },
+  { start: 730,  end: 900,  active: ['s7-container'] },
+  { start: 900,  end: 970,  active: ['s8-section'] },
+  { start: 970,  end: 1100, active: ['s10-section'] },
+];
+
+// Add a single master watcher that hides inactive sections
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: 0,
+  onUpdate: self => {
+    // Get current scroll in vh
+    const scrollVH = self.progress * 1100;
+    
+    // Find which section range we're in
+    const activeRange = SECTION_RANGES.find(
+      r => scrollVH >= r.start && scrollVH < r.end
+    );
+    
+    if(activeRange) {
+      showOnly(activeRange.active);
+    }
   }
 });
 
-// Phase A (0–40%): particles assemble into lung shape
-s1tl.to(lungSystem.mat.uniforms.uProgress, {
-  value: 1.0, ease: 'power2.out'
-}, 0);
-
-// Phase B (30–60%): stutter begins — lung dysfunction
-s1tl.to(lungSystem.mat.uniforms.uStutter, {
-  value: 0.6, ease: 'power1.in'
-}, 0.3);
-
-// Phase C (60–80%): text fades out, lung fades
-s1tl.to(lungSystem.mat.uniforms.uFade, {
-  value: 0.0, ease: 'power1.in'
-}, 0.65);
-
-// Entrance animation (plays on load, not scroll)
-gsap.timeline({ delay: 0.3 })
-  .to('#s1-text', { opacity: 1, duration: 0.1 })
-  .to('#s1-eyebrow', {
-    opacity: 1, y: 0,
-    startAt: { opacity: 0, y: 20 },
-    duration: 0.8, ease: 'power2.out'
-  })
-  .to('#s1-headline', {
-    opacity: 1, y: 0,
-    startAt: { opacity: 0, y: 30 },
-    duration: 1.0, ease: 'power2.out'
-  }, '-=0.4')
-  .to('#s1-scroll', { opacity: 1, duration: 0.6 }, '+=0.3');
-
-// Product name appears as lung fades (on scroll)
+// Scroll-driven stutter and fade
 ScrollTrigger.create({
   trigger: '#scroll-spacer',
-  start: '80vh top',
+  start: 'top top',
   end: '130vh top',
-  scrub: true,
+  scrub: 1.0,
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
-
-    const s1Prod = document.getElementById('s1-product');
-    if(s1Prod) {
-      s1Prod.style.opacity = String(p);
-      s1Prod.style.display = p > 0 ? 'block' : 'none';
-    }
-
-    const s1Text = document.getElementById('s1-text');
-    if(s1Text) s1Text.style.opacity = String(1 - p * 2);
-
-    const s1Scroll = document.getElementById('s1-scroll');
-    if(s1Scroll) s1Scroll.style.opacity = String(1 - p * 3);
-
-    // Fade out lung particles as we move to disease section
+    
+    // Stutter begins at 40% through this section
     if(lungSystem.mat) {
-      lungSystem.mat.uniforms.uFade.value = 1 - p;
+      lungSystem.mat.uniforms.uStutter.value = 
+        Math.max(0, (p - 0.40) / 0.35) * 0.55;
+      // Fade out at 65%+
+      lungSystem.mat.uniforms.uFade.value = 
+        p > 0.65 ? 1.0 - (p - 0.65) / 0.35 : 1.0;
     }
-    lungSystem.points.visible = p < 0.99;
+    
+    // Text fades out at 60%
+    const textEl = document.getElementById('s1-text');
+    if(textEl) textEl.style.opacity = 
+      String(p > 0.60 ? Math.max(0, 1 - (p-0.60)/0.25) : 1);
+    
+    // Product name fades in at 70%
+    const prodEl = document.getElementById('s1-product');
+    if(prodEl) {
+      prodEl.style.opacity = String(p > 0.70 ? Math.min(1, (p-0.70)/0.25) : 0);
+      prodEl.style.display = p > 0.70 ? 'block' : 'none';
+    }
+    
+    // Scroll indicator fades out early
+    const scrollEl = document.getElementById('s1-scroll');
+    if(scrollEl) scrollEl.style.opacity = 
+      String(Math.max(0, 1 - p * 4));
   }
 });
 
@@ -492,18 +637,48 @@ ScrollTrigger.create({
   end: '430vh top',
   scrub: 1.2,
   pin: false,
+  onEnter: () => {
+    // Make objects visible when entering section
+    if(bronchialTree) bronchialTree.visible = true;
+    if(mucusSystem) mucusSystem.points.visible = true;
+    // Show text panel wrapper
+    const panel = document.getElementById('s2-panel');
+    if(panel) {
+      panel.style.opacity = '1';
+      panel.style.visibility = 'visible';
+    }
+  },
+  onLeaveBack: () => {
+    // Hide when scrolling back above this section
+    if(bronchialTree) bronchialTree.visible = false;
+    if(mucusSystem) mucusSystem.points.visible = false;
+    if(bloodSystem) bloodSystem.visible = false;
+    if(co2Gauge) co2Gauge.mesh.visible = false;
+    const panel = document.getElementById('s2-panel');
+    if(panel) {
+      panel.style.opacity = '0';
+      panel.style.visibility = 'hidden';
+    }
+  },
+  onLeave: () => {
+    // Hide when leaving to next section
+    if(bronchialTree) bronchialTree.visible = false;
+    if(mucusSystem) mucusSystem.points.visible = false;
+    if(bloodSystem) bloodSystem.visible = false;
+    if(co2Gauge) co2Gauge.mesh.visible = false;
+  },
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
-    
-    // Hide ALL Section 1 HTML & 3D the moment we enter Section 2
-    const s1Text = document.getElementById('s1-text');
-    if(s1Text) s1Text.style.display = 'none';
-    const s1Scroll = document.getElementById('s1-scroll');
-    if(s1Scroll) s1Scroll.style.display = 'none';
 
-    lungSystem.points.visible = false;
-    
+    // Maintain s2 panel visibility against hideAllSections
+    const panel = document.getElementById('s2-panel');
+    if(panel) {
+      panel.style.opacity = '1';
+      panel.style.visibility = 'visible';
+    }
+
+    // Fade out s1-product smoothly
     const s1Opacity = Math.max(0, 1 - p * 8);
     const s1Prod = document.getElementById('s1-product');
     if(s1Prod) {
@@ -511,45 +686,105 @@ ScrollTrigger.create({
       s1Prod.style.display = s1Opacity > 0 ? 'block' : 'none';
     }
     
-    bronchialTree.visible = p > 0.01 && p < 0.66;
-    mucusSystem.points.visible = p > 0 && p < 0.66;
-    bloodSystem.visible = p >= 0.66;
-    co2Gauge.mesh.visible = p >= 0.66;
-
-    const s2Panel = document.getElementById('s2-panel');
-    if(s2Panel) s2Panel.style.opacity = '1';
-
-    const s2a = document.getElementById('s2a');
-    const s2b = document.getElementById('s2b');
-    const s2c = document.getElementById('s2c');
-
-    if(p < 0.33) {
+    // ── ACT A (0 → 0.33): Healthy airways ──
+    if(p <= 0.33) {
       const ap = p / 0.33;
-      bronchialTree.children.forEach(m => { m.material.opacity = ap * 0.85; });
-      bronchialTree.rotation.y = Math.sin(ap * Math.PI * 0.5) * 0.15;
-      if(s2a) s2a.style.opacity = String(Math.min(ap * 3, 1));
-      if(s2b) s2b.style.opacity = '0';
-      if(s2c) s2c.style.opacity = '0';
-      mucusSystem.mat.uniforms.uAmount.value = 0;
-    } else if(p < 0.66) {
+      
+      // Fade in bronchial tree
+      if(bronchialTree) {
+        bronchialTree.visible = true;
+        bronchialTree.children.forEach(mesh => {
+          if(mesh.material) mesh.material.opacity = ap * 0.85;
+        });
+        // Gentle rotation
+        bronchialTree.rotation.y = ap * 0.2;
+      }
+      
+      // Hide mucus and blood
+      if(mucusSystem) mucusSystem.points.visible = false;
+      if(bloodSystem) bloodSystem.visible = false;
+      if(co2Gauge) co2Gauge.mesh.visible = false;
+      
+      // Text panels
+      const a = document.getElementById('s2a');
+      const b = document.getElementById('s2b');
+      const c = document.getElementById('s2c');
+      if(a) a.style.opacity = String(Math.min(ap * 3, 1));
+      if(b) b.style.opacity = '0';
+      if(c) c.style.opacity = '0';
+    }
+    
+    // ── ACT B (0.33 → 0.66): Infection, mucus ──
+    else if(p <= 0.66) {
       const bp = (p - 0.33) / 0.33;
-      mucusSystem.mat.uniforms.uAmount.value = bp;
-      bronchialTree.children.forEach(m => {
-        m.material.color.setRGB(0.35 + bp * 0.35, 0.20 - bp * 0.10, 0.25 - bp * 0.15);
-      });
-      if(s2a) s2a.style.opacity = String(Math.max(0, 1 - bp * 4));
-      if(s2b) s2b.style.opacity = String(Math.min(bp * 4, 1));
-      if(s2c) s2c.style.opacity = '0';
-    } else {
+      
+      if(bronchialTree) {
+        bronchialTree.visible = true;
+        // Shift tube color toward inflamed red
+        bronchialTree.children.forEach(mesh => {
+          if(mesh.material && mesh.material.color) {
+            mesh.material.color.setRGB(
+              0.10 + bp * 0.45,
+              0.29 - bp * 0.15,
+              0.48 - bp * 0.28
+            );
+          }
+        });
+      }
+      
+      // Show mucus building up
+      if(mucusSystem) {
+        mucusSystem.points.visible = true;
+        if(mucusSystem.mat) {
+          mucusSystem.mat.uniforms.uAmount.value = bp;
+        }
+      }
+      
+      // Text panels
+      const a = document.getElementById('s2a');
+      const b = document.getElementById('s2b');
+      const c = document.getElementById('s2c');
+      if(a) a.style.opacity = String(Math.max(0, 1 - bp * 2));
+      if(b) b.style.opacity = String(Math.min(bp * 2, 1));
+      if(c) c.style.opacity = '0';
+    }
+    
+    // ── ACT C (0.66 → 1.0): CO2 builds ──
+    else {
       const cp = (p - 0.66) / 0.34;
-      bloodSystem.children.forEach((m) => {
-        m.material.opacity = Math.min(cp * 2, 0.7);
-        m.material.color.setRGB(0.0 + cp * 0.91, 0.83 - cp * 0.58, 0.67 - cp * 0.67);
-      });
-      co2Gauge.mat.uniforms.uLevel.value = cp * 0.9;
-      if(s2a) s2a.style.opacity = '0'; // Ensure Act A is hidden
-      if(s2b) s2b.style.opacity = String(Math.max(0, 1 - cp * 4));
-      if(s2c) s2c.style.opacity = String(Math.min(cp * 4, 1));
+      
+      // Hide airways, show blood system
+      if(bronchialTree) bronchialTree.visible = false;
+      if(mucusSystem) mucusSystem.points.visible = false;
+      
+      if(bloodSystem) {
+        bloodSystem.visible = true;
+        bloodSystem.children.forEach(mesh => {
+          if(mesh.material) {
+            mesh.material.opacity = Math.min(cp * 2, 0.75);
+            // Shift from teal to amber/red with CO2
+            mesh.material.color.setRGB(
+              cp * 0.92,
+              0.84 - cp * 0.65,
+              0.67 - cp * 0.67
+            );
+          }
+        });
+      }
+      
+      // CO2 gauge rises
+      if(co2Gauge) {
+        co2Gauge.mesh.visible = true;
+        if(co2Gauge.mat) {
+          co2Gauge.mat.uniforms.uLevel.value = cp * 0.92;
+        }
+      }
+      
+      // Text panels
+      const b = document.getElementById('s2b');
+      const c = document.getElementById('s2c');
+      if(b) b.style.opacity = String(Math.max(0, 1 - cp * 2));
+      if(c) c.style.opacity = String(Math.min(cp * 2, 1));
     }
   }
 });
@@ -637,65 +872,76 @@ ScrollTrigger.create({
   start: '430vh top',
   end: '560vh top',
   scrub: 1.2,
+  onEnter: () => {
+    const el = document.getElementById('s3-cards');
+    if(el) { el.style.visibility = 'visible'; }
+    glassCards.forEach(c => { if(c.mesh) c.mesh.visible = true; });
+  },
+  onLeaveBack: () => {
+    const el = document.getElementById('s3-cards');
+    if(el) { el.style.opacity = '0'; el.style.visibility = 'hidden'; }
+    glassCards.forEach(c => { if(c.mesh) c.mesh.visible = false; });
+  },
+  onLeave: () => {
+    const el = document.getElementById('s3-cards');
+    if(el) { el.style.opacity = '0'; el.style.visibility = 'hidden'; }
+    glassCards.forEach(c => { if(c.mesh) c.mesh.visible = false; });
+  },
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
-    
-    // Hide ALL Section 1 + Section 2 HTML & 3D when in Section 3
-    const s1Text = document.getElementById('s1-text');
-    if(s1Text) s1Text.style.display = 'none';
-    const s1Scroll = document.getElementById('s1-scroll');
-    if(s1Scroll) s1Scroll.style.display = 'none';
-    const s1Prod = document.getElementById('s1-product');
-    if(s1Prod) s1Prod.style.display = 'none';
 
-    lungSystem.points.visible = false;
-    bronchialTree.visible = false;
-    mucusSystem.points.visible = false;
-    
     const s2Opacity = Math.max(0, 1 - p * 6);
     const s2Panel = document.getElementById('s2-panel');
     if(s2Panel) {
       s2Panel.style.opacity = String(s2Opacity);
-      s2Panel.style.display = s2Opacity > 0 ? 'block' : 'none';
+      if(s2Opacity > 0) s2Panel.style.visibility = 'visible';
     }
-
-    bloodSystem.visible = p < 0.15;
-    co2Gauge.mesh.visible = p < 0.15;
-
-    // Cards appear
+    
+    // Show cards HTML
+    const cardsEl = document.getElementById('s3-cards');
+    if(cardsEl) {
+      cardsEl.style.opacity = String(Math.min(p * 4, 1));
+      cardsEl.style.visibility = 'visible';
+    }
+    
+    // Animate each 3D card up from below
     glassCards.forEach((c, i) => {
-      c.mesh.visible = p > 0 && p < 1;
+      if(!c.mesh || !c.mat) return;
       const delay = i * 0.12;
-      const ap = Math.max(0, Math.min(1, (p - delay) / 0.4));
-      c.mat.uniforms.uAppear.value = ap;
-      c.mesh.position.y = -2.0 + ap * 2.0;
-      c.mesh.rotation.x = (1 - ap) * 0.3;
+      const ap = Math.max(0, Math.min(1, (p - delay) / 0.5));
+      // Smoothstep easing
+      const eased = ap * ap * (3 - 2 * ap);
+      
+      c.mesh.position.y = -2.5 + eased * 2.5;
+      c.mesh.rotation.x = (1 - eased) * 0.35;
+      c.mat.uniforms.uAppear.value = eased;
     });
-
-    const s3Cards = document.getElementById('s3-cards');
-    if(s3Cards) {
-      s3Cards.style.opacity = String(Math.min(p * 3, 1));
-      s3Cards.style.display = p > 0 ? 'flex' : 'none';
-    }
-
-    const s3Impact = document.getElementById('s3-impact');
-    if(s3Impact) {
-      s3Impact.style.opacity = String(Math.max(0, (p - 0.7) / 0.3));
-      s3Impact.style.display = p > 0.7 ? 'block' : 'none';
+    
+    // Impact statement at 72%+
+    const impact = document.getElementById('s3-impact');
+    if(impact) {
+      impact.style.opacity = 
+        String(Math.max(0, Math.min(1, (p - 0.72) / 0.20)));
     }
   }
 });
 
-// SECTION UPDATE MODULES
+// Update function for Section 3 — add to animate() loop
 function updateSection3(t) {
   glassCards.forEach((c, i) => {
-    if(c.mat) {
-      c.mat.uniforms.uTime.value = t;
-      c.mesh.position.y += Math.sin(t * 0.7 + i * 2.1) * 0.0005;
-      c.mesh.rotation.y = mouse.x * 0.08 + (i - 1) * 0.05;
-      c.mesh.rotation.x = mouse.y * 0.05;
+    if(!c.mat || !c.mesh.visible) return;
+    c.mat.uniforms.uTime.value = t;
+    // Float animation
+    const baseY = c.mesh.position.y;
+    // Only apply float if card is in its settled position
+    if(baseY > -0.5) {
+      c.mesh.position.y = baseY + 
+        Math.sin(t * 0.6 + i * 2.094) * 0.0003;
     }
+    // Mouse tilt
+    c.mesh.rotation.y = mouse.x * 0.06 + (i - 1) * 0.04;
+    c.mesh.rotation.x += (mouse.y * 0.04 - c.mesh.rotation.x) * 0.05;
   });
 }
 
@@ -872,82 +1118,97 @@ function updateOLED(ctx, tex, state, t) {
   tex.needsUpdate = true;
 }
 
-// Annotation attachment & offset data
-const annoAttachPoints = [
-  new THREE.Vector3(-0.75,  0.05,  0.14),
-  new THREE.Vector3( 0.25,  0.05,  0.14),
-  new THREE.Vector3( 0.80, -0.30,  0.10),
-  new THREE.Vector3( 0.0,  -0.50,  0.14),
-  new THREE.Vector3(-1.0,   0.30,  0.10),
-  new THREE.Vector3( 1.0,  -0.10,  0.14),
-];
-const annoOffsets = [
-  [-180, -80], [120, -100],
-  [130, 40],   [0, 100],
-  [-200, 60],  [130, -60],
-];
-
-function updateAnnotationLines(annoVis) {
-  const linesCanvas = document.getElementById('annotation-lines');
-  if(!linesCanvas || annoVis <= 0.01) return;
+function updateAnnotationLines(opacity) {
+  const overlay = document.getElementById('annotation-lines');
+  if(!overlay) return;
   
-  // CRITICAL FIX: Set dimensions explicitly, not from offsetWidth
-  linesCanvas.width = window.innerWidth;
-  linesCanvas.height = window.innerHeight;
-  linesCanvas.style.width = window.innerWidth + 'px';
-  linesCanvas.style.height = window.innerHeight + 'px';
+  // Always resize to full viewport
+  overlay.width  = window.innerWidth;
+  overlay.height = window.innerHeight;
   
-  const ctx = linesCanvas.getContext('2d');
-  ctx.clearRect(0, 0, linesCanvas.width, linesCanvas.height);
+  const ctx = overlay.getContext('2d');
+  ctx.clearRect(0, 0, overlay.width, overlay.height);
   
-  if(typeof deviceGroup === 'undefined' || !deviceGroup.visible) return;
+  if(!deviceGroup || !deviceGroup.visible || opacity < 0.02) return;
   
-  annoAttachPoints.forEach((localPt, i) => {
-    // Project device surface point to screen coordinates
+  // These are the 6 points in device LOCAL space
+  // corresponding to each component location
+  const attachPoints = [
+    new THREE.Vector3(-0.78,  0.08, 0.15),  // sensor dot
+    new THREE.Vector3( 0.22,  0.08, 0.15),  // oled screen
+    new THREE.Vector3( 1.10, -0.28, 0.10),  // co2 sensor
+    new THREE.Vector3( 0.0,  -0.65, 0.15),  // MCU
+    new THREE.Vector3(-1.12,  0.32, 0.10),  // BLE
+    new THREE.Vector3( 0.92, -0.10, 0.15),  // battery
+  ];
+  
+  // Label offset directions (pixels from attach point)
+  const offsets = [
+    { dx: -160, dy: -70,  side: 'left'  },
+    { dx:  140, dy: -80,  side: 'right' },
+    { dx:  140, dy:  50,  side: 'right' },
+    { dx:    0, dy:  90,  side: 'centre'},
+    { dx: -160, dy:  60,  side: 'left'  },
+    { dx:  140, dy: -50,  side: 'right' },
+  ];
+  
+  attachPoints.forEach((localPt, i) => {
+    // Convert local → world space
     const worldPt = localPt.clone()
       .applyMatrix4(deviceGroup.matrixWorld);
-    const ndcPt = worldPt.clone().project(camera);
     
-    // NDC to screen pixels
-    const sx = (ndcPt.x * 0.5 + 0.5) * window.innerWidth;
-    const sy = (-ndcPt.y * 0.5 + 0.5) * window.innerHeight;
+    // World → NDC → screen pixels
+    const ndc = worldPt.clone().project(camera);
+    const sx = ( ndc.x * 0.5 + 0.5) * window.innerWidth;
+    const sy = (-ndc.y * 0.5 + 0.5) * window.innerHeight;
     
-    // Label target position
-    const lx = sx + annoOffsets[i][0];
-    const ly = sy + annoOffsets[i][1];
+    // Skip if behind camera
+    if(ndc.z > 1.0) return;
     
-    // Position HTML label element
-    const el = document.getElementById('anno-' + i);
-    if(el) {
-      // Position label — to the right if offset positive X, left if negative
-      const labelX = annoOffsets[i][0] > 0 
-        ? lx 
-        : lx - el.getBoundingClientRect().width;
-      el.style.left = labelX + 'px';
-      el.style.top = (ly - 16) + 'px';
-      el.style.opacity = String(annoVis);
-      el.style.position = 'fixed';
-    }
+    // Label target screen position
+    const lx = sx + offsets[i].dx;
+    const ly = sy + offsets[i].dy;
     
-    // Draw connecting dashed line
+    // Draw line from device surface to label
     ctx.save();
-    ctx.globalAlpha = annoVis * 0.55;
+    ctx.globalAlpha = opacity * 0.5;
     ctx.strokeStyle = '#00D4AA';
     ctx.lineWidth = 1;
-    ctx.setLineDash([3, 5]);
+    ctx.setLineDash([3, 6]);
     ctx.beginPath();
     ctx.moveTo(sx, sy);
     ctx.lineTo(lx, ly);
     ctx.stroke();
-    
-    // Small circle at device attach point
     ctx.setLineDash([]);
-    ctx.globalAlpha = annoVis;
+    
+    // Dot at device surface point
+    ctx.globalAlpha = opacity;
     ctx.fillStyle = '#00D4AA';
     ctx.beginPath();
-    ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+    ctx.arc(sx, sy, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+    
+    // Position HTML annotation label
+    const el = document.getElementById('anno-' + i);
+    if(el) {
+      el.style.position = 'fixed';
+      el.style.opacity  = String(opacity);
+      el.style.zIndex   = '200';
+      
+      // Compute left position based on which side
+      let labelLeft = lx;
+      if(offsets[i].side === 'left') {
+        labelLeft = lx - el.offsetWidth;
+      } else if(offsets[i].side === 'centre') {
+        labelLeft = lx - el.offsetWidth / 2;
+      }
+      
+      el.style.left = Math.max(0, 
+        Math.min(labelLeft, window.innerWidth - el.offsetWidth - 10)
+      ) + 'px';
+      el.style.top  = Math.max(0, ly - 14) + 'px';
+    }
   });
 }
 
@@ -959,71 +1220,98 @@ ScrollTrigger.create({
   start: '560vh top',
   end: '730vh top',
   scrub: 1.2,
+  onEnter: () => {
+    if(deviceGroup) deviceGroup.visible = true;
+  },
+  onLeaveBack: () => {
+    if(deviceGroup) deviceGroup.visible = false;
+    const annEl = document.getElementById('s4-annotations');
+    const titEl = document.getElementById('s4-title');
+    if(annEl) { annEl.style.opacity='0'; annEl.style.visibility='hidden'; }
+    if(titEl) titEl.style.opacity = '0';
+  },
+  onLeave: () => {
+    // Keep device visible after — it persists small in corner
+  },
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
-
-    // Clean up Section 3 elements
-    const s3Cards = document.getElementById('s3-cards');
-    if(s3Cards) {
-      s3Cards.style.opacity = String(Math.max(0, 1 - p * 6));
-      s3Cards.style.display = p < 0.15 ? 'flex' : 'none';
-    }
-
-    const s3Impact = document.getElementById('s3-impact');
-    if(s3Impact) {
-      s3Impact.style.opacity = String(Math.max(0, 1 - p * 6));
-      s3Impact.style.display = p < 0.15 ? 'block' : 'none';
-    }
-
-    glassCards.forEach(c => { c.mesh.visible = p < 0.15; });
+    if(!deviceGroup) return;
+    deviceGroup.visible = true;
     
-    // Ensure previous sections are hidden
-    lungSystem.points.visible = false;
-    bronchialTree.visible = false;
-    mucusSystem.points.visible = false;
-    bloodSystem.visible = false;
-    co2Gauge.mesh.visible = false;
-
-    deviceGroup.visible = p > 0;
-
-    const s4Anno = document.getElementById('s4-annotations');
-    const s4Title = document.getElementById('s4-title');
-
-    if(p < 0.4) {
-      const ap = p / 0.4;
-      const eased = 1 - Math.pow(1 - ap, 3);
-      deviceGroup.scale.setScalar(eased);
-      deviceGroup.rotation.y = (1 - eased) * Math.PI * 2.5;
-      deviceGroup.position.y = (1 - eased) * -2;
-      deviceGroup.position.x = 0;
-      if(s4Title) s4Title.style.opacity = '0';
-      if(s4Anno) s4Anno.style.opacity = '0';
-    } else if(p < 0.75) {
+    // Phase A: spin in (0 → 0.40)
+    if(p < 0.40) {
+      const ap = p / 0.40;
+      const e  = 1 - Math.pow(1 - ap, 3); // cubic ease out
+      deviceGroup.scale.setScalar(e);
+      deviceGroup.position.set(0, (1-e) * -3, 0);
+      deviceBaseRotY = (1-e) * Math.PI * 2.5;
+      
+      const annEl = document.getElementById('s4-annotations');
+      const titEl = document.getElementById('s4-title');
+      if(annEl) { annEl.style.opacity='0'; annEl.style.visibility='hidden'; }
+      if(titEl) titEl.style.opacity = '0';
+    }
+    // Phase B: centred with annotations (0.40 → 0.75)
+    else if(p < 0.75) {
+      const bp = (p - 0.40) / 0.35;
       deviceGroup.scale.setScalar(1.0);
       deviceGroup.position.set(0, 0, 0);
-      const bp = (p - 0.4) / 0.35;
-      if(s4Anno) s4Anno.style.opacity = String(Math.min(bp * 2, 1));
-      if(s4Title) s4Title.style.opacity = String(Math.min(bp * 2, 1));
-      deviceBaseRotY = bp * 0.8;
+      deviceBaseRotY = bp * 0.6;
+      
+      const annEl = document.getElementById('s4-annotations');
+      const titEl = document.getElementById('s4-title');
+      if(annEl) {
+        annEl.style.opacity = String(Math.min(bp * 3, 1));
+        annEl.style.visibility = 'visible';
+      }
+      if(titEl) titEl.style.opacity = String(Math.min(bp * 3, 1));
+      
       deviceAlertState = 'normal';
-    } else {
+    }
+    // Phase C: moves to top-right corner (0.75 → 1.0)
+    else {
       const cp = (p - 0.75) / 0.25;
-      deviceGroup.position.set(cp * 3.5, cp * 2.2, 0);
-      deviceGroup.scale.setScalar(1.0 - cp * 0.65);
-      if(s4Anno) s4Anno.style.opacity = String(Math.max(0, 1 - cp * 3));
-      if(s4Title) s4Title.style.opacity = String(Math.max(0, 1 - cp * 3));
+      const e  = cp * cp * (3 - 2 * cp);
+      deviceGroup.scale.setScalar(1.0 - e * 0.70);
+      deviceGroup.position.set(e * 3.8, e * 2.4, 0);
+      
+      const annEl = document.getElementById('s4-annotations');
+      const titEl = document.getElementById('s4-title');
+      if(annEl) annEl.style.opacity = String(Math.max(0, 1 - cp * 2));
+      if(titEl) titEl.style.opacity = String(Math.max(0, 1 - cp * 2));
     }
   }
 });
 
 function updateSection4(t) {
-  if(!deviceGroup.visible) return;
+  if(!deviceGroup || !deviceGroup.visible) return;
+  
   const ud = deviceGroup.userData;
-  if(ud.oledCtx) updateOLED(ud.oledCtx, ud.oledTex, deviceAlertState, t);
-  if(ud.haloMat) ud.haloMat.uniforms.uTime.value = t;
-  deviceGroup.rotation.y = deviceBaseRotY + mouse.x * 0.4;
-  deviceGroup.rotation.x = mouse.y * 0.25;
+  
+  // OLED update — called every frame
+  if(ud && ud.oledCtx && ud.oledTex) {
+    updateOLED(ud.oledCtx, ud.oledTex, deviceAlertState, t);
+  }
+  
+  // Halo pulse
+  if(ud && ud.haloMat) {
+    ud.haloMat.uniforms.uTime.value = t;
+  }
+  
+  // Mouse-driven orbit rotation
+  const targetRotY = deviceBaseRotY + mouse.x * 0.45;
+  const targetRotX = mouse.y * 0.28;
+  deviceGroup.rotation.y += (targetRotY - deviceGroup.rotation.y) * 0.06;
+  deviceGroup.rotation.x += (targetRotX - deviceGroup.rotation.x) * 0.06;
+  
+  // Update annotation lines every frame device is visible
+  const annoEl = document.getElementById('s4-annotations');
+  const annoOpacity = annoEl ? 
+    parseFloat(annoEl.style.opacity || '0') : 0;
+  if(annoOpacity > 0.05) {
+    updateAnnotationLines(annoOpacity);
+  }
 }
 
 const updateSection5 = (t) => {};
@@ -1039,7 +1327,7 @@ function buildStoryEnvironment() {
   // Floor
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 20),
-    new THREE.MeshStandardMaterial({ color: 0x060C18, roughness: 0.95 })
+    new THREE.MeshStandardMaterial({ color: 0x0A1420, roughness: 0.95 })
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -2.5;
@@ -1048,7 +1336,7 @@ function buildStoryEnvironment() {
   // Bed
   const bed = new THREE.Mesh(
     new THREE.BoxGeometry(2.4, 0.3, 1.2),
-    new THREE.MeshStandardMaterial({ color: 0x1A2840, roughness: 0.9 })
+    new THREE.MeshStandardMaterial({ color: 0x1E3050, roughness: 0.9 })
   );
   bed.position.set(-0.5, -2.3, 0);
   group.add(bed);
@@ -1064,7 +1352,12 @@ function buildStoryEnvironment() {
   // Patient silhouette
   const patient = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.28, 1.1, 8, 12),
-    new THREE.MeshStandardMaterial({ color: 0xC8A882, roughness: 0.85 })
+    new THREE.MeshStandardMaterial({ 
+      color: 0xD4A882, 
+      roughness: 0.85,
+      emissive: 0x3A2010,
+      emissiveIntensity: 0.3 
+    })
   );
   patient.rotation.z = Math.PI / 2;
   patient.position.set(-0.3, -1.88, 0);
@@ -1090,15 +1383,20 @@ function buildStoryEnvironment() {
   group.add(phone);
 
   // Lights
-  const roomLight = new THREE.PointLight(0xFFAA55, 0.5, 8);
-  roomLight.position.set(1.5, 0, 1);
+  const roomLight = new THREE.PointLight(0xFFAA55, 2.5, 10);
+  roomLight.position.set(1.5, 1.0, 1.5);
   group.add(roomLight);
 
-  const deviceLight = new THREE.PointLight(0x00D4AA, 1.5, 4);
-  deviceLight.position.set(-0.3, -1.5, 1);
+  const deviceLight = new THREE.PointLight(0x00D4AA, 3.0, 6);
+  deviceLight.position.set(-0.3, 0.5, 1.5);
   group.add(deviceLight);
 
+  const fillLight = new THREE.PointLight(0x224488, 1.2, 15);
+  fillLight.position.set(-3, 2, 2);
+  group.add(fillLight);
+
   group.visible = false;
+  group.userData.initialized = true;
   scene.add(group);
   return { group, phoneCanvas, phoneTex, deviceLight, roomLight };
 }
@@ -1214,92 +1512,101 @@ const storyBeats = [
   { time:'2:55 AM', status:'RECOVERING', statusColor:'#22C55E', lightColor:0x00D4AA, alertState:'normal', description:'Airways clearing. CO₂ returning to baseline. Device returns to green.', alert:'none', notifTitle:'', notifBody:'' },
 ];
 
+function setEl(id, prop, val) {
+  const el = document.getElementById(id);
+  if(el) el.style[prop] = String(val);
+  return el;
+}
+
+function setElText(id, text) {
+  const el = document.getElementById(id);
+  if(el) el.textContent = text;
+  return el;
+}
+
+let lastBeatIndex = -1;
+
 // Section 7 ScrollTrigger
 ScrollTrigger.create({
   trigger: '#scroll-spacer',
   start: '730vh top',
   end: '900vh top',
   scrub: 1.2,
+  onEnter: () => {
+    setEl('s7-container', 'visibility', 'visible');
+    if(storyEnv && storyEnv.group) storyEnv.group.visible = true;
+    if(deviceGroup) deviceGroup.visible = true;
+  },
+  onLeaveBack: () => {
+    setEl('s7-container', 'opacity', '0');
+    setEl('s7-container', 'visibility', 'hidden');
+    if(storyEnv && storyEnv.group) storyEnv.group.visible = false;
+  },
+  onLeave: () => {
+    setEl('s7-container', 'opacity', '0');
+    setEl('s7-container', 'visibility', 'hidden');
+  },
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
     
-    // Show story container
-    const container = document.getElementById('s7-container');
-    if(container) container.style.opacity = 
-      String(Math.min(p * 8, 1));
+    // Maintain visibility for container against hideAllSections
+    setEl('s7-container', 'visibility', 'visible');
     
-    // Clean up Section 4 elements
-    const s4Anno = document.getElementById('s4-annotations');
-    if (s4Anno) {
-      s4Anno.style.opacity = String(Math.max(0, 1 - p * 6));
-      s4Anno.style.display = p < 0.15 ? 'block' : 'none';
-    }
-    const s4Title = document.getElementById('s4-title');
-    if (s4Title) {
-      s4Title.style.opacity = String(Math.max(0, 1 - p * 6));
-      s4Title.style.display = p < 0.15 ? 'block' : 'none';
-    }
-
+    // Fade in container
+    setEl('s7-container', 'opacity', 
+      String(Math.min(p * 6, 1)));
+    
+    // Beat index — which of the 6 beats are we in?
+    const rawIndex = p * storyBeats.length;
     const beatIndex = Math.min(
-      Math.floor(p * storyBeats.length),
+      Math.floor(rawIndex),
       storyBeats.length - 1
     );
-    const beat = storyBeats[beatIndex];
     
-    // Update device alert state for OLED
-    deviceAlertState = beat.alertState;
-    
-    // Update device glow light color
-    if(storyEnv.deviceLight) {
-      storyEnv.deviceLight.color.setHex(beat.lightColor);
-      storyEnv.deviceLight.intensity = 
-        beat.alertState === 'red' ? 3.0 :
-        beat.alertState === 'amber' ? 2.0 : 1.5;
+    // Only update DOM when beat changes
+    if(beatIndex !== lastBeatIndex) {
+      lastBeatIndex = beatIndex;
+      const beat = storyBeats[beatIndex];
+      
+      // Update card text — all with null guards
+      setElText('s7-time', beat.time);
+      setElText('s7-desc', beat.description);
+      setElText('s7-status', beat.status);
+      setEl('s7-status', 'color', beat.statusColor);
+      setEl('s7-card', 'borderColor', beat.statusColor + '44');
+      setEl('s7-card', 'boxShadow', 
+        '0 0 40px ' + beat.statusColor + '20');
+      
+      // Device OLED state
+      deviceAlertState = beat.alertState;
+      
+      // Device light
+      if(storyEnv && storyEnv.deviceLight) {
+        storyEnv.deviceLight.color.setHex(beat.lightColor);
+        storyEnv.deviceLight.intensity =
+          beat.alertState === 'red'   ? 3.2 :
+          beat.alertState === 'amber' ? 2.2 : 1.6;
+      }
+      
+      // Update phone notification
+      if(storyEnv && storyEnv.phoneCanvas && storyEnv.phoneTex) {
+        updatePhoneScreen(
+          storyEnv.phoneCanvas, storyEnv.phoneTex, beat
+        );
+      }
     }
     
-    // CRITICAL FIX: Force DOM updates with null checks
-    const timeEl = document.getElementById('s7-time');
-    const statusEl = document.getElementById('s7-status');
-    const descEl = document.getElementById('s7-desc');
-    const cardEl = document.getElementById('s7-card');
-    
-    if(timeEl) timeEl.textContent = beat.time;
-    if(statusEl) {
-      statusEl.textContent = beat.status;
-      statusEl.style.color = beat.statusColor;
-    }
-    if(descEl) descEl.textContent = beat.description;
-    if(cardEl) {
-      cardEl.style.borderColor = beat.statusColor + '33';
-      cardEl.style.boxShadow = 
-        '0 0 30px ' + beat.statusColor + '15';
-    }
-    
-    // Update phone notification
-    if(storyEnv.phoneCanvas && storyEnv.phoneTex) {
-      updatePhoneScreen(
-        storyEnv.phoneCanvas, storyEnv.phoneTex, beat
-      );
-    }
-    
-    // Update CO2 graph
+    // CO2 graph — update every frame (not just on beat change)
     const graphEl = document.getElementById('s7-graph');
     if(graphEl) drawCO2Graph(graphEl, beatIndex);
     
-    // Show final impact text only at very end
-    const finalEl = document.getElementById('s7-final');
-    if(finalEl) {
-      finalEl.style.opacity = 
-        String(Math.max(0, (p - 0.88) / 0.12));
-    }
+    // Final impact text
+    setEl('s7-final', 'opacity',
+      String(Math.max(0, Math.min(1, (p - 0.88) / 0.12))));
     
-    // Story environment 3D scene
-    if(storyEnv.group) {
-      storyEnv.group.visible = true;
-    }
-
-    camera.position.z = 5 + Math.sin(p * Math.PI) * 1.5;
+    // Camera pull back as story progresses
+    camera.position.z = 5.0 + p * 1.5;
   }
 });
 
@@ -1314,44 +1621,102 @@ function updateSection7(t) {
 ScrollTrigger.create({
   trigger: '#scroll-spacer',
   start: '900vh top',
-  end: '960vh top',
-  scrub: 1.0,
+  end: '970vh top',
+  scrub: 1.2,
+  onEnter: () => {
+    const el = document.getElementById('s8-section');
+    if(el) el.style.visibility = 'visible';
+  },
+  onLeaveBack: () => {
+    const el = document.getElementById('s8-section');
+    if(el) {
+      el.style.opacity = '0';
+      el.style.visibility = 'hidden';
+    }
+  },
+  onLeave: () => {
+    const el = document.getElementById('s8-section');
+    if(el) el.style.opacity = '0';
+  },
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
-    storyEnv.group.visible = p < 0.2;
+    
+    if(storyEnv && storyEnv.group) {
+      storyEnv.group.visible = p < 0.2;
+    }
 
     const s7Container = document.getElementById('s7-container');
-    if(s7Container) s7Container.style.opacity = String(Math.max(0, 1 - p * 5));
-
-    const s8Section = document.getElementById('s8-section');
-    if(s8Section) s8Section.style.opacity = String(Math.min(p * 3, 1));
+    if(s7Container) {
+      s7Container.style.opacity = String(Math.max(0, 1 - p * 5));
+      if (p < 0.2) s7Container.style.visibility = 'visible';
+    }
+    
+    const section = document.getElementById('s8-section');
+    if(!section) return;
+    
+    // Fade section in
+    section.style.opacity = String(Math.min(p * 5, 1));
+    section.style.visibility = 'visible';
+    
+    // Animate each spec card individually
+    const cards = section.querySelectorAll('.spec-card');
+    cards.forEach((card, i) => {
+      const delay = i * 0.08;
+      const cp = Math.max(0, Math.min(1, (p - delay) / 0.5));
+      const eased = cp * cp * (3 - 2 * cp);
+      
+      card.style.opacity = String(eased);
+      card.style.transform = 
+        'translateY(' + (1-eased) * 24 + 'px)';
+      card.style.transition = 'none'; // GSAP/scroll controls this
+    });
   }
 });
 
 ScrollTrigger.create({
   trigger: '#scroll-spacer',
-  start: '960vh top',
-  end: '1040vh top',
+  start: '970vh top',
+  end: '1050vh top',
   scrub: 1.0,
+  onEnter: () => {
+    const el = document.getElementById('s10-section');
+    if(el) el.style.visibility = 'visible';
+    // Restore healthy lung particles
+    if(lungSystem && lungSystem.mat) {
+      lungSystem.points.visible = true;
+      lungSystem.mat.uniforms.uStutter.value = 0.0;
+      lungSystem.mat.uniforms.uProgress.value = 1.0;
+    }
+  },
+  onLeaveBack: () => {
+    const el = document.getElementById('s10-section');
+    if(el) { el.style.opacity='0'; el.style.visibility='hidden'; }
+    if(lungSystem) lungSystem.points.visible = false;
+  },
   onUpdate: self => {
     hideAllSections();
     const p = self.progress;
-
-    const s8Section = document.getElementById('s8-section');
-    if(s8Section) s8Section.style.opacity = String(Math.max(0, 1 - p * 2));
-
-    const s10Section = document.getElementById('s10-section');
-    if(s10Section) s10Section.style.opacity = String(Math.min(p * 2, 1));
-
-    // Restore healthy lung in closing
-    if(p > 0.3 && lungSystem.mat) {
+    
+    const s8 = document.getElementById('s8-section');
+    const s10 = document.getElementById('s10-section');
+    
+    // Cross-fade specs out, closing in
+    if(s8) {
+      s8.style.opacity = String(Math.max(0, 1 - p * 4));
+      if (1 - p * 4 > 0) s8.style.visibility = 'visible';
+    }
+    if(s10) {
+      s10.style.opacity = String(Math.min(p * 3, 1));
+      s10.style.visibility = 'visible';
+    }
+    
+    // Bring lung particles back for closing
+    if(lungSystem && lungSystem.mat) {
       lungSystem.points.visible = true;
-      lungSystem.mat.uniforms.uFade.value    = (p - 0.3) / 0.7;
-      lungSystem.mat.uniforms.uStutter.value = 0;
-      lungSystem.mat.uniforms.uProgress.value = 1.0;
-    } else {
-      lungSystem.points.visible = false;
+      lungSystem.mat.uniforms.uFade.value = 
+        Math.min(p * 2, 1);
+      lungSystem.mat.uniforms.uStutter.value = 0.0;
     }
   }
 });
@@ -1394,6 +1759,8 @@ function animate() {
   camera.position.y += (mouse.y * 0.10 - camera.position.y) * 0.05;
   camera.lookAt(0, 0, 0);
   
+  // Force matrix world update every frame
+  // Required for device annotation projection
   scene.updateMatrixWorld(true);
 
   if(typeof deviceGroup !== 'undefined' && deviceGroup.visible) {
@@ -1418,3 +1785,14 @@ function animate() {
 }
 
 animate();
+
+// Final ScrollTrigger refresh
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    ScrollTrigger.refresh(true);
+    console.log('PulmoCare: ScrollTrigger refreshed');
+    console.log('Total scroll height:', 
+      document.body.scrollHeight, 'px');
+    console.log('Expected: ~', 1100 * window.innerHeight / 100, 'px');
+  }, 800);
+});
