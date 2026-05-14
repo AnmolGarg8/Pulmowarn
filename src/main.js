@@ -371,7 +371,6 @@ function showOnly(activeIds, fadingIds = []) {
 }
 
 // Define which scroll ranges own which sections
-// So each section knows its "siblings" to hide
 const SECTION_RANGES = [
   { start: 0,    end: 130,  active: ['s1-text','s1-product','s1-scroll'] },
   { start: 130,  end: 430,  active: ['s2-panel'] },
@@ -379,67 +378,22 @@ const SECTION_RANGES = [
   { start: 560,  end: 730,  active: ['s4-annotations','s4-title'] },
   { start: 730,  end: 900,  active: ['s7-container'] },
   { start: 900,  end: 970,  active: ['s8-section'] },
-  { start: 970,  end: 1100, active: ['s10-section'] },
+  { start: 970,  end: 1100, active: ['s10-section', 's8-section'] },
 ];
 
-// Add a single master watcher that hides inactive sections
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: 'top top',
-  end: 'bottom bottom',
-  scrub: 0,
-  onUpdate: self => {
-    // Get current scroll in vh
-    const scrollVH = self.progress * 1100;
-    
-    // Find which section range we're in
-    const activeRange = SECTION_RANGES.find(
-      r => scrollVH >= r.start && scrollVH < r.end
-    );
-    
-    if(activeRange) {
-      showOnly(activeRange.active);
-    }
+window.addEventListener('scroll', () => {
+  const scrollVH = (window.scrollY / window.innerHeight) * 100;
+  const activeRange = SECTION_RANGES.find(
+    r => scrollVH >= r.start && scrollVH < r.end
+  );
+  if(activeRange) {
+    showOnly(activeRange.active);
   }
 });
 
+
 // Scroll-driven stutter and fade
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: 'top top',
-  end: '130vh top',
-  scrub: 1.0,
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
-    
-    // Stutter begins at 40% through this section
-    if(lungSystem.mat) {
-      lungSystem.mat.uniforms.uStutter.value = 
-        Math.max(0, (p - 0.40) / 0.35) * 0.55;
-      // Fade out at 65%+
-      lungSystem.mat.uniforms.uFade.value = 
-        p > 0.65 ? 1.0 - (p - 0.65) / 0.35 : 1.0;
-    }
-    
-    // Text fades out at 60%
-    const textEl = document.getElementById('s1-text');
-    if(textEl) textEl.style.opacity = 
-      String(p > 0.60 ? Math.max(0, 1 - (p-0.60)/0.25) : 1);
-    
-    // Product name fades in at 70%
-    const prodEl = document.getElementById('s1-product');
-    if(prodEl) {
-      prodEl.style.opacity = String(p > 0.70 ? Math.min(1, (p-0.70)/0.25) : 0);
-      prodEl.style.display = p > 0.70 ? 'block' : 'none';
-    }
-    
-    // Scroll indicator fades out early
-    const scrollEl = document.getElementById('s1-scroll');
-    if(scrollEl) scrollEl.style.opacity = 
-      String(Math.max(0, 1 - p * 4));
-  }
-});
+
 
 // SECTION UPDATE MODULES
 function updateSection1(t) {
@@ -631,163 +585,7 @@ function buildCO2Gauge() {
 const co2Gauge = buildCO2Gauge();
 
 // SECTION 2 — SCROLLTRIGGER
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: '130vh top',
-  end: '430vh top',
-  scrub: 1.2,
-  pin: false,
-  onEnter: () => {
-    // Make objects visible when entering section
-    if(bronchialTree) bronchialTree.visible = true;
-    if(mucusSystem) mucusSystem.points.visible = true;
-    // Show text panel wrapper
-    const panel = document.getElementById('s2-panel');
-    if(panel) {
-      panel.style.opacity = '1';
-      panel.style.visibility = 'visible';
-    }
-  },
-  onLeaveBack: () => {
-    // Hide when scrolling back above this section
-    if(bronchialTree) bronchialTree.visible = false;
-    if(mucusSystem) mucusSystem.points.visible = false;
-    if(bloodSystem) bloodSystem.visible = false;
-    if(co2Gauge) co2Gauge.mesh.visible = false;
-    const panel = document.getElementById('s2-panel');
-    if(panel) {
-      panel.style.opacity = '0';
-      panel.style.visibility = 'hidden';
-    }
-  },
-  onLeave: () => {
-    // Hide when leaving to next section
-    if(bronchialTree) bronchialTree.visible = false;
-    if(mucusSystem) mucusSystem.points.visible = false;
-    if(bloodSystem) bloodSystem.visible = false;
-    if(co2Gauge) co2Gauge.mesh.visible = false;
-  },
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
 
-    // Maintain s2 panel visibility against hideAllSections
-    const panel = document.getElementById('s2-panel');
-    if(panel) {
-      panel.style.opacity = '1';
-      panel.style.visibility = 'visible';
-    }
-
-    // Fade out s1-product smoothly
-    const s1Opacity = Math.max(0, 1 - p * 8);
-    const s1Prod = document.getElementById('s1-product');
-    if(s1Prod) {
-      s1Prod.style.opacity = String(s1Opacity);
-      s1Prod.style.display = s1Opacity > 0 ? 'block' : 'none';
-    }
-    
-    // ── ACT A (0 → 0.33): Healthy airways ──
-    if(p <= 0.33) {
-      const ap = p / 0.33;
-      
-      // Fade in bronchial tree
-      if(bronchialTree) {
-        bronchialTree.visible = true;
-        bronchialTree.children.forEach(mesh => {
-          if(mesh.material) mesh.material.opacity = ap * 0.85;
-        });
-        // Gentle rotation
-        bronchialTree.rotation.y = ap * 0.2;
-      }
-      
-      // Hide mucus and blood
-      if(mucusSystem) mucusSystem.points.visible = false;
-      if(bloodSystem) bloodSystem.visible = false;
-      if(co2Gauge) co2Gauge.mesh.visible = false;
-      
-      // Text panels
-      const a = document.getElementById('s2a');
-      const b = document.getElementById('s2b');
-      const c = document.getElementById('s2c');
-      if(a) a.style.opacity = String(Math.min(ap * 3, 1));
-      if(b) b.style.opacity = '0';
-      if(c) c.style.opacity = '0';
-    }
-    
-    // ── ACT B (0.33 → 0.66): Infection, mucus ──
-    else if(p <= 0.66) {
-      const bp = (p - 0.33) / 0.33;
-      
-      if(bronchialTree) {
-        bronchialTree.visible = true;
-        // Shift tube color toward inflamed red
-        bronchialTree.children.forEach(mesh => {
-          if(mesh.material && mesh.material.color) {
-            mesh.material.color.setRGB(
-              0.10 + bp * 0.45,
-              0.29 - bp * 0.15,
-              0.48 - bp * 0.28
-            );
-          }
-        });
-      }
-      
-      // Show mucus building up
-      if(mucusSystem) {
-        mucusSystem.points.visible = true;
-        if(mucusSystem.mat) {
-          mucusSystem.mat.uniforms.uAmount.value = bp;
-        }
-      }
-      
-      // Text panels
-      const a = document.getElementById('s2a');
-      const b = document.getElementById('s2b');
-      const c = document.getElementById('s2c');
-      if(a) a.style.opacity = String(Math.max(0, 1 - bp * 2));
-      if(b) b.style.opacity = String(Math.min(bp * 2, 1));
-      if(c) c.style.opacity = '0';
-    }
-    
-    // ── ACT C (0.66 → 1.0): CO2 builds ──
-    else {
-      const cp = (p - 0.66) / 0.34;
-      
-      // Hide airways, show blood system
-      if(bronchialTree) bronchialTree.visible = false;
-      if(mucusSystem) mucusSystem.points.visible = false;
-      
-      if(bloodSystem) {
-        bloodSystem.visible = true;
-        bloodSystem.children.forEach(mesh => {
-          if(mesh.material) {
-            mesh.material.opacity = Math.min(cp * 2, 0.75);
-            // Shift from teal to amber/red with CO2
-            mesh.material.color.setRGB(
-              cp * 0.92,
-              0.84 - cp * 0.65,
-              0.67 - cp * 0.67
-            );
-          }
-        });
-      }
-      
-      // CO2 gauge rises
-      if(co2Gauge) {
-        co2Gauge.mesh.visible = true;
-        if(co2Gauge.mat) {
-          co2Gauge.mat.uniforms.uLevel.value = cp * 0.92;
-        }
-      }
-      
-      // Text panels
-      const b = document.getElementById('s2b');
-      const c = document.getElementById('s2c');
-      if(b) b.style.opacity = String(Math.max(0, 1 - cp * 2));
-      if(c) c.style.opacity = String(Math.min(cp * 2, 1));
-    }
-  }
-});
 
 // SECTION UPDATE MODULES
 function updateSection2(t) {
@@ -867,65 +665,7 @@ function buildGlassCards() {
 const glassCards = buildGlassCards();
 
 // SECTION 3 — SCROLLTRIGGER
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: '430vh top',
-  end: '560vh top',
-  scrub: 1.2,
-  onEnter: () => {
-    const el = document.getElementById('s3-cards');
-    if(el) { el.style.visibility = 'visible'; }
-    glassCards.forEach(c => { if(c.mesh) c.mesh.visible = true; });
-  },
-  onLeaveBack: () => {
-    const el = document.getElementById('s3-cards');
-    if(el) { el.style.opacity = '0'; el.style.visibility = 'hidden'; }
-    glassCards.forEach(c => { if(c.mesh) c.mesh.visible = false; });
-  },
-  onLeave: () => {
-    const el = document.getElementById('s3-cards');
-    if(el) { el.style.opacity = '0'; el.style.visibility = 'hidden'; }
-    glassCards.forEach(c => { if(c.mesh) c.mesh.visible = false; });
-  },
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
 
-    const s2Opacity = Math.max(0, 1 - p * 6);
-    const s2Panel = document.getElementById('s2-panel');
-    if(s2Panel) {
-      s2Panel.style.opacity = String(s2Opacity);
-      if(s2Opacity > 0) s2Panel.style.visibility = 'visible';
-    }
-    
-    // Show cards HTML
-    const cardsEl = document.getElementById('s3-cards');
-    if(cardsEl) {
-      cardsEl.style.opacity = String(Math.min(p * 4, 1));
-      cardsEl.style.visibility = 'visible';
-    }
-    
-    // Animate each 3D card up from below
-    glassCards.forEach((c, i) => {
-      if(!c.mesh || !c.mat) return;
-      const delay = i * 0.12;
-      const ap = Math.max(0, Math.min(1, (p - delay) / 0.5));
-      // Smoothstep easing
-      const eased = ap * ap * (3 - 2 * ap);
-      
-      c.mesh.position.y = -2.5 + eased * 2.5;
-      c.mesh.rotation.x = (1 - eased) * 0.35;
-      c.mat.uniforms.uAppear.value = eased;
-    });
-    
-    // Impact statement at 72%+
-    const impact = document.getElementById('s3-impact');
-    if(impact) {
-      impact.style.opacity = 
-        String(Math.max(0, Math.min(1, (p - 0.72) / 0.20)));
-    }
-  }
-});
 
 // Update function for Section 3 — add to animate() loop
 function updateSection3(t) {
@@ -1215,74 +955,7 @@ function updateAnnotationLines(opacity) {
 let deviceBaseRotY = 0;
 
 // SECTION 4 — SCROLLTRIGGER
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: '560vh top',
-  end: '730vh top',
-  scrub: 1.2,
-  onEnter: () => {
-    if(deviceGroup) deviceGroup.visible = true;
-  },
-  onLeaveBack: () => {
-    if(deviceGroup) deviceGroup.visible = false;
-    const annEl = document.getElementById('s4-annotations');
-    const titEl = document.getElementById('s4-title');
-    if(annEl) { annEl.style.opacity='0'; annEl.style.visibility='hidden'; }
-    if(titEl) titEl.style.opacity = '0';
-  },
-  onLeave: () => {
-    // Keep device visible after — it persists small in corner
-  },
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
-    if(!deviceGroup) return;
-    deviceGroup.visible = true;
-    
-    // Phase A: spin in (0 → 0.40)
-    if(p < 0.40) {
-      const ap = p / 0.40;
-      const e  = 1 - Math.pow(1 - ap, 3); // cubic ease out
-      deviceGroup.scale.setScalar(e);
-      deviceGroup.position.set(0, (1-e) * -3, 0);
-      deviceBaseRotY = (1-e) * Math.PI * 2.5;
-      
-      const annEl = document.getElementById('s4-annotations');
-      const titEl = document.getElementById('s4-title');
-      if(annEl) { annEl.style.opacity='0'; annEl.style.visibility='hidden'; }
-      if(titEl) titEl.style.opacity = '0';
-    }
-    // Phase B: centred with annotations (0.40 → 0.75)
-    else if(p < 0.75) {
-      const bp = (p - 0.40) / 0.35;
-      deviceGroup.scale.setScalar(1.0);
-      deviceGroup.position.set(0, 0, 0);
-      deviceBaseRotY = bp * 0.6;
-      
-      const annEl = document.getElementById('s4-annotations');
-      const titEl = document.getElementById('s4-title');
-      if(annEl) {
-        annEl.style.opacity = String(Math.min(bp * 3, 1));
-        annEl.style.visibility = 'visible';
-      }
-      if(titEl) titEl.style.opacity = String(Math.min(bp * 3, 1));
-      
-      deviceAlertState = 'normal';
-    }
-    // Phase C: moves to top-right corner (0.75 → 1.0)
-    else {
-      const cp = (p - 0.75) / 0.25;
-      const e  = cp * cp * (3 - 2 * cp);
-      deviceGroup.scale.setScalar(1.0 - e * 0.70);
-      deviceGroup.position.set(e * 3.8, e * 2.4, 0);
-      
-      const annEl = document.getElementById('s4-annotations');
-      const titEl = document.getElementById('s4-title');
-      if(annEl) annEl.style.opacity = String(Math.max(0, 1 - cp * 2));
-      if(titEl) titEl.style.opacity = String(Math.max(0, 1 - cp * 2));
-    }
-  }
-});
+
 
 function updateSection4(t) {
   if(!deviceGroup || !deviceGroup.visible) return;
@@ -1527,88 +1200,7 @@ function setElText(id, text) {
 let lastBeatIndex = -1;
 
 // Section 7 ScrollTrigger
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: '730vh top',
-  end: '900vh top',
-  scrub: 1.2,
-  onEnter: () => {
-    setEl('s7-container', 'visibility', 'visible');
-    if(storyEnv && storyEnv.group) storyEnv.group.visible = true;
-    if(deviceGroup) deviceGroup.visible = true;
-  },
-  onLeaveBack: () => {
-    setEl('s7-container', 'opacity', '0');
-    setEl('s7-container', 'visibility', 'hidden');
-    if(storyEnv && storyEnv.group) storyEnv.group.visible = false;
-  },
-  onLeave: () => {
-    setEl('s7-container', 'opacity', '0');
-    setEl('s7-container', 'visibility', 'hidden');
-  },
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
-    
-    // Maintain visibility for container against hideAllSections
-    setEl('s7-container', 'visibility', 'visible');
-    
-    // Fade in container
-    setEl('s7-container', 'opacity', 
-      String(Math.min(p * 6, 1)));
-    
-    // Beat index — which of the 6 beats are we in?
-    const rawIndex = p * storyBeats.length;
-    const beatIndex = Math.min(
-      Math.floor(rawIndex),
-      storyBeats.length - 1
-    );
-    
-    // Only update DOM when beat changes
-    if(beatIndex !== lastBeatIndex) {
-      lastBeatIndex = beatIndex;
-      const beat = storyBeats[beatIndex];
-      
-      // Update card text — all with null guards
-      setElText('s7-time', beat.time);
-      setElText('s7-desc', beat.description);
-      setElText('s7-status', beat.status);
-      setEl('s7-status', 'color', beat.statusColor);
-      setEl('s7-card', 'borderColor', beat.statusColor + '44');
-      setEl('s7-card', 'boxShadow', 
-        '0 0 40px ' + beat.statusColor + '20');
-      
-      // Device OLED state
-      deviceAlertState = beat.alertState;
-      
-      // Device light
-      if(storyEnv && storyEnv.deviceLight) {
-        storyEnv.deviceLight.color.setHex(beat.lightColor);
-        storyEnv.deviceLight.intensity =
-          beat.alertState === 'red'   ? 3.2 :
-          beat.alertState === 'amber' ? 2.2 : 1.6;
-      }
-      
-      // Update phone notification
-      if(storyEnv && storyEnv.phoneCanvas && storyEnv.phoneTex) {
-        updatePhoneScreen(
-          storyEnv.phoneCanvas, storyEnv.phoneTex, beat
-        );
-      }
-    }
-    
-    // CO2 graph — update every frame (not just on beat change)
-    const graphEl = document.getElementById('s7-graph');
-    if(graphEl) drawCO2Graph(graphEl, beatIndex);
-    
-    // Final impact text
-    setEl('s7-final', 'opacity',
-      String(Math.max(0, Math.min(1, (p - 0.88) / 0.12))));
-    
-    // Camera pull back as story progresses
-    camera.position.z = 5.0 + p * 1.5;
-  }
-});
+
 
 function updateSection7(t) {
   if(!storyEnv.group.visible) return;
@@ -1618,113 +1210,11 @@ function updateSection7(t) {
 // ─────────────────────────────────────────────
 // SECTION 8 — TECH SPECS  +  SECTION 10 — CLOSING
 // ─────────────────────────────────────────────
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: '900vh top',
-  end: '970vh top',
-  scrub: 1.2,
-  onEnter: () => {
-    const el = document.getElementById('s8-section');
-    if(el) el.style.visibility = 'visible';
-  },
-  onLeaveBack: () => {
-    const el = document.getElementById('s8-section');
-    if(el) {
-      el.style.opacity = '0';
-      el.style.visibility = 'hidden';
-    }
-  },
-  onLeave: () => {
-    const el = document.getElementById('s8-section');
-    if(el) el.style.opacity = '0';
-  },
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
-    
-    if(storyEnv && storyEnv.group) {
-      storyEnv.group.visible = p < 0.2;
-    }
 
-    const s7Container = document.getElementById('s7-container');
-    if(s7Container) {
-      s7Container.style.opacity = String(Math.max(0, 1 - p * 5));
-      if (p < 0.2) s7Container.style.visibility = 'visible';
-    }
-    
-    const section = document.getElementById('s8-section');
-    if(!section) return;
-    
-    // Fade section in
-    section.style.opacity = String(Math.min(p * 5, 1));
-    section.style.visibility = 'visible';
-    
-    // Animate each spec card individually
-    const cards = section.querySelectorAll('.spec-card');
-    cards.forEach((card, i) => {
-      const delay = i * 0.08;
-      const cp = Math.max(0, Math.min(1, (p - delay) / 0.5));
-      const eased = cp * cp * (3 - 2 * cp);
-      
-      card.style.opacity = String(eased);
-      card.style.transform = 
-        'translateY(' + (1-eased) * 24 + 'px)';
-      card.style.transition = 'none'; // GSAP/scroll controls this
-    });
-  }
-});
 
-ScrollTrigger.create({
-  trigger: '#scroll-spacer',
-  start: '970vh top',
-  end: '1050vh top',
-  scrub: 1.0,
-  onEnter: () => {
-    const el = document.getElementById('s10-section');
-    if(el) el.style.visibility = 'visible';
-    // Restore healthy lung particles
-    if(lungSystem && lungSystem.mat) {
-      lungSystem.points.visible = true;
-      lungSystem.mat.uniforms.uStutter.value = 0.0;
-      lungSystem.mat.uniforms.uProgress.value = 1.0;
-    }
-  },
-  onLeaveBack: () => {
-    const el = document.getElementById('s10-section');
-    if(el) { el.style.opacity='0'; el.style.visibility='hidden'; }
-    if(lungSystem) lungSystem.points.visible = false;
-  },
-  onUpdate: self => {
-    hideAllSections();
-    const p = self.progress;
-    
-    const s8 = document.getElementById('s8-section');
-    const s10 = document.getElementById('s10-section');
-    
-    // Cross-fade specs out, closing in
-    if(s8) {
-      s8.style.opacity = String(Math.max(0, 1 - p * 4));
-      if (1 - p * 4 > 0) s8.style.visibility = 'visible';
-    }
-    if(s10) {
-      s10.style.opacity = String(Math.min(p * 3, 1));
-      s10.style.visibility = 'visible';
-    }
-    
-    // Bring lung particles back for closing
-    if(lungSystem && lungSystem.mat) {
-      lungSystem.points.visible = true;
-      lungSystem.mat.uniforms.uFade.value = 
-        Math.min(p * 2, 1);
-      lungSystem.mat.uniforms.uStutter.value = 0.0;
-    }
-  }
-});
 
-// Give browser one frame to layout before refreshing
-requestAnimationFrame(() => {
-  ScrollTrigger.refresh(true);
-});
+
+
 
 function initializeSceneState() {
   if(typeof bronchialTree !== 'undefined') 
@@ -1776,6 +1266,7 @@ function animate() {
   updateSection1(t);
   updateSection2(t);
   updateSection3(t);
+  scene.updateMatrixWorld(true);
   updateSection4(t);
   updateSection5(t);
   updateSection6(t);
@@ -1795,4 +1286,425 @@ window.addEventListener('load', () => {
       document.body.scrollHeight, 'px');
     console.log('Expected: ~', 1100 * window.innerHeight / 100, 'px');
   }, 800);
+});
+
+
+// ═══════════════════════════════════════════════
+// COMPLETE SCROLL CONTROLLER — SINGLE SOURCE OF TRUTH
+// ═══════════════════════════════════════════════
+
+function showSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.visibility = 'visible';
+    el.style.opacity = '1';
+  }
+}
+
+function hideSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.opacity = '0';
+    el.style.visibility = 'hidden';
+  }
+}
+
+function setOpacity(id, value) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.visibility = value > 0 ? 'visible' : 'hidden';
+    el.style.opacity = String(Math.max(0, Math.min(1, value)));
+  }
+}
+
+// ── SECTION 1: HERO (0 → 130vh) ────────────────
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: 'top top',
+  end: () => window.innerHeight * (130 / 100),
+  scrub: 1.0,
+  onUpdate: self => {
+    const p = self.progress;
+    
+    // Lung particles: stutter as we scroll
+    if (lungSystem && lungSystem.mat) {
+      lungSystem.mat.uniforms.uStutter.value =
+        p > 0.45 ? (p - 0.45) / 0.40 * 0.5 : 0;
+      lungSystem.mat.uniforms.uFade.value =
+        p > 0.68 ? 1.0 - (p - 0.68) / 0.32 : 1.0;
+    }
+    
+    // Text: fade out after 60%
+    setOpacity('s1-text', p < 0.60 ? 1 : 
+      1 - (p - 0.60) / 0.25);
+    setOpacity('s1-scroll', 1 - p * 5);
+    
+    // Product name: fade in after 68%
+    setOpacity('s1-product', 
+      p > 0.68 ? (p - 0.68) / 0.30 : 0);
+    
+    // Hide all other sections
+    hideSection('s2-panel');
+    hideSection('s3-cards');
+    hideSection('s4-title');
+    hideSection('s7-container');
+    hideSection('s8-section');
+    hideSection('s10-section');
+    
+    // Hide 3D objects not needed in hero
+    if (bronchialTree) bronchialTree.visible = false;
+    if (mucusSystem)   mucusSystem.points.visible = false;
+    if (bloodSystem)   bloodSystem.visible = false;
+    if (co2Gauge)      co2Gauge.mesh.visible = false;
+    if (deviceGroup && deviceGroup.scale.x < 0.1) {
+      deviceGroup.visible = false;
+    }
+    glassCards.forEach(c => {
+      if (c.mesh) c.mesh.visible = false;
+    });
+  }
+});
+
+// ── SECTION 2: DISEASE (130vh → 430vh) ─────────
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: () => window.innerHeight * (130 / 100),
+  end: () => window.innerHeight * (430 / 100),
+  scrub: 1.2,
+  onEnter: () => {
+    showSection('s2-panel');
+    if (bronchialTree) bronchialTree.visible = true;
+    if (mucusSystem)   mucusSystem.points.visible = true;
+  },
+  onLeave: () => {
+    hideSection('s2-panel');
+    if (bronchialTree) bronchialTree.visible = false;
+    if (mucusSystem)   mucusSystem.points.visible = false;
+    if (bloodSystem)   bloodSystem.visible = false;
+    if (co2Gauge)      co2Gauge.mesh.visible = false;
+  },
+  onLeaveBack: () => {
+    hideSection('s2-panel');
+    if (bronchialTree) bronchialTree.visible = false;
+    if (mucusSystem)   mucusSystem.points.visible = false;
+  },
+  onUpdate: self => {
+    const p = self.progress;
+    
+    // Panel always visible
+    setOpacity('s2-panel', 1);
+    
+    // Sub-panels switch
+    if (p < 0.33) {
+      const ap = p / 0.33;
+      setOpacity('s2a', Math.min(ap * 3, 1));
+      setOpacity('s2b', 0);
+      setOpacity('s2c', 0);
+      
+      if (bronchialTree) {
+        bronchialTree.visible = true;
+        bronchialTree.children.forEach(m => {
+          if (m.material) m.material.opacity = ap * 0.85;
+        });
+      }
+      if (mucusSystem && mucusSystem.mat)
+        mucusSystem.mat.uniforms.uAmount.value = 0;
+      if (bloodSystem)  bloodSystem.visible = false;
+      if (co2Gauge)     co2Gauge.mesh.visible = false;
+    }
+    else if (p < 0.66) {
+      const bp = (p - 0.33) / 0.33;
+      setOpacity('s2a', Math.max(0, 1 - bp * 2));
+      setOpacity('s2b', Math.max(0, bp * 2 - 1));
+      setOpacity('s2c', 0);
+      
+      if (bronchialTree) {
+        bronchialTree.children.forEach(m => {
+          if (m.material) {
+            m.material.color.setRGB(
+              0.10 + bp * 0.45,
+              0.29 - bp * 0.15,
+              0.48 - bp * 0.28
+            );
+          }
+        });
+      }
+      if (mucusSystem && mucusSystem.mat)
+        mucusSystem.mat.uniforms.uAmount.value = bp;
+      if (bloodSystem)  bloodSystem.visible = false;
+      if (co2Gauge)     co2Gauge.mesh.visible = false;
+    }
+    else {
+      const cp = (p - 0.66) / 0.34;
+      setOpacity('s2b', Math.max(0, 1 - cp * 2));
+      setOpacity('s2c', Math.max(0, cp * 2 - 1));
+      
+      if (bronchialTree) bronchialTree.visible = false;
+      if (mucusSystem)   mucusSystem.points.visible = false;
+      
+      if (bloodSystem) {
+        bloodSystem.visible = true;
+        bloodSystem.children.forEach(m => {
+          if (m.material) {
+            m.material.opacity = Math.min(cp * 2, 0.75);
+            m.material.color.setRGB(
+              cp * 0.91,
+              0.83 - cp * 0.64,
+              0.67 - cp * 0.67
+            );
+          }
+        });
+      }
+      if (co2Gauge) {
+        co2Gauge.mesh.visible = true;
+        if (co2Gauge.mat)
+          co2Gauge.mat.uniforms.uLevel.value = cp * 0.90;
+      }
+    }
+  }
+});
+
+// ── SECTION 3: MONITORING GAP (430vh → 560vh) ──
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: () => window.innerHeight * (430 / 100),
+  end: () => window.innerHeight * (560 / 100),
+  scrub: 1.2,
+  onEnter: () => {
+    showSection('s3-cards');
+    if (bloodSystem)  bloodSystem.visible = false;
+    if (co2Gauge)     co2Gauge.mesh.visible = false;
+    glassCards.forEach(c => {
+      if (c.mesh) c.mesh.visible = true;
+    });
+  },
+  onLeave: () => {
+    hideSection('s3-cards');
+    hideSection('s3-impact');
+    glassCards.forEach(c => {
+      if (c.mesh) c.mesh.visible = false;
+    });
+  },
+  onLeaveBack: () => {
+    hideSection('s3-cards');
+    hideSection('s3-impact');
+  },
+  onUpdate: self => {
+    const p = self.progress;
+    
+    setOpacity('s3-cards', p < 0.60 ? Math.min(p * 5, 1) : Math.max(0, 1 - (p - 0.60) / 0.15));
+    setOpacity('s3-impact', 
+      p > 0.70 ? (p - 0.70) / 0.25 : 0);
+    
+    glassCards.forEach((c, i) => {
+      if (!c.mesh || !c.mat) return;
+      const delay = i * 0.10;
+      const ap = Math.max(0, Math.min(1, 
+        (p - delay) / 0.50));
+      const eased = ap * ap * (3 - 2 * ap);
+      c.mesh.position.y = -2.5 + eased * 2.5;
+      c.mesh.rotation.x = (1 - eased) * 0.30;
+      c.mat.uniforms.uAppear.value = eased;
+    });
+  }
+});
+
+// ── SECTION 4: DEVICE REVEAL (560vh → 730vh) ───
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: () => window.innerHeight * (560 / 100),
+  end: () => window.innerHeight * (730 / 100),
+  scrub: 1.2,
+  onEnter: () => {
+    if (deviceGroup) {
+      deviceGroup.visible = true;
+    }
+  },
+  onLeaveBack: () => {
+    if (deviceGroup) {
+      deviceGroup.visible = false;
+      deviceGroup.scale.setScalar(0);
+      deviceGroup.position.set(0, 0, 0);
+    }
+    hideSection('s4-annotations');
+    hideSection('s4-title');
+  },
+  onUpdate: self => {
+    const p = self.progress;
+    if (!deviceGroup) return;
+    deviceGroup.visible = true;
+    
+    if (p < 0.40) {
+      // Spin in from nothing
+      const ap = p / 0.40;
+      const e  = 1 - Math.pow(1 - ap, 3);
+      deviceGroup.scale.setScalar(e);
+      deviceGroup.position.set(0, (1 - e) * -3, 0);
+      deviceBaseRotY = (1 - e) * Math.PI * 2.2;
+      
+      hideSection('s4-annotations');
+      hideSection('s4-title');
+    }
+    else if (p < 0.75) {
+      // Centre — show annotations and title
+      const bp = (p - 0.40) / 0.35;
+      deviceGroup.scale.setScalar(1.0);
+      deviceGroup.position.set(0, 0, 0);
+      deviceBaseRotY = bp * 0.55;
+      
+      setOpacity('s4-annotations', 
+        Math.min(bp * 3, 1));
+      setOpacity('s4-title', 
+        Math.min(bp * 3, 1));
+      deviceAlertState = 'normal';
+    }
+    else {
+      // Move to corner
+      const cp = (p - 0.75) / 0.25;
+      const e  = cp * cp * (3 - 2 * cp);
+      deviceGroup.scale.setScalar(1.0 - e * 0.70);
+      deviceGroup.position.set(e * 3.8, e * 2.4, 0);
+      
+      setOpacity('s4-annotations', 
+        Math.max(0, 1 - cp * 3));
+      setOpacity('s4-title', 
+        Math.max(0, 1 - cp * 3));
+    }
+  }
+});
+
+// ── SECTION 7: STORY (730vh → 900vh) ────────────
+
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: () => window.innerHeight * (730 / 100),
+  end: () => window.innerHeight * (900 / 100),
+  scrub: 1.2,
+  onEnter: () => {
+    showSection('s7-container');
+    if (storyEnv && storyEnv.group)
+      storyEnv.group.visible = true;
+  },
+  onLeave: () => {
+    hideSection('s7-container');
+    if (storyEnv && storyEnv.group)
+      storyEnv.group.visible = false;
+  },
+  onLeaveBack: () => {
+    hideSection('s7-container');
+    if (storyEnv && storyEnv.group)
+      storyEnv.group.visible = false;
+  },
+  onUpdate: self => {
+    const p = self.progress;
+    setOpacity('s7-container', Math.min(p * 8, 1));
+    console.log('S7 Update. p:', p, 'opacity:', Math.min(p * 8, 1), 'VH:', (window.scrollY / window.innerHeight) * 100);
+    
+    const beatIndex = Math.min(
+      Math.floor(p * storyBeats.length),
+      storyBeats.length - 1
+    );
+    
+    // Only update DOM on beat change
+    if (beatIndex !== lastBeatIndex) {
+      lastBeatIndex = beatIndex;
+      const beat = storyBeats[beatIndex];
+      
+      const timeEl   = document.getElementById('s7-time');
+      const statusEl = document.getElementById('s7-status');
+      const descEl   = document.getElementById('s7-desc');
+      const cardEl   = document.getElementById('s7-card');
+      
+      if (timeEl)   timeEl.textContent   = beat.time;
+      if (statusEl) {
+        statusEl.textContent = beat.status;
+        statusEl.style.color = beat.statusColor;
+      }
+      if (descEl)   descEl.textContent   = beat.description;
+      if (cardEl) {
+        cardEl.style.borderColor = beat.statusColor + '44';
+        cardEl.style.boxShadow   = 
+          '0 0 40px ' + beat.statusColor + '18';
+      }
+      
+      deviceAlertState = beat.alertState;
+      
+      if (storyEnv && storyEnv.deviceLight) {
+        storyEnv.deviceLight.color.setHex(beat.lightColor);
+        storyEnv.deviceLight.intensity =
+          beat.alertState === 'red'   ? 3.0 :
+          beat.alertState === 'amber' ? 2.2 : 1.6;
+      }
+      
+      if (storyEnv && storyEnv.phoneCanvas 
+          && storyEnv.phoneTex) {
+        updatePhoneScreen(
+          storyEnv.phoneCanvas, storyEnv.phoneTex, beat);
+      }
+    }
+    
+    const graphEl = document.getElementById('s7-graph');
+    if (graphEl) drawCO2Graph(graphEl, beatIndex);
+    
+    setOpacity('s7-final',
+      Math.max(0, (p - 0.87) / 0.13));
+  }
+});
+
+// ── SECTION 8: SPECS (900vh → 970vh) ────────────
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: () => window.innerHeight * (900 / 100),
+  end: () => window.innerHeight * (970 / 100),
+  scrub: 1.0,
+  onEnter: () => showSection('s8-section'),
+  onLeave: () => hideSection('s8-section'),
+  onLeaveBack: () => hideSection('s8-section'),
+  onUpdate: self => {
+    const p = self.progress;
+    setOpacity('s8-section', Math.min(p * 5, 1));
+    
+    const cards = document.querySelectorAll('.spec-card');
+    cards.forEach((card, i) => {
+      const delay = i * 0.08;
+      const cp = Math.max(0, Math.min(1,
+        (p - delay) / 0.50));
+      const eased = cp * cp * (3 - 2 * cp);
+      card.style.opacity    = String(eased);
+      card.style.transform  = 
+        'translateY(' + ((1 - eased) * 22) + 'px)';
+    });
+  }
+});
+
+// ── SECTION 10: CLOSING (970vh → 1070vh) ────────
+ScrollTrigger.create({
+  trigger: '#scroll-spacer',
+  start: () => window.innerHeight * (970 / 100),
+  end: () => window.innerHeight * (1070 / 100),
+  scrub: 1.0,
+  onEnter: () => showSection('s10-section'),
+  onLeaveBack: () => hideSection('s10-section'),
+  onUpdate: self => {
+    const p = self.progress;
+    setOpacity('s8-section',  Math.max(0, 1 - p * 4));
+    setOpacity('s10-section', Math.min(p * 4, 1));
+    
+    // Healthy lung returns
+    if (lungSystem && lungSystem.mat) {
+      lungSystem.mat.uniforms.uFade.value    = 
+        Math.min(p * 2, 1);
+      lungSystem.mat.uniforms.uStutter.value = 0;
+    }
+  }
+});
+
+// ── SCROLL SPACER HEIGHT ─────────────────────────
+document.getElementById('scroll-spacer').style.height 
+  = '1100vh';
+
+// ── FINAL REFRESH ────────────────────────────────
+setTimeout(() => ScrollTrigger.refresh(true), 600);
+window.addEventListener('load', () => {
+  ScrollTrigger.refresh(true);
 });
