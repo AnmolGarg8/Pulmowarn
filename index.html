@@ -4,628 +4,401 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PulmoCare | The First Step</title>
-  
-  <!-- Google Fonts: Syne (700, 800) and Inter (400, 500) -->
+  <meta name="description" content="PulmoCare — the first home device that detects respiratory deterioration before CO₂ narcosis. Acoustic sputum monitoring + transcutaneous CO₂ sensing.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./src/style.css">
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
-        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js",
-        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js"
-      }
-    }
-  </script>
 </head>
 <body>
-  <!-- WebGL Canvas — fills entire screen -->
-  <canvas id="webgl-canvas"></canvas>
-  
-  <!-- 2D overlay canvas for annotation lines -->
-  <canvas id="overlay-canvas"></canvas>
-  
-  <!-- All HTML text content lives here -->
-  <div id="html-root">
-    <div id="s1-text" style="
-      position:fixed; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      text-align:center; width:90%; max-width:900px;
-      opacity:0; transition:none;
-    ">
-      <p id="s1-eyebrow" style="
-        font-family:'Syne',sans-serif;
-        font-size:12px; font-weight:700;
-        letter-spacing:0.25em; color:#00D4AA;
-        text-transform:uppercase; margin-bottom:20px; opacity:0;
-      ">Every year, thousands of families</p>
-      <h1 id="s1-headline" style="
-        font-family:'Syne',sans-serif;
-        font-size:clamp(36px,7vw,90px); font-weight:800;
-        line-height:1.08; color:#F0F4FF;
-        letter-spacing:-0.03em; margin-bottom:20px; opacity:0;
-        text-shadow: 0 4px 40px rgba(0,0,0,0.9);
-      ">discover too late that<br/>something was wrong.</h1>
-    </div>
 
-    <div id="s1-product" style="
-      position:fixed; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      text-align:center; opacity:0;
-    ">
-      <h1 style="
-        font-family:'Syne',sans-serif;
-        font-size:clamp(48px,10vw,120px); font-weight:800;
-        color:#F0F4FF; letter-spacing:-0.04em;
-        line-height:1.0;
-      ">PULMOCARE</h1>
-      <p style="
-        font-family:'Inter',sans-serif;
-        font-size:clamp(14px,2vw,20px); color:#00D4AA;
-        letter-spacing:0.08em; margin-top:16px;
-        font-weight:500;
-      ">Catching the cause before the consequence.</p>
-    </div>
-
-    <div id="s1-scroll" style="
-      position:fixed; bottom:40px; left:50%;
-      transform:translateX(-50%); text-align:center;
-      opacity:0; color:#00D4AA;
-    ">
-      <p style="font-size:11px;letter-spacing:0.2em;margin-bottom:8px;
-                color:#445566;font-family:monospace">SCROLL</p>
-      <div style="width:1px;height:50px;background:linear-gradient(
-        to bottom, #00D4AA, transparent);
-        margin:0 auto;animation:scrollPulse 1.5s ease-in-out infinite">
-      </div>
-    </div>
-
-    <!-- Section 2 text panels -->
-    <div id="s2-panel" style="
-      position:fixed; right:5%; top:50%;
-      transform:translateY(-50%);
-      width:min(380px, 38vw); opacity:0;
-      pointer-events:none;
-    ">
-      <!-- Panel A: Healthy airways -->
-      <div id="s2a" style="opacity:0; position:absolute; right:0; width:100%">
-        <p style="font-family:'Syne',sans-serif; font-size:11px; 
-                  font-weight:700; letter-spacing:0.2em; color:#00D4AA;
-                  text-transform:uppercase; margin-bottom:14px">
-          Healthy Lung Function
-        </p>
-        <h2 style="font-family:'Syne',sans-serif; font-size:clamp(28px,3.5vw,44px);
-                   font-weight:800; line-height:1.15; color:#F0F4FF;
-                   margin-bottom:16px; letter-spacing:-0.02em">
-          A perfect<br/>biological<br/>pump.
-        </h2>
-        <p style="font-family:'Inter',sans-serif; font-size:15px;
-                  line-height:1.8; color:#7A8DAA">
-          Coordinated cilia sweep mucus upward continuously.
-          Air flows freely into the alveoli.
-          Carbon dioxide exits cleanly.
-          The body maintains perfect chemical balance.
-        </p>
-      </div>
-      <!-- Panel B: Infection -->
-      <div id="s2b" style="opacity:0; position:absolute; right:0; width:100%">
-        <p style="font-family:'Syne',sans-serif; font-size:11px;
-                  font-weight:700; letter-spacing:0.2em; color:#F5A623;
-                  text-transform:uppercase; margin-bottom:14px">
-          Infection Strikes
-        </p>
-        <h2 style="font-family:'Syne',sans-serif; font-size:clamp(28px,3.5vw,44px);
-                   font-weight:800; line-height:1.15; color:#F0F4FF;
-                   margin-bottom:16px; letter-spacing:-0.02em">
-          Mucus fills the<br/>narrowing<br/>airway.
-        </h2>
-        <p style="font-family:'Inter',sans-serif; font-size:15px;
-                  line-height:1.8; color:#7A8DAA">
-          Infection paralyses cilia and triggers 10× mucus overproduction.
-          The airway narrows from the inside. The patient feels it
-          — but has no way to know how dangerous it has become.
-        </p>
-      </div>
-      <!-- Panel C: CO2 narcoisis -->
-      <div id="s2c" style="opacity:0; position:absolute; right:0; width:100%">
-        <p style="font-family:'Syne',sans-serif; font-size:11px;
-                  font-weight:700; letter-spacing:0.2em; color:#E84040;
-                  text-transform:uppercase; margin-bottom:14px">
-          CO₂ Narcosis
-        </p>
-        <h2 style="font-family:'Syne',sans-serif; font-size:clamp(28px,3.5vw,44px);
-                   font-weight:800; line-height:1.15; color:#F0F4FF;
-                   margin-bottom:16px; letter-spacing:-0.02em">
-          Carbon dioxide<br/>silences<br/>the brain.
-        </h2>
-        <p style="font-family:'Inter',sans-serif; font-size:15px;
-                  line-height:1.8; color:#7A8DAA">
-          CO₂ crosses the blood-brain barrier freely.
-          First headache at 55 mmHg. Drowsiness at 65.
-          Unconsciousness above 80 mmHg.
-          This is CO₂ narcosis — the patient sedated by their own chemistry.
-        </p>
-        <!-- CO2 level markers -->
-        <div style="margin-top:20px; display:flex; flex-direction:column; gap:6px">
-          <div style="display:flex;justify-content:space-between;
-                      font-family:monospace;font-size:11px">
-            <span style="color:#22C55E">35–45 mmHg</span>
-            <span style="color:#22C55E">Normal</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;
-                      font-family:monospace;font-size:11px">
-            <span style="color:#F5A623">45–55 mmHg</span>
-            <span style="color:#F5A623">Early retention</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;
-                      font-family:monospace;font-size:11px">
-            <span style="color:#EF6C00">55–65 mmHg</span>
-            <span style="color:#EF6C00">Headache, confusion</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;
-                      font-family:monospace;font-size:11px">
-            <span style="color:#E84040">65–75 mmHg</span>
-            <span style="color:#E84040">Drowsiness</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;
-                      font-family:monospace;font-size:11px">
-            <span style="color:#AA0000">75+ mmHg</span>
-            <span style="color:#AA0000">Loss of consciousness</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 3 — The Monitoring Gap -->
-    <div id="s3-cards" style="
-      position:fixed; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      gap:clamp(12px,2vw,28px); padding:0 4%;
-      opacity:0; pointer-events:none;
-    ">
-      <!-- Card 1 -->
-      <div style="flex:1; max-width:280px; padding:28px 24px;
-                  border:1px solid rgba(232,64,64,0.2);
-                  border-radius:16px; background:rgba(4,7,17,0.6)">
-        <div style="width:44px;height:44px;border-radius:10px;
-                    background:rgba(232,64,64,0.12);
-                    display:flex;align-items:center;justify-content:center;
-                    margin-bottom:16px">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <polyline points="2,14 7,8 11,11 16,5 20,8" 
-                      stroke="#E84040" stroke-width="2" 
-                      stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="20" y1="8" x2="20" y2="14" 
-                  stroke="#E84040" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3 style="font-family:'Syne',sans-serif;font-size:18px;
-                   font-weight:700;color:#F0F4FF;margin-bottom:10px">
-          Pulse Oximeter
-        </h3>
-        <p style="font-size:14px;line-height:1.75;color:#7A8DAA;
-                  margin-bottom:16px">
-          Measures oxygen only. Completely blind to CO₂.
-          A patient can show 98% SpO₂ while PaCO₂ climbs 
-          to narcotic levels. Millions trust it. It measures 
-          the wrong thing.
-        </p>
-        <span style="font-family:monospace;font-size:10px;
-                     letter-spacing:0.12em;color:#E84040;
-                     background:rgba(232,64,64,0.1);
-                     padding:4px 10px;border-radius:4px;
-                     border:1px solid rgba(232,64,64,0.3)">
-          MISSES CO₂ ENTIRELY
-        </span>
-      </div>
-      <!-- Card 2 -->
-      <div style="flex:1; max-width:280px; padding:28px 24px;
-                  border:1px solid rgba(245,166,35,0.2);
-                  border-radius:16px; background:rgba(4,7,17,0.6)">
-        <div style="width:44px;height:44px;border-radius:10px;
-                    background:rgba(245,166,35,0.12);
-                    display:flex;align-items:center;justify-content:center;
-                    margin-bottom:16px">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <rect x="2" y="4" width="18" height="14" rx="2" 
-                  stroke="#F5A623" stroke-width="2"/>
-            <line x1="7" y1="18" x2="7" y2="21" 
-                  stroke="#F5A623" stroke-width="2"/>
-            <line x1="15" y1="18" x2="15" y2="21" 
-                  stroke="#F5A623" stroke-width="2"/>
-            <circle cx="11" cy="11" r="3" stroke="#F5A623" stroke-width="1.5"/>
-          </svg>
-        </div>
-        <h3 style="font-family:'Syne',sans-serif;font-size:18px;
-                   font-weight:700;color:#F0F4FF;margin-bottom:10px">
-          Hospital Monitors
-        </h3>
-        <p style="font-size:14px;line-height:1.75;color:#7A8DAA;
-                  margin-bottom:16px">
-          Clinical CO₂ monitors like the SenTec are accurate.
-          But at $10,000+ and requiring trained staff to operate,
-          they are not designed for a patient managing lung 
-          disease at home at 2 AM.
-        </p>
-        <span style="font-family:monospace;font-size:10px;
-                     letter-spacing:0.12em;color:#F5A623;
-                     background:rgba(245,166,35,0.1);
-                     padding:4px 10px;border-radius:4px;
-                     border:1px solid rgba(245,166,35,0.3)">
-          NOT HOME-DEPLOYABLE
-        </span>
-      </div>
-      <!-- Card 3 -->
-      <div style="flex:1; max-width:280px; padding:28px 24px;
-                  border:1px solid rgba(232,64,64,0.2);
-                  border-radius:16px; background:rgba(4,7,17,0.6)">
-        <div style="width:44px;height:44px;border-radius:10px;
-                    background:rgba(232,64,64,0.12);
-                    display:flex;align-items:center;justify-content:center;
-                    margin-bottom:16px">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <path d="M6 8 Q6 4 11 4 Q16 4 16 8 Q16 13 11 15 
-                     Q11 17 11 19" stroke="#E84040" stroke-width="2" 
-                  stroke-linecap="round" fill="none"/>
-            <circle cx="11" cy="20.5" r="1" fill="#E84040"/>
-            <line x1="4" y1="4" x2="18" y2="18" 
-                  stroke="#E84040" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3 style="font-family:'Syne',sans-serif;font-size:18px;
-                   font-weight:700;color:#F0F4FF;margin-bottom:10px">
-          Sputum Monitoring
-        </h3>
-        <p style="font-size:14px;line-height:1.75;color:#7A8DAA;
-                  margin-bottom:16px">
-          Nothing on the home market detects sputum accumulation.
-          No device alerts a patient that their airway is narrowing
-          before CO₂ rises. This is the earliest and most 
-          actionable point in the deterioration chain.
-        </p>
-        <span style="font-family:monospace;font-size:10px;
-                     letter-spacing:0.12em;color:#E84040;
-                     background:rgba(232,64,64,0.1);
-                     padding:4px 10px;border-radius:4px;
-                     border:1px solid rgba(232,64,64,0.3)">
-          NO EXISTING SOLUTION
-        </span>
-      </div>
-    </div>
-
-    <!-- Impact statement -->
-    <div id="s3-impact" style="
-      position:fixed; bottom:12%; left:50%;
-      transform:translateX(-50%);
-      text-align:center; opacity:0; width:90%;
-      pointer-events:none;
-    ">
-      <h2 style="font-family:'Syne',sans-serif;
-                 font-size:clamp(24px,4vw,52px);
-                 font-weight:800; color:#F0F4FF;
-                 line-height:1.2; letter-spacing:-0.02em">
-        The window to act is hours before the crisis.<br/>
-        <span style="color:#E84040">Nothing is watching.</span>
-      </h2>
-    </div>
+<!-- ═══════════════ NAVIGATION ═══════════════ -->
+<nav id="main-nav">
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    <span>PulmoCare</span>
   </div>
-
-  <!-- Section 4 — Device Reveal -->
-  <div id="s4-annotations" style="
-    position:fixed; inset:0; opacity:0; pointer-events:none;
-  ">
-    <canvas id="annotation-lines" style="
-      position:absolute; inset:0; width:100%; height:100%;
-    "></canvas>
-    <div class="anno" id="anno-0" style="position:absolute;opacity:0">
-      <span class="anno-label">MEMS acoustic sensor</span>
-      <span class="anno-sub">50–1000 Hz · −42 dBV/Pa</span>
-    </div>
-    <div class="anno" id="anno-1" style="position:absolute;opacity:0">
-      <span class="anno-label">OLED status display</span>
-      <span class="anno-sub">green / amber / red</span>
-    </div>
-    <div class="anno" id="anno-2" style="position:absolute;opacity:0">
-      <span class="anno-label">tcPCO₂ sensor</span>
-      <span class="anno-sub">blood CO₂ continuous trend</span>
-    </div>
-    <div class="anno" id="anno-3" style="position:absolute;opacity:0">
-      <span class="anno-label">ARM Cortex-M4</span>
-      <span class="anno-sub">dual-stream · &lt;8mW active</span>
-    </div>
-    <div class="anno" id="anno-4" style="position:absolute;opacity:0">
-      <span class="anno-label">BLE 5.0 radio</span>
-      <span class="anno-sub">caregiver app + SMS</span>
-    </div>
-    <div class="anno" id="anno-5" style="position:absolute;opacity:0">
-      <span class="anno-label">Li-Po 1400 mAh</span>
-      <span class="anno-sub">24h+ · USB-C charge</span>
-    </div>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#demo">Live Demo</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#impact">Impact</a>
   </div>
+</nav>
 
-  <div id="s4-title" style="
-    position:fixed; bottom:14%; left:50%;
-    transform:translateX(-50%); text-align:center;
-    opacity:0; pointer-events:none;
-  ">
-    <h1 style="font-family:'Syne',sans-serif;
-               font-size:clamp(52px,8vw,96px);
-               font-weight:800; color:#F0F4FF;
-               letter-spacing:-0.04em; line-height:1.0;
-               margin-bottom:12px">
-      PulmoCare
+<!-- ═══════════════ SECTION 1: HERO ═══════════════ -->
+<section id="hero" class="section hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow hero-glow-1"></div>
+  <div class="hero-glow hero-glow-2"></div>
+  
+  <div class="hero-content reveal">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Samsung Solve for Tomorrow 2025
+    </div>
+    <h1 class="hero-title">
+      Every deterioration<br>has a <span class="gradient-text">first step.</span>
     </h1>
-    <p style="font-family:'Inter',sans-serif;
-              font-size:clamp(13px,1.5vw,18px);
-              color:#7A8DAA; max-width:480px; margin:0 auto;
-              line-height:1.7">
-      The first home device that monitors both the cause 
-      and the consequence — simultaneously.
+    <p class="hero-subtitle">
+      PulmoCare is the first home device that detects respiratory deterioration 
+      <em>before</em> CO₂ narcosis — by monitoring the cause, not just the consequence.
     </p>
-  </div>
-
-  <!-- Section 7 — Rajan's Story -->
-  <div id="s7-container" style="
-    position:fixed; inset:0; opacity:0; pointer-events:none;
-  ">
-    <!-- Beat info card — left side -->
-    <div id="s7-card" style="
-      position:absolute; left:5%; top:50%;
-      transform:translateY(-50%);
-      width:min(320px,30vw);
-      background:rgba(6,13,26,0.90);
-      border:1px solid rgba(0,212,170,0.15);
-      border-radius:14px; padding:24px 26px;
-    ">
-      <div id="s7-time" style="
-        font-family:'JetBrains Mono','Courier New',monospace;
-        font-size:13px; color:#00D4AA;
-        letter-spacing:0.1em; margin-bottom:10px;
-      ">2:00 AM</div>
-      <div id="s7-status" style="
-        font-family:'Syne',sans-serif;
-        font-size:11px; font-weight:700;
-        letter-spacing:0.15em; text-transform:uppercase;
-        margin-bottom:14px; color:#22C55E;
-      ">NORMAL</div>
-      <p id="s7-desc" style="
-        font-family:'Inter',sans-serif;
-        font-size:14px; line-height:1.75;
-        color:#7A8DAA; margin:0;
-      ">All readings stable. Rajan sleeps.</p>
-    </div>
-    <!-- CO2 mini-graph — bottom centre -->
-    <canvas id="s7-graph" style="
-      position:absolute; bottom:8%; left:50%;
-      transform:translateX(-50%);
-      width:min(600px,80vw); height:80px;
-      border-top:1px solid rgba(0,212,170,0.1);
-    "></canvas>
-    <!-- Final impact text -->
-    <div id="s7-final" style="
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      text-align:center; opacity:0;
-      background:rgba(6,13,26,0.7);
-    ">
-      <div>
-        <h1 style="
-          font-family:'Syne',sans-serif;
-          font-size:clamp(32px,5.5vw,72px);
-          font-weight:800; line-height:1.2;
-          color:#F0F4FF; letter-spacing:-0.03em;
-          text-shadow:0 4px 40px rgba(0,0,0,0.9);
-        ">
-          No ambulance.<br/>
-          No ICU. No crisis.<br/>
-          <span style="color:#00D4AA">
-            PulmoCare intervened<br/>
-            before Rajan lost the ability<br/>
-            to ask for help.
-          </span>
-        </h1>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-number" data-target="251">0</span><span class="stat-suffix">M</span>
+        <span class="stat-label">COPD patients globally</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="3.2" data-decimal="1">0</span><span class="stat-suffix">M</span>
+        <span class="stat-label">deaths per year</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="0">0</span>
+        <span class="stat-label">home devices monitor sputum</span>
       </div>
     </div>
-  </div>
-
-  <!-- Section 8 — Technical Architecture -->
-  <div id="s8-section" style="
-    position:fixed; inset:0; opacity:0; pointer-events:none;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    padding:0 5%;
-  ">
-    <h2 style="
-      font-family:'Syne',sans-serif;
-      font-size:clamp(36px,6vw,72px); font-weight:800;
-      color:#F0F4FF; letter-spacing:-0.03em;
-      margin-bottom:48px; text-align:center;
-    ">Technical Architecture</h2>
-    <div style="
-      display:grid; grid-template-columns:repeat(3,1fr);
-      gap:16px; width:100%; max-width:860px;
-    ">
-      <div class="spec-card">
-        <div class="spec-title">MEMS Microphone</div>
-        <div class="spec-meta">Freq: 50–1000 Hz · −42 dBV/Pa</div>
-        <div class="spec-desc">Rhonchi and sputum blockage detection</div>
-      </div>
-      <div class="spec-card">
-        <div class="spec-title">tcPCO₂ / NDIR Optical</div>
-        <div class="spec-meta">Range: 20–100 mmHg equivalent</div>
-        <div class="spec-desc">Blood CO₂ continuous trend monitoring</div>
-      </div>
-      <div class="spec-card">
-        <div class="spec-title">ARM Cortex-M4</div>
-        <div class="spec-meta">Power: &lt;8mW active · 32-bit</div>
-        <div class="spec-desc">Dual-stream signal processing</div>
-      </div>
-      <div class="spec-card">
-        <div class="spec-title">BLE 5.0 Radio</div>
-        <div class="spec-meta">Range: 10m · Power: &lt;1mW avg</div>
-        <div class="spec-desc">Caregiver app and SMS delivery</div>
-      </div>
-      <div class="spec-card">
-        <div class="spec-title">OLED Display</div>
-        <div class="spec-meta">0.96″ · 128×64px · 3-state</div>
-        <div class="spec-desc">Patient-facing colour status indicator</div>
-      </div>
-      <div class="spec-card">
-        <div class="spec-title">Li-Po 1400 mAh</div>
-        <div class="spec-meta">USB-C · 24h+ continuous</div>
-        <div class="spec-desc">Overnight dual-sensor operation</div>
-      </div>
+    <div class="hero-actions">
+      <a href="#demo" class="btn btn-primary">See Live Demo →</a>
+      <a href="#solution" class="btn btn-ghost">How It Works</a>
     </div>
   </div>
-
-  <!-- Section 10 — Closing -->
-  <div id="s10-section" style="
-    position:fixed; inset:0; opacity:0;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    text-align:center; padding:0 5%;
-  ">
-    <h1 style="
-      font-family:'Syne',sans-serif;
-      font-size:clamp(36px,6vw,80px); font-weight:800;
-      color:#F0F4FF; letter-spacing:-0.03em;
-      line-height:1.15; margin-bottom:16px;
-      max-width:800px;
-    ">
-      Every deterioration<br/>has a first step.
-    </h1>
-    <h2 style="
-      font-family:'Syne',sans-serif;
-      font-size:clamp(24px,4vw,52px); font-weight:700;
-      color:#00D4AA; letter-spacing:-0.02em;
-      margin-bottom:48px;
-    ">
-      PulmoCare is designed to find it.
-    </h2>
-    <div style="display:flex;gap:14px;margin-bottom:60px;pointer-events:all">
-      <button id="cta-research" 
-        style="
-          padding: 14px 32px;
-          font-family: 'Syne', sans-serif;
-          font-size: 14px; font-weight: 700;
-          letter-spacing: 0.06em;
-          color: #00D4AA;
-          background: transparent;
-          border: 1.5px solid #00D4AA;
-          border-radius: 8px;
-          cursor: pointer;
-          pointer-events: all;
-          transition: background 0.25s ease, color 0.25s ease,
-                      transform 0.15s ease, box-shadow 0.25s ease;
-        "
-        onmouseenter="
-          this.style.background='#00D4AA';
-          this.style.color='#060D1A';
-          this.style.transform='translateY(-2px)';
-          this.style.boxShadow='0 8px 30px rgba(0,212,170,0.35)';
-        "
-        onmouseleave="
-          this.style.background='transparent';
-          this.style.color='#00D4AA';
-          this.style.transform='translateY(0)';
-          this.style.boxShadow='none';
-        "
-      >Read the Research →</button>
-
-      <button id="cta-contact"
-        style="
-          padding: 14px 32px;
-          font-family: 'Syne', sans-serif;
-          font-size: 14px; font-weight: 700;
-          letter-spacing: 0.06em;
-          color: #7A8DAA;
-          background: transparent;
-          border: 1.5px solid #2A3A4A;
-          border-radius: 8px;
-          cursor: pointer;
-          pointer-events: all;
-          transition: background 0.25s ease, color 0.25s ease,
-                      transform 0.15s ease, border-color 0.25s ease;
-        "
-        onmouseenter="
-          this.style.background='rgba(255,255,255,0.06)';
-          this.style.color='#F0F4FF';
-          this.style.transform='translateY(-2px)';
-          this.style.borderColor='#7A8DAA';
-        "
-        onmouseleave="
-          this.style.background='transparent';
-          this.style.color='#7A8DAA';
-          this.style.transform='translateY(0)';
-          this.style.borderColor='#2A3A4A';
-        "
-      >Contact the Team →</button>
-    </div>
-    <p style="
-      font-family:'Inter',sans-serif; font-size:13px;
-      color:#2A3A4A; letter-spacing:0.05em;
-      pointer-events:none;
-    ">
-      Anmol Garg · B.Tech AI &amp; Data Science<br/>
-      Vivekananda Institute of Professional Studies, New Delhi
-    </p>
-  </div>
-
-  <style>
-
-  body { background-color: #060D1A !important; }
-  canvas#webgl-canvas { background: #060D1A !important; }
-
-    @keyframes scrollPulse {
-      0%,100% { opacity:0.3; transform:scaleY(1); }
-      50% { opacity:1; transform:scaleY(1.1); }
-    }
-    .anno {
-      display: flex; flex-direction: column; gap: 2px;
-      background: rgba(6,13,26,0.85);
-      border-left: 2px solid #00D4AA;
-      padding: 6px 10px 6px 8px;
-      border-radius: 0 6px 6px 0;
-    }
-    .anno-label {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: 11px; color: #00D4AA; font-weight: 600;
-      white-space: nowrap;
-    }
-    .anno-sub {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: 10px; color: #446655; white-space: nowrap;
-    }
-    .spec-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(0,212,170,0.15);
-      border-top: 2px solid #00D4AA;
-      border-radius: 12px; padding: 20px 18px;
-      opacity: 0;
-      transform: translateY(24px);
-      transition: none !important;
-    }
-    .spec-title {
-      font-family: 'Syne', sans-serif; font-size: 15px;
-      font-weight: 700; color: #F0F4FF; margin-bottom: 6px;
-    }
-    .spec-meta {
-      font-family: monospace; font-size: 11px;
-      color: #00D4AA; margin-bottom: 8px;
-    }
-    .spec-desc {
-      font-size: 13px; color: #7A8DAA; line-height: 1.6;
-    }
-  </style>
   
-  <!-- Scroll spacer — total page height -->
-  <div id="scroll-spacer" style="height:1100vh; width:100%;"></div>
-  
-  <script type="module" src="./src/main.js"></script>
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 2: THE PROBLEM ═══════════════ -->
+<section id="problem" class="section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">THE PROBLEM</span>
+      <h2 class="section-title">The monitoring gap<br>that costs <span class="text-danger">3.2 million lives.</span></h2>
+      <p class="section-desc">
+        Current home monitoring is blind to the earliest sign of respiratory failure — 
+        sputum accumulation. By the time CO₂ rises, the window to act has already narrowed.
+      </p>
+    </div>
+
+    <div class="problem-timeline reveal">
+      <div class="timeline-bar">
+        <div class="timeline-phase phase-safe" style="width:40%">
+          <span>SPUTUM BUILDS</span>
+        </div>
+        <div class="timeline-phase phase-warn" style="width:30%">
+          <span>CO₂ RISES</span>
+        </div>
+        <div class="timeline-phase phase-danger" style="width:30%">
+          <span>NARCOSIS</span>
+        </div>
+      </div>
+      <div class="timeline-labels">
+        <span class="tl-label tl-safe">← Detectable by PulmoCare</span>
+        <span class="tl-label tl-danger">Current monitors detect here →</span>
+      </div>
+    </div>
+
+    <div class="problem-cards">
+      <div class="problem-card reveal" data-delay="0">
+        <div class="card-icon card-icon-danger">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3>Pulse Oximeter</h3>
+        <p>Measures oxygen saturation only. Completely blind to CO₂. A patient can show 98% SpO₂ while CO₂ climbs to narcotic levels.</p>
+        <span class="card-badge badge-danger">MISSES CO₂ ENTIRELY</span>
+      </div>
+      <div class="problem-card reveal" data-delay="1">
+        <div class="card-icon card-icon-warn">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Hospital Monitors</h3>
+        <p>Clinical CO₂ monitors like SenTec are accurate but cost $10,000+, require trained staff, and are not designed for home use at 2 AM.</p>
+        <span class="card-badge badge-warn">NOT HOME-DEPLOYABLE</span>
+      </div>
+      <div class="problem-card reveal" data-delay="2">
+        <div class="card-icon card-icon-danger">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        </div>
+        <h3>Sputum Monitoring</h3>
+        <p>Nothing on the home market detects sputum accumulation. No device alerts a patient before their airway narrows to dangerous levels.</p>
+        <span class="card-badge badge-danger">NO EXISTING SOLUTION</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 3: THE SOLUTION ═══════════════ -->
+<section id="solution" class="section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">THE SOLUTION</span>
+      <h2 class="section-title">One device.<br><span class="gradient-text">Two sensing modalities.</span></h2>
+      <p class="section-desc">
+        PulmoCare combines acoustic sputum detection with transcutaneous CO₂ sensing —
+        monitoring both the cause and the consequence simultaneously.
+      </p>
+    </div>
+
+    <div class="solution-grid">
+      <div class="device-visual reveal">
+        <div class="device-frame">
+          <div class="device-body">
+            <div class="device-screen" id="device-oled">
+              <canvas id="oled-canvas" width="160" height="80"></canvas>
+            </div>
+            <div class="device-sensor device-sensor-top"></div>
+            <div class="device-sensor device-sensor-bottom"></div>
+            <div class="device-led" id="device-led"></div>
+          </div>
+          <div class="device-glow"></div>
+        </div>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item reveal" data-delay="0">
+          <div class="feature-icon">🎤</div>
+          <div>
+            <h4>MEMS Acoustic Sensor</h4>
+            <p>50–1000 Hz range, −42 dBV/Pa sensitivity. Detects rhonchi, wheezing, and sputum-related breath sounds in real time.</p>
+          </div>
+        </div>
+        <div class="feature-item reveal" data-delay="1">
+          <div class="feature-icon">🫁</div>
+          <div>
+            <h4>tcPCO₂ Sensor</h4>
+            <p>Continuous transcutaneous blood CO₂ monitoring. Tracks trends, not just snapshots — catching the rise before it becomes dangerous.</p>
+          </div>
+        </div>
+        <div class="feature-item reveal" data-delay="2">
+          <div class="feature-icon">🧠</div>
+          <div>
+            <h4>On-Device ML Inference</h4>
+            <p>ARM Cortex-M4 runs a lightweight classifier at &lt;8mW. No cloud dependency. Real-time sputum risk scoring at the edge.</p>
+          </div>
+        </div>
+        <div class="feature-item reveal" data-delay="3">
+          <div class="feature-icon">📱</div>
+          <div>
+            <h4>3-Layer Alert Cascade</h4>
+            <p>Layer 0: Patient notification (sputum). Layer 1: Caregiver push alert (CO₂ rising). Layer 2: Emergency SMS (critical CO₂).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 4: INTERACTIVE DEMO ═══════════════ -->
+<section id="demo" class="section demo-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">LIVE DEMONSTRATION</span>
+      <h2 class="section-title">Watch PulmoCare save a life.<br><span class="gradient-text">In real time.</span></h2>
+      <p class="section-desc">
+        Meet Rajan, 67, COPD Stage III. It's 2:00 AM. His family is asleep. 
+        Watch how PulmoCare's 3-layer alert system detects and responds to a developing crisis.
+      </p>
+    </div>
+
+    <div class="demo-dashboard reveal" id="demo-dashboard">
+      <!-- Left: Device + Vitals -->
+      <div class="demo-left">
+        <div class="demo-device-card">
+          <div class="demo-device-header">
+            <div class="demo-device-dot" id="demo-device-dot"></div>
+            <span>PulmoCare Device</span>
+            <span class="demo-device-time" id="demo-time">2:00 AM</span>
+          </div>
+          <canvas id="demo-oled" width="280" height="100"></canvas>
+        </div>
+
+        <div class="vitals-grid">
+          <div class="vital-card" id="vital-spo2">
+            <span class="vital-label">SpO₂</span>
+            <span class="vital-value" id="v-spo2">97%</span>
+            <div class="vital-bar"><div class="vital-fill" id="vf-spo2" style="width:97%"></div></div>
+          </div>
+          <div class="vital-card" id="vital-co2">
+            <span class="vital-label">tcPCO₂</span>
+            <span class="vital-value" id="v-co2">38 mmHg</span>
+            <div class="vital-bar"><div class="vital-fill" id="vf-co2" style="width:38%"></div></div>
+          </div>
+          <div class="vital-card" id="vital-rr">
+            <span class="vital-label">Resp Rate</span>
+            <span class="vital-value" id="v-rr">14 /min</span>
+            <div class="vital-bar"><div class="vital-fill" id="vf-rr" style="width:56%"></div></div>
+          </div>
+          <div class="vital-card" id="vital-sputum">
+            <span class="vital-label">Sputum Risk</span>
+            <span class="vital-value" id="v-sputum">LOW</span>
+            <div class="vital-bar"><div class="vital-fill sputum-fill" id="vf-sputum" style="width:10%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Alert Feed + Graph -->
+      <div class="demo-right">
+        <div class="alert-status-card" id="alert-status-card">
+          <div class="alert-status-dot" id="alert-dot"></div>
+          <div>
+            <div class="alert-status-label" id="alert-label">ALL SYSTEMS NORMAL</div>
+            <div class="alert-status-desc" id="alert-desc">Rajan sleeps. PulmoCare monitors continuously.</div>
+          </div>
+        </div>
+
+        <div class="co2-graph-card">
+          <div class="graph-header">
+            <span>CO₂ Trend (mmHg)</span>
+            <span class="graph-time" id="graph-time-label">2:00 AM — 2:55 AM</span>
+          </div>
+          <canvas id="co2-graph" width="500" height="140"></canvas>
+        </div>
+
+        <div class="notification-feed" id="notif-feed">
+          <div class="notif-placeholder">Notifications will appear here during the simulation…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Controls -->
+    <div class="demo-controls reveal">
+      <button class="demo-play-btn" id="demo-play-btn">
+        <span id="play-icon">▶</span> Play Simulation
+      </button>
+      <div class="demo-timeline" id="demo-timeline">
+        <div class="timeline-progress" id="timeline-progress"></div>
+        <div class="timeline-beats" id="timeline-beats"></div>
+      </div>
+      <div class="demo-beat-labels" id="beat-labels"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 5: TECHNICAL ARCHITECTURE ═══════════════ -->
+<section id="architecture" class="section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">TECHNICAL ARCHITECTURE</span>
+      <h2 class="section-title">Engineered for <span class="gradient-text">reliability.</span></h2>
+    </div>
+
+    <div class="arch-pipeline reveal">
+      <div class="arch-node">
+        <div class="arch-icon">🎤</div>
+        <h4>Acoustic Sensor</h4>
+        <p>MEMS microphone<br>50–1000 Hz</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-icon">🧠</div>
+        <h4>ARM Cortex-M4</h4>
+        <p>On-device ML<br>&lt;8mW active</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-icon">📡</div>
+        <h4>BLE 5.0</h4>
+        <p>Low-energy radio<br>10m range</p>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="arch-icon">📱</div>
+        <h4>Companion App</h4>
+        <p>Alert cascade<br>Caregiver SMS</p>
+      </div>
+    </div>
+
+    <div class="specs-grid reveal">
+      <div class="spec-card">
+        <span class="spec-title">Battery</span>
+        <span class="spec-value">24h+</span>
+        <span class="spec-detail">Li-Po 1400 mAh, USB-C charging</span>
+      </div>
+      <div class="spec-card">
+        <span class="spec-title">Connectivity</span>
+        <span class="spec-value">BLE 5.0</span>
+        <span class="spec-detail">Low-energy, caregiver app + SMS fallback</span>
+      </div>
+      <div class="spec-card">
+        <span class="spec-title">Sensor Accuracy</span>
+        <span class="spec-value">±2 mmHg</span>
+        <span class="spec-detail">tcPCO₂ validated against arterial blood gas</span>
+      </div>
+      <div class="spec-card">
+        <span class="spec-title">ML Latency</span>
+        <span class="spec-value">&lt;200ms</span>
+        <span class="spec-detail">Real-time sputum classification at edge</span>
+      </div>
+      <div class="spec-card">
+        <span class="spec-title">Target Cost</span>
+        <span class="spec-value">~$120</span>
+        <span class="spec-detail">vs $10,000+ for clinical monitors</span>
+      </div>
+      <div class="spec-card">
+        <span class="spec-title">Alert Layers</span>
+        <span class="spec-value">3</span>
+        <span class="spec-detail">Patient → Caregiver → Emergency SMS</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 6: IMPACT ═══════════════ -->
+<section id="impact" class="section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">IMPACT & AUDIENCE</span>
+      <h2 class="section-title">Who PulmoCare<br><span class="gradient-text">is built for.</span></h2>
+    </div>
+
+    <div class="audience-grid reveal">
+      <div class="audience-card">
+        <div class="audience-emoji">🫁</div>
+        <h4>COPD Patients</h4>
+        <p>251M globally. Frequent exacerbations lead to hospitalisation and death. PulmoCare gives them an early warning system at home.</p>
+      </div>
+      <div class="audience-card">
+        <div class="audience-emoji">👨‍👩‍👧</div>
+        <h4>Family Caregivers</h4>
+        <p>Often untrained, often asleep when crises happen. PulmoCare's alert cascade ensures they're notified — even via SMS.</p>
+      </div>
+      <div class="audience-card">
+        <div class="audience-emoji">🏥</div>
+        <h4>Rural Clinics</h4>
+        <p>No access to $10K monitors. PulmoCare at ~$120 brings continuous monitoring to underserved communities.</p>
+      </div>
+    </div>
+
+    <div class="impact-statement reveal">
+      <h2>The window to act is <span class="text-danger">hours</span> before the crisis.<br>
+      PulmoCare is the first device <span class="gradient-text">watching.</span></h2>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SECTION 7: FOOTER / CTA ═══════════════ -->
+<footer id="footer" class="section footer">
+  <div class="container">
+    <div class="footer-cta reveal">
+      <h2>Every deterioration has a first step.<br><span class="gradient-text">PulmoCare is designed to find it.</span></h2>
+      <div class="footer-actions">
+        <a href="#demo" class="btn btn-primary">Watch the Demo Again →</a>
+        <button class="btn btn-ghost" id="btn-contact">Contact the Team →</button>
+      </div>
+    </div>
+    <div class="footer-credits">
+      <p>Anmol Garg · B.Tech AI & Data Science<br>
+      Vivekananda Institute of Professional Studies, New Delhi</p>
+      <p class="footer-copy">© 2025 PulmoCare. Built for Samsung Solve for Tomorrow.</p>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>
