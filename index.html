@@ -538,6 +538,32 @@
   </div>
 
   <style>
+    /* Every direct section child of html-root starts hidden */
+    #s1-text,
+    #s1-product,
+    #s1-scroll,
+    #s2-panel,
+    #s3-cards,
+    #s3-impact,
+    #s4-annotations,
+    #s4-title,
+    #s7-container,
+    #s8-section,
+    #s10-section {
+      opacity: 0 !important;
+      transition: none !important;
+    }
+
+    /* Sub-panels inside s2 also start hidden */
+    #s2a, #s2b, #s2c {
+      opacity: 0 !important;
+    }
+
+    /* Annotation labels start hidden */
+    .anno {
+      opacity: 0 !important;
+    }
+
     @keyframes scrollPulse {
       0%,100% { opacity:0.3; transform:scaleY(1); }
       50% { opacity:1; transform:scaleY(1.1); }

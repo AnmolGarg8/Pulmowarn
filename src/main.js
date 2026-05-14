@@ -7,6 +7,29 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Force ScrollTrigger to use the correct scroll container
+ScrollTrigger.defaults({
+  scroller: window
+});
+
+// Refresh after all triggers are registered
+window.addEventListener('load', () => {
+  ScrollTrigger.refresh(true);
+});
+
+function hideAllSections() {
+  const sections = [
+    's1-text', 's1-product', 's1-scroll',
+    's2-panel', 's3-cards', 's3-impact',
+    's4-annotations', 's4-title',
+    's7-container', 's8-section', 's10-section'
+  ];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.opacity = '0';
+  });
+}
+
 // RENDERER
 const canvas = document.getElementById('webgl-canvas');
 const renderer = new THREE.WebGLRenderer({ 
@@ -250,14 +273,26 @@ ScrollTrigger.create({
   end: '130vh top',
   scrub: true,
   onUpdate: self => {
-    gsap.set('#s1-product', { opacity: self.progress, display: self.progress > 0 ? 'block' : 'none' });
-    gsap.set('#s1-text', { opacity: 1 - self.progress * 2 });
-    gsap.set('#s1-scroll', { opacity: 1 - self.progress * 3 });
+    hideAllSections();
+    const p = self.progress;
+
+    const s1Prod = document.getElementById('s1-product');
+    if(s1Prod) {
+      s1Prod.style.opacity = String(p);
+      s1Prod.style.display = p > 0 ? 'block' : 'none';
+    }
+
+    const s1Text = document.getElementById('s1-text');
+    if(s1Text) s1Text.style.opacity = String(1 - p * 2);
+
+    const s1Scroll = document.getElementById('s1-scroll');
+    if(s1Scroll) s1Scroll.style.opacity = String(1 - p * 3);
+
     // Fade out lung particles as we move to disease section
     if(lungSystem.mat) {
-      lungSystem.mat.uniforms.uFade.value = 1 - self.progress;
+      lungSystem.mat.uniforms.uFade.value = 1 - p;
     }
-    lungSystem.points.visible = self.progress < 0.99;
+    lungSystem.points.visible = p < 0.99;
   }
 });
 
@@ -458,29 +493,43 @@ ScrollTrigger.create({
   scrub: 1.2,
   pin: false,
   onUpdate: self => {
+    hideAllSections();
     const p = self.progress;
     
     // Hide ALL Section 1 HTML & 3D the moment we enter Section 2
-    gsap.set('#s1-text',    { opacity: 0, display: 'none' });
-    gsap.set('#s1-scroll',  { opacity: 0, display: 'none' });
+    const s1Text = document.getElementById('s1-text');
+    if(s1Text) s1Text.style.display = 'none';
+    const s1Scroll = document.getElementById('s1-scroll');
+    if(s1Scroll) s1Scroll.style.display = 'none';
+
     lungSystem.points.visible = false;
     
     const s1Opacity = Math.max(0, 1 - p * 8);
-    gsap.set('#s1-product', { opacity: s1Opacity, display: s1Opacity > 0 ? 'block' : 'none' });
+    const s1Prod = document.getElementById('s1-product');
+    if(s1Prod) {
+      s1Prod.style.opacity = String(s1Opacity);
+      s1Prod.style.display = s1Opacity > 0 ? 'block' : 'none';
+    }
     
     bronchialTree.visible = p > 0.01 && p < 0.66;
     mucusSystem.points.visible = p > 0 && p < 0.66;
     bloodSystem.visible = p >= 0.66;
     co2Gauge.mesh.visible = p >= 0.66;
 
+    const s2Panel = document.getElementById('s2-panel');
+    if(s2Panel) s2Panel.style.opacity = '1';
+
+    const s2a = document.getElementById('s2a');
+    const s2b = document.getElementById('s2b');
+    const s2c = document.getElementById('s2c');
+
     if(p < 0.33) {
       const ap = p / 0.33;
       bronchialTree.children.forEach(m => { m.material.opacity = ap * 0.85; });
       bronchialTree.rotation.y = Math.sin(ap * Math.PI * 0.5) * 0.15;
-      gsap.set('#s2a', { opacity: Math.min(ap * 3, 1) });
-      gsap.set('#s2b', { opacity: 0 });
-      gsap.set('#s2c', { opacity: 0 });
-      gsap.set('#s2-panel', { opacity: 1 });
+      if(s2a) s2a.style.opacity = String(Math.min(ap * 3, 1));
+      if(s2b) s2b.style.opacity = '0';
+      if(s2c) s2c.style.opacity = '0';
       mucusSystem.mat.uniforms.uAmount.value = 0;
     } else if(p < 0.66) {
       const bp = (p - 0.33) / 0.33;
@@ -488,9 +537,9 @@ ScrollTrigger.create({
       bronchialTree.children.forEach(m => {
         m.material.color.setRGB(0.35 + bp * 0.35, 0.20 - bp * 0.10, 0.25 - bp * 0.15);
       });
-      gsap.set('#s2a', { opacity: Math.max(0, 1 - bp * 4) });
-      gsap.set('#s2b', { opacity: Math.min(bp * 4, 1) });
-      gsap.set('#s2c', { opacity: 0 });
+      if(s2a) s2a.style.opacity = String(Math.max(0, 1 - bp * 4));
+      if(s2b) s2b.style.opacity = String(Math.min(bp * 4, 1));
+      if(s2c) s2c.style.opacity = '0';
     } else {
       const cp = (p - 0.66) / 0.34;
       bloodSystem.children.forEach((m) => {
@@ -498,9 +547,9 @@ ScrollTrigger.create({
         m.material.color.setRGB(0.0 + cp * 0.91, 0.83 - cp * 0.58, 0.67 - cp * 0.67);
       });
       co2Gauge.mat.uniforms.uLevel.value = cp * 0.9;
-      gsap.set('#s2a', { opacity: 0 }); // Ensure Act A is hidden
-      gsap.set('#s2b', { opacity: Math.max(0, 1 - cp * 4) });
-      gsap.set('#s2c', { opacity: Math.min(cp * 4, 1) });
+      if(s2a) s2a.style.opacity = '0'; // Ensure Act A is hidden
+      if(s2b) s2b.style.opacity = String(Math.max(0, 1 - cp * 4));
+      if(s2c) s2c.style.opacity = String(Math.min(cp * 4, 1));
     }
   }
 });
@@ -589,18 +638,28 @@ ScrollTrigger.create({
   end: '560vh top',
   scrub: 1.2,
   onUpdate: self => {
+    hideAllSections();
     const p = self.progress;
     
     // Hide ALL Section 1 + Section 2 HTML & 3D when in Section 3
-    gsap.set('#s1-text',    { opacity: 0, display: 'none' });
-    gsap.set('#s1-scroll',  { opacity: 0, display: 'none' });
-    gsap.set('#s1-product', { opacity: 0, display: 'none' });
+    const s1Text = document.getElementById('s1-text');
+    if(s1Text) s1Text.style.display = 'none';
+    const s1Scroll = document.getElementById('s1-scroll');
+    if(s1Scroll) s1Scroll.style.display = 'none';
+    const s1Prod = document.getElementById('s1-product');
+    if(s1Prod) s1Prod.style.display = 'none';
+
     lungSystem.points.visible = false;
     bronchialTree.visible = false;
     mucusSystem.points.visible = false;
     
     const s2Opacity = Math.max(0, 1 - p * 6);
-    gsap.set('#s2-panel', { opacity: s2Opacity, display: s2Opacity > 0 ? 'block' : 'none' });
+    const s2Panel = document.getElementById('s2-panel');
+    if(s2Panel) {
+      s2Panel.style.opacity = String(s2Opacity);
+      s2Panel.style.display = s2Opacity > 0 ? 'block' : 'none';
+    }
+
     bloodSystem.visible = p < 0.15;
     co2Gauge.mesh.visible = p < 0.15;
 
@@ -614,8 +673,17 @@ ScrollTrigger.create({
       c.mesh.rotation.x = (1 - ap) * 0.3;
     });
 
-    gsap.set('#s3-cards', { opacity: Math.min(p * 3, 1), display: p > 0 ? 'flex' : 'none' });
-    gsap.set('#s3-impact', { opacity: Math.max(0, (p - 0.7) / 0.3), display: p > 0.7 ? 'block' : 'none' });
+    const s3Cards = document.getElementById('s3-cards');
+    if(s3Cards) {
+      s3Cards.style.opacity = String(Math.min(p * 3, 1));
+      s3Cards.style.display = p > 0 ? 'flex' : 'none';
+    }
+
+    const s3Impact = document.getElementById('s3-impact');
+    if(s3Impact) {
+      s3Impact.style.opacity = String(Math.max(0, (p - 0.7) / 0.3));
+      s3Impact.style.display = p > 0.7 ? 'block' : 'none';
+    }
   }
 });
 
@@ -821,37 +889,65 @@ const annoOffsets = [
 
 function updateAnnotationLines(annoVis) {
   const linesCanvas = document.getElementById('annotation-lines');
-  if(!linesCanvas) return;
-  linesCanvas.width  = window.innerWidth;
+  if(!linesCanvas || annoVis <= 0.01) return;
+  
+  // CRITICAL FIX: Set dimensions explicitly, not from offsetWidth
+  linesCanvas.width = window.innerWidth;
   linesCanvas.height = window.innerHeight;
+  linesCanvas.style.width = window.innerWidth + 'px';
+  linesCanvas.style.height = window.innerHeight + 'px';
+  
   const ctx = linesCanvas.getContext('2d');
   ctx.clearRect(0, 0, linesCanvas.width, linesCanvas.height);
-  if(annoVis <= 0) return;
-
+  
+  if(typeof deviceGroup === 'undefined' || !deviceGroup.visible) return;
+  
   annoAttachPoints.forEach((localPt, i) => {
-    const worldPt = localPt.clone().applyMatrix4(deviceGroup.matrixWorld);
-    const screenPt = worldPt.clone().project(camera);
-    const sx = (screenPt.x * 0.5 + 0.5) * window.innerWidth;
-    const sy = (-screenPt.y * 0.5 + 0.5) * window.innerHeight;
+    // Project device surface point to screen coordinates
+    const worldPt = localPt.clone()
+      .applyMatrix4(deviceGroup.matrixWorld);
+    const ndcPt = worldPt.clone().project(camera);
+    
+    // NDC to screen pixels
+    const sx = (ndcPt.x * 0.5 + 0.5) * window.innerWidth;
+    const sy = (-ndcPt.y * 0.5 + 0.5) * window.innerHeight;
+    
+    // Label target position
     const lx = sx + annoOffsets[i][0];
     const ly = sy + annoOffsets[i][1];
-
-    const el = document.getElementById(`anno-${i}`);
+    
+    // Position HTML label element
+    const el = document.getElementById('anno-' + i);
     if(el) {
-      el.style.left = (lx + (annoOffsets[i][0] > 0 ? 0 : -el.offsetWidth)) + 'px';
-      el.style.top  = (ly - el.offsetHeight / 2) + 'px';
-      el.style.opacity = annoVis;
+      // Position label — to the right if offset positive X, left if negative
+      const labelX = annoOffsets[i][0] > 0 
+        ? lx 
+        : lx - el.getBoundingClientRect().width;
+      el.style.left = labelX + 'px';
+      el.style.top = (ly - 16) + 'px';
+      el.style.opacity = String(annoVis);
+      el.style.position = 'fixed';
     }
-
-    ctx.globalAlpha = annoVis * 0.6;
+    
+    // Draw connecting dashed line
+    ctx.save();
+    ctx.globalAlpha = annoVis * 0.55;
     ctx.strokeStyle = '#00D4AA';
     ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(lx, ly); ctx.stroke();
+    ctx.setLineDash([3, 5]);
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(lx, ly);
+    ctx.stroke();
+    
+    // Small circle at device attach point
     ctx.setLineDash([]);
     ctx.globalAlpha = annoVis;
     ctx.fillStyle = '#00D4AA';
-    ctx.beginPath(); ctx.arc(sx, sy, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   });
 }
 
@@ -864,11 +960,22 @@ ScrollTrigger.create({
   end: '730vh top',
   scrub: 1.2,
   onUpdate: self => {
+    hideAllSections();
     const p = self.progress;
 
     // Clean up Section 3 elements
-    gsap.set('#s3-cards',  { opacity: Math.max(0, 1 - p * 6), display: p < 0.15 ? 'flex' : 'none' });
-    gsap.set('#s3-impact', { opacity: Math.max(0, 1 - p * 6), display: p < 0.15 ? 'block' : 'none' });
+    const s3Cards = document.getElementById('s3-cards');
+    if(s3Cards) {
+      s3Cards.style.opacity = String(Math.max(0, 1 - p * 6));
+      s3Cards.style.display = p < 0.15 ? 'flex' : 'none';
+    }
+
+    const s3Impact = document.getElementById('s3-impact');
+    if(s3Impact) {
+      s3Impact.style.opacity = String(Math.max(0, 1 - p * 6));
+      s3Impact.style.display = p < 0.15 ? 'block' : 'none';
+    }
+
     glassCards.forEach(c => { c.mesh.visible = p < 0.15; });
     
     // Ensure previous sections are hidden
@@ -880,6 +987,9 @@ ScrollTrigger.create({
 
     deviceGroup.visible = p > 0;
 
+    const s4Anno = document.getElementById('s4-annotations');
+    const s4Title = document.getElementById('s4-title');
+
     if(p < 0.4) {
       const ap = p / 0.4;
       const eased = 1 - Math.pow(1 - ap, 3);
@@ -887,22 +997,22 @@ ScrollTrigger.create({
       deviceGroup.rotation.y = (1 - eased) * Math.PI * 2.5;
       deviceGroup.position.y = (1 - eased) * -2;
       deviceGroup.position.x = 0;
-      gsap.set('#s4-title',       { opacity: 0 });
-      gsap.set('#s4-annotations', { opacity: 0 });
+      if(s4Title) s4Title.style.opacity = '0';
+      if(s4Anno) s4Anno.style.opacity = '0';
     } else if(p < 0.75) {
       deviceGroup.scale.setScalar(1.0);
       deviceGroup.position.set(0, 0, 0);
       const bp = (p - 0.4) / 0.35;
-      gsap.set('#s4-annotations', { opacity: Math.min(bp * 2, 1) });
-      gsap.set('#s4-title',       { opacity: Math.min(bp * 2, 1) });
+      if(s4Anno) s4Anno.style.opacity = String(Math.min(bp * 2, 1));
+      if(s4Title) s4Title.style.opacity = String(Math.min(bp * 2, 1));
       deviceBaseRotY = bp * 0.8;
       deviceAlertState = 'normal';
     } else {
       const cp = (p - 0.75) / 0.25;
       deviceGroup.position.set(cp * 3.5, cp * 2.2, 0);
       deviceGroup.scale.setScalar(1.0 - cp * 0.65);
-      gsap.set('#s4-annotations', { opacity: Math.max(0, 1 - cp * 3) });
-      gsap.set('#s4-title',       { opacity: Math.max(0, 1 - cp * 3) });
+      if(s4Anno) s4Anno.style.opacity = String(Math.max(0, 1 - cp * 3));
+      if(s4Title) s4Title.style.opacity = String(Math.max(0, 1 - cp * 3));
     }
   }
 });
@@ -914,9 +1024,6 @@ function updateSection4(t) {
   if(ud.haloMat) ud.haloMat.uniforms.uTime.value = t;
   deviceGroup.rotation.y = deviceBaseRotY + mouse.x * 0.4;
   deviceGroup.rotation.x = mouse.y * 0.25;
-  const annoEl = document.getElementById('s4-annotations');
-  const annoVis = annoEl ? parseFloat(annoEl.style.opacity || '0') : 0;
-  updateAnnotationLines(annoVis);
 }
 
 const updateSection5 = (t) => {};
@@ -1114,37 +1221,83 @@ ScrollTrigger.create({
   end: '900vh top',
   scrub: 1.2,
   onUpdate: self => {
+    hideAllSections();
     const p = self.progress;
-    storyEnv.group.visible = true;
-
+    
+    // Show story container
+    const container = document.getElementById('s7-container');
+    if(container) container.style.opacity = 
+      String(Math.min(p * 8, 1));
+    
     // Clean up Section 4 elements
-    gsap.set('#s4-annotations', { opacity: Math.max(0, 1 - p * 6), display: p < 0.15 ? 'block' : 'none' });
-    gsap.set('#s4-title',       { opacity: Math.max(0, 1 - p * 6), display: p < 0.15 ? 'block' : 'none' });
+    const s4Anno = document.getElementById('s4-annotations');
+    if (s4Anno) {
+      s4Anno.style.opacity = String(Math.max(0, 1 - p * 6));
+      s4Anno.style.display = p < 0.15 ? 'block' : 'none';
+    }
+    const s4Title = document.getElementById('s4-title');
+    if (s4Title) {
+      s4Title.style.opacity = String(Math.max(0, 1 - p * 6));
+      s4Title.style.display = p < 0.15 ? 'block' : 'none';
+    }
 
-    gsap.set('#s7-container', { opacity: Math.min(p * 5, 1) });
-
-    const beatIndex = Math.min(Math.floor(p * storyBeats.length), storyBeats.length - 1);
+    const beatIndex = Math.min(
+      Math.floor(p * storyBeats.length),
+      storyBeats.length - 1
+    );
     const beat = storyBeats[beatIndex];
-
+    
+    // Update device alert state for OLED
     deviceAlertState = beat.alertState;
-    storyEnv.deviceLight.color.setHex(beat.lightColor);
-    storyEnv.deviceLight.intensity = beat.alertState === 'red' ? 3.0 : beat.alertState === 'amber' ? 2.0 : 1.5;
-
-    const timeEl   = document.getElementById('s7-time');
+    
+    // Update device glow light color
+    if(storyEnv.deviceLight) {
+      storyEnv.deviceLight.color.setHex(beat.lightColor);
+      storyEnv.deviceLight.intensity = 
+        beat.alertState === 'red' ? 3.0 :
+        beat.alertState === 'amber' ? 2.0 : 1.5;
+    }
+    
+    // CRITICAL FIX: Force DOM updates with null checks
+    const timeEl = document.getElementById('s7-time');
     const statusEl = document.getElementById('s7-status');
-    const descEl   = document.getElementById('s7-desc');
-    const cardEl   = document.getElementById('s7-card');
-    if(timeEl)   timeEl.textContent    = beat.time;
-    if(statusEl) { statusEl.textContent = beat.status; statusEl.style.color = beat.statusColor; }
-    if(descEl)   descEl.textContent    = beat.description;
-    if(cardEl)   cardEl.style.borderColor = beat.statusColor + '33';
-
-    updatePhoneScreen(storyEnv.phoneCanvas, storyEnv.phoneTex, beat);
-
+    const descEl = document.getElementById('s7-desc');
+    const cardEl = document.getElementById('s7-card');
+    
+    if(timeEl) timeEl.textContent = beat.time;
+    if(statusEl) {
+      statusEl.textContent = beat.status;
+      statusEl.style.color = beat.statusColor;
+    }
+    if(descEl) descEl.textContent = beat.description;
+    if(cardEl) {
+      cardEl.style.borderColor = beat.statusColor + '33';
+      cardEl.style.boxShadow = 
+        '0 0 30px ' + beat.statusColor + '15';
+    }
+    
+    // Update phone notification
+    if(storyEnv.phoneCanvas && storyEnv.phoneTex) {
+      updatePhoneScreen(
+        storyEnv.phoneCanvas, storyEnv.phoneTex, beat
+      );
+    }
+    
+    // Update CO2 graph
     const graphEl = document.getElementById('s7-graph');
-    if(graphEl && graphEl.offsetWidth > 0) drawCO2Graph(graphEl, beatIndex);
-
-    gsap.set('#s7-final', { opacity: Math.max(0, (p - 0.88) / 0.12) });
+    if(graphEl) drawCO2Graph(graphEl, beatIndex);
+    
+    // Show final impact text only at very end
+    const finalEl = document.getElementById('s7-final');
+    if(finalEl) {
+      finalEl.style.opacity = 
+        String(Math.max(0, (p - 0.88) / 0.12));
+    }
+    
+    // Story environment 3D scene
+    if(storyEnv.group) {
+      storyEnv.group.visible = true;
+    }
 
     camera.position.z = 5 + Math.sin(p * Math.PI) * 1.5;
   }
@@ -1164,11 +1317,15 @@ ScrollTrigger.create({
   end: '960vh top',
   scrub: 1.0,
   onUpdate: self => {
+    hideAllSections();
     const p = self.progress;
     storyEnv.group.visible = p < 0.2;
-    gsap.set('#s7-container', { opacity: Math.max(0, 1 - p * 5) });
-    gsap.set('#s8-section',   { opacity: Math.min(p * 3, 1) });
-    gsap.set('#s10-section',  { opacity: 0 });
+
+    const s7Container = document.getElementById('s7-container');
+    if(s7Container) s7Container.style.opacity = String(Math.max(0, 1 - p * 5));
+
+    const s8Section = document.getElementById('s8-section');
+    if(s8Section) s8Section.style.opacity = String(Math.min(p * 3, 1));
   }
 });
 
@@ -1178,9 +1335,15 @@ ScrollTrigger.create({
   end: '1040vh top',
   scrub: 1.0,
   onUpdate: self => {
+    hideAllSections();
     const p = self.progress;
-    gsap.set('#s8-section',  { opacity: Math.max(0, 1 - p * 2) });
-    gsap.set('#s10-section', { opacity: Math.min(p * 2, 1) });
+
+    const s8Section = document.getElementById('s8-section');
+    if(s8Section) s8Section.style.opacity = String(Math.max(0, 1 - p * 2));
+
+    const s10Section = document.getElementById('s10-section');
+    if(s10Section) s10Section.style.opacity = String(Math.min(p * 2, 1));
+
     // Restore healthy lung in closing
     if(p > 0.3 && lungSystem.mat) {
       lungSystem.points.visible = true;
@@ -1193,9 +1356,33 @@ ScrollTrigger.create({
   }
 });
 
-// Extend page height and refresh triggers
-document.getElementById('scroll-spacer').style.height = '1050vh';
-ScrollTrigger.refresh();
+// Give browser one frame to layout before refreshing
+requestAnimationFrame(() => {
+  ScrollTrigger.refresh(true);
+});
+
+function initializeSceneState() {
+  if(typeof bronchialTree !== 'undefined') 
+    bronchialTree.visible = false;
+  if(typeof mucusSystem !== 'undefined') {
+    mucusSystem.points.visible = false;
+  }
+  if(typeof bloodSystem !== 'undefined') 
+    bloodSystem.visible = false;
+  if(typeof co2Gauge !== 'undefined') 
+    co2Gauge.mesh.visible = false;
+  if(typeof glassCards !== 'undefined') {
+    glassCards.forEach(c => c.mesh.visible = false);
+  }
+  if(typeof storyEnv !== 'undefined') 
+    storyEnv.group.visible = false;
+  if(typeof deviceGroup !== 'undefined') {
+    deviceGroup.visible = false;
+    deviceGroup.scale.setScalar(0);
+  }
+}
+
+initializeSceneState();
 
 // RENDER LOOP — single RAF, all sections plug into this
 function animate() {
@@ -1207,6 +1394,17 @@ function animate() {
   camera.position.y += (mouse.y * 0.10 - camera.position.y) * 0.05;
   camera.lookAt(0, 0, 0);
   
+  scene.updateMatrixWorld(true);
+
+  if(typeof deviceGroup !== 'undefined' && deviceGroup.visible) {
+    const annoContainer = document.getElementById('s4-annotations');
+    const annoOpacity = annoContainer ? 
+      parseFloat(annoContainer.style.opacity || '0') : 0;
+    if(annoOpacity > 0) {
+      updateAnnotationLines(annoOpacity);
+    }
+  }
+
   // Each section's update function is called here
   updateSection1(t);
   updateSection2(t);
