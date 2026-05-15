@@ -1,443 +1,601 @@
-// ═══════════════════════════════════════════════════
-// PulmoCare — Competition-Grade Interactive Website
-// Zero Three.js / Zero GSAP — Pure JS + CSS + Canvas
-// ═══════════════════════════════════════════════════
+import * as THREE from 'three';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// ── SCROLL REVEAL ──────────────────────────────────
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.15 });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+gsap.registerPlugin(ScrollTrigger);
 
-// ── STAT COUNTERS ──────────────────────────────────
-function animateCounters() {
-  document.querySelectorAll('.stat-number').forEach(el => {
-    const target = parseFloat(el.dataset.target);
-    const decimal = parseInt(el.dataset.decimal || '0');
-    const duration = 2000;
-    const start = performance.now();
-    function tick(now) {
-      const p = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      el.textContent = (target * ease).toFixed(decimal);
-      if (p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  });
-}
-const heroObs = new IntersectionObserver((entries) => {
-  if (entries[0].isIntersecting) { animateCounters(); heroObs.disconnect(); }
-}, { threshold: 0.3 });
-const heroEl = document.getElementById('hero');
-if (heroEl) heroObs.observe(heroEl);
-
-// ── NAV SCROLL EFFECT ──────────────────────────────
-const nav = document.getElementById('main-nav');
-window.addEventListener('scroll', () => {
-  if (nav) nav.style.background = window.scrollY > 50
-    ? 'rgba(6,9,15,.92)' : 'rgba(6,9,15,.7)';
-});
-
-// ── SMOOTH SCROLL FOR NAV LINKS ────────────────────
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-});
-
-// ── DEVICE OLED ANIMATION (Solution Section) ───────
-const oledCanvas = document.getElementById('oled-canvas');
-if (oledCanvas) {
-  const ctx = oledCanvas.getContext('2d');
-  const W = oledCanvas.width, H = oledCanvas.height;
-  function drawOLED(t) {
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, W, H);
-    // Scanlines
-    ctx.strokeStyle = 'rgba(0,212,170,0.03)';
-    for (let y = 0; y < H; y += 3) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-    // Status text
-    ctx.font = '600 10px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#00d4aa';
-    ctx.textAlign = 'center';
-    ctx.fillText('PULMOCARE v1.0', W/2, 18);
-    // Waveform
-    ctx.beginPath(); ctx.strokeStyle = '#00d4aa'; ctx.lineWidth = 1.5;
-    for (let x = 0; x < W; x++) {
-      const y = H/2 + Math.sin(x * 0.08 + t * 2) * 12 + Math.sin(x * 0.03 + t) * 6;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    // Bottom text
-    ctx.font = '500 9px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(0,212,170,0.5)';
-    ctx.fillText('ALL SYSTEMS NORMAL', W/2, H - 8);
-    requestAnimationFrame(() => drawOLED(performance.now() / 1000));
-  }
-  drawOLED(0);
-}
-
-// ═══════════════════════════════════════════════════
-// ⭐ INTERACTIVE DEMO — THE COMPETITION WINNER ⭐
-// ═══════════════════════════════════════════════════
+// --- CONSTANTS & DATA ---
+const COLORS = {
+    bg: 0x07101E,
+    accent: 0x00C896,
+    warning: 0xF59E0B,
+    critical: 0xEF4444,
+    safe: 0x22C55E,
+    text: 0xF1F5F9,
+    secondary: 0x94A3B8
+};
 
 const BEATS = [
   {
-    time: '2:00 AM', label: 'Normal', state: 'normal',
-    color: '#00d4aa', statusColor: '#22c55e',
-    status: 'ALL SYSTEMS NORMAL',
-    desc: 'Rajan sleeps peacefully. PulmoCare monitors continuously. All vitals within safe range.',
-    spo2: 97, co2: 38, rr: 14, sputum: 10, sputumLabel: 'LOW',
-    notif: null
+    time: '2:00 AM',
+    title: 'Baseline — all stable',
+    status: 'NORMAL',
+    statusColor: '#22C55E',
+    deviceState: 'normal',
+    co2: 42,
+    description: 'Rajan is asleep. PulmoCare monitors continuously. CO₂ at personal baseline of 42 mmHg. Airways completely clear.',
+    notification: null,
+    co2Points: [42, 42, 42, 41, 42]
   },
   {
-    time: '2:11 AM', label: 'Detecting', state: 'amber',
-    color: '#f5a623', statusColor: '#f5a623',
-    status: 'ACOUSTIC: DETECTING RHONCHI',
-    desc: 'MEMS sensor detects rhonchi signal. Mucus pooling in bronchial airways. ML classifier confidence rising.',
-    spo2: 96, co2: 41, rr: 16, sputum: 45, sputumLabel: 'MODERATE',
-    notif: { type: 'warn', title: '⚠️ Sputum Buildup Detected', body: 'Airways sound congested. Try airway clearance — sit upright, slow deep breath, huff coughing.', time: '2:11 AM' }
+    time: '2:11 AM',
+    title: 'Mucus accumulating — rhonchi detected',
+    status: 'ACOUSTIC DETECTING',
+    statusColor: '#F59E0B',
+    deviceState: 'detecting',
+    co2: 43,
+    description: 'The MEMS microphone detects turbulent low-frequency sound in the 100–300 Hz range. Mucus is pooling in the bronchial airways. Classifier confidence score: rising.',
+    notification: null,
+    co2Points: [42, 42, 42, 41, 42, 43, 43]
   },
   {
-    time: '2:14 AM', label: 'Layer 0', state: 'amber',
-    color: '#f5a623', statusColor: '#eab308',
-    status: 'LAYER 0 FIRED — PATIENT ALERT',
-    desc: 'Sputum alert sent to device. Earliest possible intervention — before any CO₂ has risen significantly.',
-    spo2: 95, co2: 44, rr: 18, sputum: 62, sputumLabel: 'HIGH',
-    notif: { type: 'warn', title: '🔔 Airway Clearance Needed', body: 'Airways congested for 3+ minutes. Device buzzer activated. Please clear your airway now.', time: '2:14 AM' }
+    time: '2:14 AM',
+    title: 'Layer 0 alert fires',
+    status: 'SPUTUM ALERT',
+    statusColor: '#F59E0B',
+    deviceState: 'amber',
+    co2: 44,
+    description: '3 consecutive minutes of confirmed rhonchi signal. Layer 0 fires — earliest possible intervention. CO₂ has not yet risen above baseline.',
+    notification: {
+      app: 'PulmoCare',
+      title: 'Airways sound congested.',
+      body: 'Try airway clearance now — sit upright, slow deep breath, huff coughing.',
+      color: '#F59E0B'
+    },
+    co2Points: [42, 42, 42, 41, 42, 43, 43, 44, 44]
   },
   {
-    time: '2:26 AM', label: 'Layer 1', state: 'amber',
-    color: '#eab308', statusColor: '#eab308',
-    status: 'CO₂ RISING — CAREGIVER NOTIFIED',
-    desc: 'CO₂ 16% above baseline. Caregiver Priya receives push notification on her phone.',
-    spo2: 93, co2: 52, rr: 22, sputum: 78, sputumLabel: 'CRITICAL',
-    notif: { type: 'warn', title: '📱 Caregiver Alert Sent', body: 'Push notification sent to Priya: "CO₂ rising + airways congested. Contact medical provider now."', time: '2:26 AM' }
+    time: '2:26 AM',
+    title: 'CO₂ rising — Layer 1',
+    status: 'CO₂ RISING',
+    statusColor: '#EAB308',
+    deviceState: 'yellow',
+    co2: 50,
+    description: 'Rajan did not respond to the Layer 0 alert. Blockage remains. CO₂ now 16% above personal baseline and sustained for 10+ minutes. Caregiver Priya notified via push notification.',
+    notification: {
+      app: 'PulmoCare',
+      title: 'Airways congested + CO₂ rising.',
+      body: 'Airway clearance has not resolved the problem. Contact your medical provider now.',
+      color: '#EAB308'
+    },
+    co2Points: [42,42,42,41,42,43,43,44,44,45,46,48,50,50]
   },
   {
-    time: '2:47 AM', label: 'Layer 2', state: 'red',
-    color: '#e84040', statusColor: '#e84040',
-    status: '!! CRITICAL — EMERGENCY SMS !!',
-    desc: 'CO₂ at dangerous level. SMS sent to all caregivers. Continuous buzzer. Priya responds and intervenes.',
-    spo2: 89, co2: 68, rr: 28, sputum: 95, sputumLabel: 'CRITICAL',
-    notif: { type: 'danger', title: '🚨 CRITICAL — EMERGENCY SMS SENT', body: 'CO₂ at critical level. Do not leave patient unsupervised. SMS sent to all registered caregivers.', time: '2:47 AM' }
+    time: '2:47 AM',
+    title: 'Critical — Layer 2',
+    status: '!! CRITICAL !!',
+    statusColor: '#EF4444',
+    deviceState: 'red',
+    co2: 60,
+    description: 'CO₂ now 30% above baseline. Layer 2 fires. Continuous buzzer active. Urgent SMS sent to ALL registered caregivers. Priya enters the room immediately.',
+    notification: {
+      app: 'PulmoCare — URGENT',
+      title: 'CRITICAL ALERT',
+      body: 'CO₂ at critical level. Immediate medical evaluation required. Do not leave patient.',
+      color: '#EF4444'
+    },
+    co2Points: [42,42,42,41,42,43,43,44,44,45,46,48,50,50,52,55,58,60]
   },
   {
-    time: '2:55 AM', label: 'Recovery', state: 'normal',
-    color: '#00d4aa', statusColor: '#22c55e',
-    status: 'RECOVERING — CRISIS AVERTED',
-    desc: 'Airways clearing after intervention. CO₂ returning to baseline. No ambulance. No ICU. PulmoCare intervened before Rajan lost the ability to ask for help.',
-    spo2: 96, co2: 40, rr: 15, sputum: 18, sputumLabel: 'LOW',
-    notif: { type: '', title: '✅ Crisis Averted', body: 'Vitals returning to normal. Airway clearance successful. Device returns to monitoring mode.', time: '2:55 AM' }
+    time: '2:55 AM',
+    title: 'Recovering — crisis averted',
+    status: 'RECOVERING',
+    statusColor: '#22C55E',
+    deviceState: 'normal',
+    co2: 44,
+    description: 'Priya helps Rajan sit upright and perform chest physiotherapy. Airways clearing. CO₂ returning to baseline. Device transitions back to green. No ambulance. No hospital.',
+    notification: {
+      app: 'PulmoCare',
+      title: 'Patient recovering.',
+      body: 'CO₂ returning to baseline. Airways clearing. Continue monitoring.',
+      color: '#22C55E'
+    },
+    co2Points: [42,42,42,41,42,43,43,44,44,45,46,48,50,50,52,55,58,60,56,52,47,44]
   }
 ];
 
-let currentBeat = 0;
-let isPlaying = false;
-let playTimer = null;
-const co2History = [38];
+let selectedBeat = 0;
 
-// DOM refs
-const demoTime = document.getElementById('demo-time');
-const demoOled = document.getElementById('demo-oled');
-const demoDot = document.getElementById('demo-device-dot');
-const alertDot = document.getElementById('alert-dot');
-const alertLabel = document.getElementById('alert-label');
-const alertDesc = document.getElementById('alert-desc');
-const alertCard = document.getElementById('alert-status-card');
-const notifFeed = document.getElementById('notif-feed');
-const playBtn = document.getElementById('demo-play-btn');
-const playIcon = document.getElementById('play-icon');
-const timelineProgress = document.getElementById('timeline-progress');
-const co2Graph = document.getElementById('co2-graph');
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    initNavigation();
+    initHeroTypewriter();
+    initStatsCount();
+    initThreeJS();
+    initStickyScroll();
+    initSimulation();
+    initRevealAnimations();
+    initParticles('hero-particles');
+    initParticles('cta-particles');
+});
 
-// Build timeline beat markers
-const timelineEl = document.getElementById('demo-timeline');
-const beatLabelsEl = document.getElementById('beat-labels');
-if (timelineEl && beatLabelsEl) {
-  BEATS.forEach((b, i) => {
-    const pct = (i / (BEATS.length - 1)) * 100;
-    const marker = document.createElement('div');
-    marker.className = 'beat-marker';
-    marker.style.left = `calc(${pct}% - 6px)`;
-    marker.title = b.time;
-    marker.addEventListener('click', () => jumpToBeat(i));
-    timelineEl.appendChild(marker);
+// --- PARTICLES (LUNG BREATHING) ---
+function initParticles(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    let particles = [];
+    const count = 100;
 
-    const label = document.createElement('span');
-    label.textContent = b.time;
-    label.style.flex = '1';
-    label.style.textAlign = i === 0 ? 'left' : i === BEATS.length - 1 ? 'right' : 'center';
-    beatLabelsEl.appendChild(label);
-  });
-}
+    const resize = () => {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
 
-function updateBeatMarkers() {
-  document.querySelectorAll('.beat-marker').forEach((m, i) => {
-    m.classList.toggle('active', i <= currentBeat);
-  });
-}
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.speedX = (Math.random() - 0.5) * 0.5;
+            this.speedY = (Math.random() - 0.5) * 0.5;
+            this.life = Math.random() * 0.5 + 0.5;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            // Breathing effect: move toward/away from center
+            const dx = this.x - canvas.width / 2;
+            const dy = this.y - canvas.height / 2;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const force = Math.sin(Date.now() * 0.001) * 0.01;
+            
+            this.x += (dx / dist) * force;
+            this.y += (dy / dist) * force;
 
-function setVital(id, value, fillId, fillPct, color) {
-  const el = document.getElementById(id);
-  const fill = document.getElementById(fillId);
-  if (el) el.textContent = value;
-  if (fill) {
-    fill.style.width = fillPct + '%';
-    if (color) fill.style.background = color;
-  }
-}
-
-function addNotification(notif) {
-  if (!notif || !notifFeed) return;
-  // Clear placeholder
-  const ph = notifFeed.querySelector('.notif-placeholder');
-  if (ph) ph.remove();
-
-  const div = document.createElement('div');
-  div.className = `notif-item ${notif.type}`;
-  div.innerHTML = `<div class="notif-title">${notif.title}</div>
-    <div class="notif-body">${notif.body}</div>
-    <div class="notif-time">${notif.time}</div>`;
-  notifFeed.prepend(div);
-}
-
-function applyBeat(index) {
-  const b = BEATS[index];
-  currentBeat = index;
-
-  // Time
-  if (demoTime) demoTime.textContent = b.time;
-
-  // Alert card
-  if (alertLabel) { alertLabel.textContent = b.status; alertLabel.style.color = b.statusColor; }
-  if (alertDesc) alertDesc.textContent = b.desc;
-  if (alertDot) { alertDot.style.background = b.statusColor; alertDot.style.boxShadow = `0 0 12px ${b.statusColor}`; }
-  if (alertCard) {
-    alertCard.style.borderColor = b.statusColor + '22';
-    alertCard.style.background = b.statusColor + '08';
-  }
-
-  // Device dot
-  if (demoDot) { demoDot.style.background = b.statusColor; demoDot.style.boxShadow = `0 0 8px ${b.statusColor}`; }
-
-  // Vitals
-  const co2Color = b.co2 > 55 ? '#e84040' : b.co2 > 45 ? '#f5a623' : '#00d4aa';
-  const spo2Color = b.spo2 < 92 ? '#e84040' : b.spo2 < 95 ? '#f5a623' : '#00d4aa';
-  setVital('v-spo2', b.spo2 + '%', 'vf-spo2', b.spo2, spo2Color);
-  setVital('v-co2', b.co2 + ' mmHg', 'vf-co2', Math.min(b.co2, 100), co2Color);
-  setVital('v-rr', b.rr + ' /min', 'vf-rr', Math.min(b.rr * 2.5, 100), b.rr > 24 ? '#e84040' : b.rr > 20 ? '#f5a623' : '#00d4aa');
-  setVital('v-sputum', b.sputumLabel, 'vf-sputum', b.sputum, b.sputum > 60 ? '#e84040' : b.sputum > 30 ? '#f5a623' : '#00d4aa');
-
-  // Vital card borders
-  const cards = ['vital-spo2', 'vital-co2', 'vital-rr', 'vital-sputum'];
-  const vals = [spo2Color, co2Color, b.rr > 24 ? '#e84040' : '#00d4aa', b.sputum > 60 ? '#e84040' : '#00d4aa'];
-  cards.forEach((cid, ci) => {
-    const cel = document.getElementById(cid);
-    if (cel) cel.style.borderColor = vals[ci] + '33';
-  });
-
-  // Vital value colors
-  const vEls = ['v-spo2', 'v-co2', 'v-rr', 'v-sputum'];
-  [spo2Color, co2Color, b.rr > 24 ? '#e84040' : '#00d4aa', b.sputum > 60 ? '#e84040' : '#00d4aa'].forEach((c, i) => {
-    const ve = document.getElementById(vEls[i]);
-    if (ve) ve.style.color = c;
-  });
-
-  // CO2 history
-  co2History.push(b.co2);
-  if (co2History.length > 30) co2History.shift();
-  drawCO2Graph();
-
-  // Timeline
-  const pct = (index / (BEATS.length - 1)) * 100;
-  if (timelineProgress) timelineProgress.style.width = pct + '%';
-  updateBeatMarkers();
-
-  // Notification
-  if (b.notif) addNotification(b.notif);
-
-  // Demo OLED
-  drawDemoOLED(b);
-}
-
-function drawCO2Graph() {
-  if (!co2Graph) return;
-  const ctx = co2Graph.getContext('2d');
-  const W = co2Graph.width, H = co2Graph.height;
-  ctx.clearRect(0, 0, W, H);
-
-  // Grid lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 1;
-  [35, 45, 55, 65].forEach(v => {
-    const y = H - ((v - 30) / 50) * H;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.font = '10px "JetBrains Mono"';
-    ctx.fillText(v.toString(), 4, y - 3);
-  });
-
-  // Danger zone
-  const dangerY = H - ((55 - 30) / 50) * H;
-  ctx.fillStyle = 'rgba(232,64,64,0.06)';
-  ctx.fillRect(0, 0, W, dangerY);
-
-  // Line
-  if (co2History.length < 2) return;
-  ctx.beginPath();
-  ctx.strokeStyle = '#00d4aa';
-  ctx.lineWidth = 2;
-  co2History.forEach((v, i) => {
-    const x = (i / (co2History.length - 1)) * W;
-    const y = H - ((v - 30) / 50) * H;
-    const c = v > 55 ? '#e84040' : v > 45 ? '#f5a623' : '#00d4aa';
-    if (i === 0) { ctx.moveTo(x, y); }
-    else {
-      ctx.strokeStyle = c;
-      ctx.lineTo(x, y);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.strokeStyle = c;
-      ctx.moveTo(x, y);
+            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                this.reset();
+            }
+        }
+        draw() {
+            ctx.fillStyle = `rgba(0, 200, 150, ${this.life * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
-  });
 
-  // Current point
-  const last = co2History[co2History.length - 1];
-  const lx = W;
-  const ly = H - ((last - 30) / 50) * H;
-  const lc = last > 55 ? '#e84040' : last > 45 ? '#f5a623' : '#00d4aa';
-  ctx.fillStyle = lc;
-  ctx.beginPath();
-  ctx.arc(lx - 2, ly, 4, 0, Math.PI * 2);
-  ctx.fill();
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+    }
+
+    const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    };
+    animate();
 }
 
-function drawDemoOLED(beat) {
-  if (!demoOled) return;
-  const ctx = demoOled.getContext('2d');
-  const W = demoOled.width, H = demoOled.height;
-  ctx.fillStyle = '#000';
+// --- NAVIGATION ---
+function initNavigation() {
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
+}
+
+// --- HERO TYPEWRITER ---
+function initHeroTypewriter() {
+    const text = "What if a wearable patch could save your father's life at 2 AM — before anyone knew something was wrong?";
+    const container = document.getElementById('hero-typewriter');
+    
+    if (!container) return;
+    const words = text.split(' ');
+    container.innerHTML = words.map(word => `<span style="opacity: 0; display: inline-block;">${word}&nbsp;</span>`).join('');
+    
+    gsap.to('#hero-typewriter span', {
+        opacity: 1,
+        duration: 0.1,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+            trigger: '#hero',
+            start: "top center"
+        }
+    });
+}
+
+// --- STATS COUNTING ---
+function initStatsCount() {
+    const items = document.querySelectorAll('.impact-item h3');
+    items.forEach(item => {
+        const target = parseFloat(item.getAttribute('data-target'));
+        
+        gsap.to(item, {
+            innerText: target,
+            duration: 2,
+            snap: { innerText: 1 },
+            scrollTrigger: {
+                trigger: item,
+                start: "top 90%"
+            }
+        });
+    });
+}
+
+// --- THREE.JS DEVICE RENDER ---
+function initThreeJS() {
+    const createDevice = (canvasId) => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setSize(width, height, false);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
+        camera.position.z = 6;
+
+        // Premium Device Body (Metallic Finish)
+        const geometry = new THREE.BoxGeometry(2.8, 1.6, 0.6);
+        const material = new THREE.MeshPhysicalMaterial({
+            color: 0x444444,
+            roughness: 0.1,
+            metalness: 0.9,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            transmission: 0,
+            thickness: 1
+        });
+        const device = new THREE.Mesh(geometry, material);
+        scene.add(device);
+
+        // Medical-Grade Screen
+        const screenGeo = new THREE.PlaneGeometry(2.2, 1.2);
+        const screenMat = new THREE.MeshStandardMaterial({ 
+            color: 0x0A0A0A,
+            emissive: 0x00C896,
+            emissiveIntensity: 0.2,
+            roughness: 0.1,
+            metalness: 0.5
+        });
+        const screen = new THREE.Mesh(screenGeo, screenMat);
+        screen.position.z = 0.31;
+        device.add(screen);
+
+        // Screen Inner Glow
+        const innerGlow = new THREE.PointLight(0x00C896, 1, 3);
+        innerGlow.position.set(0, 0, 0.4);
+        device.add(innerGlow);
+
+        // Lighting System
+        const mainLight = new THREE.DirectionalLight(0xffffff, 5);
+        mainLight.position.set(5, 5, 10);
+        scene.add(mainLight);
+
+        // Top/Bottom High-Intensity Lights
+        const topLight = new THREE.PointLight(0xffffff, 3);
+        topLight.position.set(0, 10, 0);
+        scene.add(topLight);
+
+        const bottomLight = new THREE.PointLight(0x00C896, 2);
+        bottomLight.position.set(0, -10, 0);
+        scene.add(bottomLight);
+
+        // Camera Positioning
+        camera.position.z = 5;
+        camera.position.y = 0.5;
+        camera.lookAt(0, 0, 0);
+
+        // Animation
+        let targetRotationX = -0.2; // Initial tilt
+        let targetRotationY = 0.5;  // Initial angle
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            device.position.y = Math.sin(Date.now() * 0.001) * 0.1;
+            device.rotation.x += (targetRotationX - device.rotation.x) * 0.05;
+            device.rotation.y += (targetRotationY - device.rotation.y) * 0.05;
+            if (Math.abs(targetRotationY) < 0.01) {
+                device.rotation.y += 0.005;
+            }
+            renderer.render(scene, camera);
+        };
+        animate();
+
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            targetRotationY = x * 0.8;
+            targetRotationX = y * 0.4;
+        });
+
+        window.addEventListener('resize', () => {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h, false);
+        });
+    };
+
+    createDevice('device-canvas-hero');
+    createDevice('solution-device-canvas');
+}
+
+// --- STICKY SCROLL & OLED ---
+function initStickyScroll() {
+    ScrollTrigger.create({
+        trigger: "#block-b",
+        start: "top center",
+        onEnter: () => updateSolutionOLED('warning', 'RHONCHI DETECTED'),
+        onLeaveBack: () => updateSolutionOLED('safe', 'SYSTEM NORMAL')
+    });
+
+    ScrollTrigger.create({
+        trigger: "#block-c",
+        start: "top center",
+        onEnter: () => updateSolutionOLED('warning', 'CO2 TREND RISING'),
+        onLeaveBack: () => updateSolutionOLED('warning', 'RHONCHI DETECTED')
+    });
+}
+
+function updateSolutionOLED(state, text) {
+    const dot = document.getElementById('oled-dot');
+    const label = document.getElementById('oled-text');
+    if (!dot || !label) return;
+    
+    if (state === 'safe') {
+        dot.style.background = 'var(--safe)';
+        label.innerText = text;
+    } else if (state === 'warning') {
+        dot.style.background = 'var(--warning)';
+        label.innerText = text;
+    } else {
+        dot.style.background = 'var(--critical)';
+        label.innerText = text;
+    }
+}
+
+// --- INTERACTIVE SIMULATION (SECTION 4) ---
+function initSimulation() {
+  buildTimeline();
+  updateSimulation(0);
+  animateDemo();
+}
+
+function buildTimeline() {
+  const container = document.getElementById('beat-timeline');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  BEATS.forEach((beat, i) => {
+    const item = document.createElement('div');
+    item.className = 'beat-item' + (i === selectedBeat ? ' beat-active' : '');
+    item.innerHTML = `
+      <div class="beat-dot" style="background:${beat.statusColor}"></div>
+      <div class="beat-content">
+        <span class="beat-time">${beat.time}</span>
+        <span class="beat-title">${beat.title}</span>
+      </div>
+      <div class="beat-status-pill" style="color:${beat.statusColor}; border-color:${beat.statusColor}44">
+        ${beat.status}
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      selectedBeat = i;
+      updateSimulation(i);
+      buildTimeline();
+    });
+    container.appendChild(item);
+  });
+}
+
+function updateDeviceCanvas(beat, t) {
+  const canvas = document.getElementById('device-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  
+  ctx.fillStyle = '#0A0F1A';
   ctx.fillRect(0, 0, W, H);
+  
+  ctx.fillStyle = '#F0F0EE';
+  roundRect(ctx, 20, 15, W-40, H-30, 12);
+  ctx.fill();
+  
+  ctx.strokeStyle = '#00C896';
+  ctx.lineWidth = 3;
+  roundRect(ctx, 20, 15, W-40, H-30, 12);
+  ctx.stroke();
+  
+  ctx.fillStyle = '#050A10';
+  roundRect(ctx, 50, 35, W-100, H-70, 6);
+  ctx.fill();
+  
+  drawOLEDContent(ctx, 50, 35, W-100, H-70, beat, t);
+}
 
-  // Scanlines
-  ctx.strokeStyle = beat.color + '08';
-  for (let y = 0; y < H; y += 2) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-
-  ctx.textAlign = 'center';
-  ctx.fillStyle = beat.color;
-
-  if (beat.state === 'normal') {
-    ctx.font = '600 14px "JetBrains Mono"';
-    ctx.fillText('PULMOCARE', W / 2, 28);
-    ctx.font = '500 11px "JetBrains Mono"';
-    ctx.fillStyle = beat.color + 'aa';
-    ctx.fillText(beat.time, W / 2, 48);
-    ctx.font = '600 12px "JetBrains Mono"';
-    ctx.fillStyle = beat.statusColor;
-    ctx.fillText('● NORMAL', W / 2, 70);
-    // Waveform
-    ctx.beginPath(); ctx.strokeStyle = beat.color + '55'; ctx.lineWidth = 1;
-    const t = performance.now() / 1000;
-    for (let x = 20; x < W - 20; x++) {
-      const y = 85 + Math.sin(x * 0.06 + t * 2) * 5;
-      x === 20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  } else if (beat.state === 'amber') {
-    ctx.font = '700 13px "JetBrains Mono"';
-    ctx.fillText('⚠ ALERT', W / 2, 26);
-    ctx.font = '500 10px "JetBrains Mono"';
-    ctx.fillText(beat.time, W / 2, 42);
-    ctx.font = '600 11px "JetBrains Mono"';
-    ctx.fillStyle = '#eab308';
-    ctx.fillText('SPUTUM DETECTED', W / 2, 60);
-    ctx.font = '500 10px "JetBrains Mono"';
-    ctx.fillStyle = '#f5a623aa';
-    ctx.fillText('CO₂: ' + beat.co2 + ' mmHg', W / 2, 78);
-    ctx.fillText('CHECK AIRWAY', W / 2, 93);
-  } else {
-    // Critical - flashing
-    const flash = Math.sin(performance.now() / 200) > 0;
-    ctx.font = '700 14px "JetBrains Mono"';
-    ctx.fillStyle = flash ? '#e84040' : '#e8404066';
-    ctx.fillText('!! CRITICAL !!', W / 2, 28);
-    ctx.font = '700 18px "JetBrains Mono"';
-    ctx.fillStyle = '#e84040';
-    ctx.fillText('CO₂: ' + beat.co2, W / 2, 55);
-    ctx.font = '500 10px "JetBrains Mono"';
-    ctx.fillStyle = '#e84040aa';
-    ctx.fillText('EMERGENCY SMS SENT', W / 2, 75);
-    ctx.fillText('DO NOT LEAVE PATIENT', W / 2, 90);
+function drawOLEDContent(ctx, x, y, w, h, beat, t) {
+  const cx = x + w/2, cy = y + h/2;
+  for (let sy = y; sy < y+h; sy += 3) {
+    ctx.fillStyle = 'rgba(0,200,150,0.02)';
+    ctx.fillRect(x, sy, w, 1);
+  }
+  
+  if (beat.deviceState === 'normal' || beat.deviceState === 'detecting') {
+    const pulse = t ? 0.6 + Math.sin(t*2) * 0.4 : 1;
+    const grad = ctx.createRadialGradient(x+30, cy, 0, x+30, cy, 18);
+    grad.addColorStop(0, `rgba(34,197,94,${pulse})`);
+    grad.addColorStop(1, 'rgba(34,197,94,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(x+30, cy, 18, 0, Math.PI*2); ctx.fill();
+    
+    ctx.fillStyle = '#22C55E';
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(beat.deviceState === 'normal' ? 'NORMAL' : 'DETECTING', x+55, cy-8);
+    ctx.font = '10px monospace';
+    ctx.fillStyle = '#166534';
+    ctx.fillText(`CO₂: ${beat.co2} mmHg`, x+55, cy+8);
+    ctx.fillText('AIRWAYS: ' + (beat.deviceState === 'normal' ? 'CLEAR' : 'PATTERN?'), x+55, cy+22);
+  } else if (beat.deviceState === 'amber' || beat.deviceState === 'yellow') {
+    const col = beat.deviceState === 'amber' ? '#F59E0B' : '#EAB308';
+    const blink = t ? Math.sin(t*4) > 0 : true;
+    ctx.fillStyle = blink ? col : '#7A5010';
+    ctx.beginPath(); ctx.arc(x+28, cy, 16, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = col;
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(beat.status, x+52, cy-10);
+    ctx.font = '9px monospace';
+    ctx.fillStyle = '#92611A';
+    ctx.fillText(`CO₂: ${beat.co2} mmHg`, x+52, cy+6);
+    ctx.fillText('TAKE ACTION', x+52, cy+20);
+  } else if (beat.deviceState === 'red') {
+    const blink = t ? Math.sin(t*6) > 0 : true;
+    if (blink) { ctx.fillStyle = 'rgba(239,68,68,0.15)'; ctx.fillRect(x, y, w, h); }
+    ctx.fillStyle = blink ? '#EF4444' : '#7F1D1D';
+    ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('!! CRITICAL !!', cx, cy-12);
+    ctx.font = '10px monospace';
+    ctx.fillStyle = blink ? '#FCA5A5' : '#EF4444';
+    ctx.fillText(`CO₂: ${beat.co2} mmHg`, cx, cy+6);
+    ctx.fillText('CALL EMERGENCY', cx, cy+22);
+    ctx.textAlign = 'left';
   }
 }
 
-// Continuously redraw OLED for animation
-let oledFrame;
-function oledLoop() {
-  if (BEATS[currentBeat]) drawDemoOLED(BEATS[currentBeat]);
-  oledFrame = requestAnimationFrame(oledLoop);
-}
-
-function jumpToBeat(index) {
-  applyBeat(index);
-}
-
-function startPlayback() {
-  if (isPlaying) return;
-  isPlaying = true;
-  if (playIcon) playIcon.textContent = '⏸';
-  if (playBtn) playBtn.childNodes[1].textContent = ' Pause';
-
-  // Reset if at end
-  if (currentBeat >= BEATS.length - 1) {
-    currentBeat = -1;
-    co2History.length = 0;
-    co2History.push(38);
-    if (notifFeed) notifFeed.innerHTML = '<div class="notif-placeholder">Notifications will appear here during the simulation…</div>';
+function updatePhoneCanvas(beat) {
+  const canvas = document.getElementById('phone-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0F172A'; roundRect(ctx, 0, 0, W, H, 20); ctx.fill();
+  ctx.fillStyle = '#1E293B'; roundRect(ctx, 6, 30, W-12, H-60, 14); ctx.fill();
+  ctx.fillStyle = '#0F172A'; ctx.fillRect(6, 30, W-12, 24);
+  ctx.fillStyle = '#64748B'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText(beat.time, W-14, 46); ctx.textAlign = 'left';
+  
+  if (!beat.notification) {
+    ctx.fillStyle = '#334155'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('No alerts', W/2, H/2 - 10); ctx.fillText('Patient stable', W/2, H/2 + 10);
+    ctx.fillStyle = '#00C896'; ctx.fillText('PulmoCare ●', W/2, H/2 + 35); ctx.textAlign = 'left';
+    return;
   }
-
-  function nextBeat() {
-    if (!isPlaying) return;
-    const next = currentBeat + 1;
-    if (next >= BEATS.length) {
-      stopPlayback();
-      return;
-    }
-    applyBeat(next);
-    playTimer = setTimeout(nextBeat, 3000);
-  }
-  nextBeat();
+  
+  const n = beat.notification;
+  ctx.fillStyle = '#0F172A'; ctx.strokeStyle = n.color + '44'; ctx.lineWidth = 1;
+  roundRect(ctx, 14, 62, W-28, 130, 10); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = n.color; ctx.beginPath(); ctx.arc(24, 80, 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = n.color; ctx.font = 'bold 10px sans-serif'; ctx.fillText(n.app, 34, 84);
+  ctx.fillStyle = '#F1F5F9'; ctx.font = 'bold 12px sans-serif';
+  wrapText(ctx, n.title, W-36).forEach((line, i) => ctx.fillText(line, 18, 102 + i*16));
+  ctx.fillStyle = '#94A3B8'; ctx.font = '10px sans-serif';
+  wrapText(ctx, n.body, W-36).forEach((line, i) => ctx.fillText(line, 18, 130 + i*14));
 }
 
-function stopPlayback() {
-  isPlaying = false;
-  if (playTimer) clearTimeout(playTimer);
-  if (playIcon) playIcon.textContent = '▶';
-  if (playBtn) playBtn.childNodes[1].textContent = ' Play Simulation';
-}
-
-if (playBtn) {
-  playBtn.addEventListener('click', () => {
-    isPlaying ? stopPlayback() : startPlayback();
+function drawCO2Graph(beatIndex) {
+  const canvas = document.getElementById('co2-graph');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const PAD = { top:16, right:16, bottom:28, left:40 }, gW = W - PAD.left - PAD.right, gH = H - PAD.top - PAD.bottom, minY = 35, maxY = 70;
+  
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  [35,42,50,60,70].forEach(v => {
+    const y = PAD.top + gH - (v-minY)/(maxY-minY)*gH;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + gW, y); ctx.stroke();
+    ctx.fillStyle = '#475569'; ctx.font = '9px monospace'; ctx.fillText(v, 2, y+3);
   });
+  
+  const bY = PAD.top+gH-(42-minY)/(maxY-minY)*gH, aY = PAD.top+gH-(50-minY)/(maxY-minY)*gH, rY = PAD.top+gH-(55-minY)/(maxY-minY)*gH;
+  ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(34,197,94,0.4)'; ctx.beginPath(); ctx.moveTo(PAD.left, bY); ctx.lineTo(PAD.left+gW, bY); ctx.stroke();
+  ctx.strokeStyle = 'rgba(245,158,11,0.4)'; ctx.beginPath(); ctx.moveTo(PAD.left, aY); ctx.lineTo(PAD.left+gW, aY); ctx.stroke();
+  ctx.strokeStyle = 'rgba(239,68,68,0.4)'; ctx.beginPath(); ctx.moveTo(PAD.left, rY); ctx.lineTo(PAD.left+gW, rY); ctx.stroke(); ctx.setLineDash([]);
+  
+  const points = []; for (let b = 0; b <= beatIndex; b++) BEATS[b].co2Points.forEach(v => points.push(v));
+  if (points.length < 2) return;
+  ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+  points.forEach((v, i) => {
+    const x = PAD.left + (i/(points.length-1)) * gW, y = PAD.top + gH - (v-minY)/(maxY-minY)*gH;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = BEATS[beatIndex].statusColor; ctx.stroke();
+  const lastV = points[points.length-1], lastX = PAD.left + gW, lastY = PAD.top + gH - (lastV-minY)/(maxY-minY)*gH;
+  ctx.fillStyle = BEATS[beatIndex].statusColor; ctx.beginPath(); ctx.arc(lastX, lastY, 5, 0, Math.PI*2); ctx.fill();
+  ctx.font = 'bold 10px monospace'; ctx.fillText(lastV + ' mmHg', lastX - 50, lastY - 8);
+  ctx.fillStyle = '#475569'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+  ['2:00','2:11','2:14','2:26','2:47','2:55'].forEach((l, i) => ctx.fillText(l, PAD.left + (i/5)*gW, H-4));
 }
 
-// Initialize demo
-applyBeat(0);
-drawCO2Graph();
-oledLoop();
+function updateSimulation(beatIndex) {
+  const beat = BEATS[beatIndex];
+  const outEl = document.getElementById('outcome-label');
+  if (outEl) outEl.innerHTML = `<div style="color:${beat.statusColor};font-size:11px;font-weight:600;letter-spacing:0.12em;margin-bottom:8px">${beat.status}</div><p style="font-size:14px;line-height:1.7;color:#94A3B8">${beat.description}</p>`;
+  updateDeviceCanvas(beat, null); updatePhoneCanvas(beat); drawCO2Graph(beatIndex);
+}
 
-// Auto-play when demo section scrolls into view
-const demoSection = document.getElementById('demo');
-if (demoSection) {
-  const demoObs = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !isPlaying && currentBeat === 0) {
-      setTimeout(startPlayback, 800);
-    }
-  }, { threshold: 0.4 });
-  demoObs.observe(demoSection);
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(' '), lines = []; let current = '';
+  words.forEach(word => {
+    const test = current + word + ' ';
+    if (ctx.measureText(test).width > maxWidth && current) { lines.push(current.trim()); current = word + ' '; } else current = test;
+  });
+  if (current) lines.push(current.trim()); return lines;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r); ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h); ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
+}
+
+let animT = 0;
+function animateDemo() { requestAnimationFrame(animateDemo); animT += 0.05; updateDeviceCanvas(BEATS[selectedBeat], animT); }
+
+// --- REVEAL ANIMATIONS ---
+function initRevealAnimations() {
+    const revealElements = document.querySelectorAll('section > .container > div, .glass-card');
+    revealElements.forEach(el => {
+        gsap.from(el, {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+                trigger: el,
+                start: "top 85%"
+            }
+        });
+    });
+
+    gsap.from('.chain-item', {
+        scale: 0.8,
+        opacity: 0,
+        stagger: 0.2,
+        duration: 0.8,
+        scrollTrigger: {
+            trigger: '.chain-sequence',
+            start: "top 70%"
+        }
+    });
 }
