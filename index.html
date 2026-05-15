@@ -9,17 +9,29 @@
 </head>
 <body>
     <nav id="main-nav">
-        <div class="container">
-            <a href="#" class="logo">PC <span>PulmoCare</span></a>
-            <ul class="nav-links">
-                <li><a href="#problem">Problem</a></li>
-                <li><a href="#solution">Solution</a></li>
-                <li><a href="#demo">Demo</a></li>
-                <li><a href="#research">Research</a></li>
-                <li><a href="#team">Team</a></li>
-            </ul>
-            <a href="#demo" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 14px;">Watch Demo</a>
+      <div id="nav-inner">
+        
+        <!-- Logo -->
+        <a href="#" id="nav-logo">
+          <div id="nav-logo-mark">PC</div>
+          <span id="nav-logo-text">PulmoCare</span>
+        </a>
+        
+        <!-- Centre links -->
+        <div id="nav-links">
+          <a href="#problem-section"   class="nav-link">Problem</a>
+          <a href="#solution-section"  class="nav-link">Solution</a>
+          <a href="#demo-section"      class="nav-link">Demo</a>
+          <a href="#research-section"  class="nav-link">Research</a>
+          <a href="#team-section"      class="nav-link">Team</a>
         </div>
+        
+        <!-- CTA -->
+        <a href="#demo-section" id="nav-cta">
+          Watch Demo →
+        </a>
+        
+      </div>
     </nav>
 
     <main>
@@ -31,7 +43,57 @@
                     <div class="hero-content">
                         <span class="label">SAMSUNG SOLVE FOR TOMORROW 2025</span>
                         <h1 class="display-text" id="hero-typewriter"></h1>
-                        <p class="text-secondary">PulmoCare detects airway obstruction and CO₂ retention simultaneously — the only home device that monitors the cause before the consequence.</p>
+                        <div id="competition-badges" style="
+                          display: flex;
+                          gap: 10px;
+                          flex-wrap: wrap;
+                          margin-bottom: 20px;
+                        ">
+                          <div class="comp-badge">
+                            <span class="comp-badge-dot"></span>
+                            Samsung Solve for Tomorrow 2025
+                          </div>
+                          <div class="comp-badge">
+                            <span class="comp-badge-dot"></span>
+                            Microsoft Imagine Cup 2025
+                          </div>
+                          <div class="comp-badge">
+                            <span class="comp-badge-dot"></span>
+                            Smart India Hackathon 2025
+                          </div>
+                        </div>
+                        <p class="text-secondary">Catching the cause before the consequence.</p>
+                        
+                        <div id="impact-strip">
+                          <div class="impact-stat">
+                            <div class="impact-number" 
+                                 data-target="380" data-suffix="M">0M</div>
+                            <div class="impact-label">COPD patients</div>
+                            <div class="impact-sub">at risk every night</div>
+                          </div>
+                          <div class="impact-divider"></div>
+                          <div class="impact-stat">
+                            <div class="impact-number" 
+                                 data-target="18000" data-prefix="$" 
+                                 data-suffix="">$0</div>
+                            <div class="impact-label">ICU admission cost</div>
+                            <div class="impact-sub">per COPD crisis episode</div>
+                          </div>
+                          <div class="impact-divider"></div>
+                          <div class="impact-stat">
+                            <div class="impact-number" 
+                                 data-target="0" data-suffix="">0</div>
+                            <div class="impact-label">Home CO₂ monitors</div>
+                            <div class="impact-sub">exist for under $500</div>
+                          </div>
+                          <div class="impact-divider"></div>
+                          <div class="impact-stat">
+                            <div class="impact-number" 
+                                 data-target="44" data-suffix="min">0min</div>
+                            <div class="impact-label">Earlier detection</div>
+                            <div class="impact-sub">vs current standard</div>
+                          </div>
+                        </div>
                         <div class="hero-btns">
                             <a href="#demo" class="btn btn-primary">Watch the Demo →</a>
                             <a href="#research" class="btn btn-outline">Read the Research</a>
@@ -42,32 +104,10 @@
                     </div>
                 </div>
             </div>
-            <div class="impact-strip">
-                <div class="container">
-                    <div class="impact-grid">
-                        <div class="impact-item">
-                            <h3 class="mono" data-target="380">0</h3>
-                            <span>COPD Patients</span>
-                        </div>
-                        <div class="impact-item">
-                            <h3 class="mono" data-target="2">0</h3>
-                            <span>Peak Risk Window (AM)</span>
-                        </div>
-                        <div class="impact-item">
-                            <h3 class="mono" data-target="0">0</h3>
-                            <span>Extra Cost vs Oximeter</span>
-                        </div>
-                        <div class="impact-item">
-                            <h3 class="mono" data-target="24">0</h3>
-                            <span>Hour Battery Life</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <!-- SECTION 2: THE PROBLEM -->
-        <section id="problem">
+        <section id="problem-section" class="problem">
             <div class="container">
                 <div class="problem-reality">
                     <span class="label">THE CLINICAL REALITY</span>
@@ -139,7 +179,7 @@
         </section>
 
         <!-- SECTION 3: THE SOLUTION -->
-        <section id="solution">
+        <section id="solution-section" class="solution">
             <div class="container">
                 <div class="solution-sticky">
                     <div class="solution-left">
@@ -196,63 +236,279 @@
         </section>
 
         <!-- SECTION 4: PROTOTYPE DEMO -->
-        <section id="demo-section">
-          <div class="container">
-            <!-- Video placeholder -->
-            <div id="video-placeholder" class="video-container">
-              <div id="video-overlay-text" style="text-align: center;">
-                <span class="label">Prototype Demonstration</span>
-                <h2>See PulmoCare in action.</h2>
-                <p class="text-secondary">Click any moment below to see how the device responds in real time.</p>
+        <section id="demo-section" style="
+          padding: 120px 0;
+          background: #050D1A;
+          position: relative;
+        ">
+          <div style="max-width:1200px; margin:0 auto; padding:0 40px">
+            
+            <!-- Section header -->
+            <div style="text-align:center; margin-bottom:70px">
+              <p style="
+                font-family:'Inter',sans-serif;
+                font-size:11px; font-weight:600;
+                letter-spacing:0.2em; color:#00C896;
+                text-transform:uppercase; margin-bottom:14px;
+              ">PROTOTYPE DEMONSTRATION</p>
+              
+              <h2 style="
+                font-family:'Syne',sans-serif;
+                font-size:clamp(36px,5vw,62px);
+                font-weight:800; color:#F1F5F9;
+                letter-spacing:-0.03em; line-height:1.1;
+                margin-bottom:18px;
+              ">Watch PulmoCare work.</h2>
+              
+              <p style="
+                font-family:'Inter',sans-serif;
+                font-size:18px; color:#64748B;
+                max-width:560px; margin:0 auto;
+                line-height:1.75;
+              ">
+                Click any moment in Rajan's night to see exactly
+                how the device detects, alerts, and escalates —
+                in real time.
+              </p>
+            </div>
+            
+            <!-- MAIN SIMULATION GRID -->
+            <div id="sim-grid" style="
+              display:grid;
+              grid-template-columns:1fr 1fr;
+              gap:32px;
+              align-items:start;
+              margin-bottom:40px;
+            ">
+              
+              <!-- LEFT: Device display -->
+              <div style="
+                background:rgba(255,255,255,0.03);
+                border:1px solid rgba(255,255,255,0.08);
+                border-radius:20px;
+                padding:32px;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                gap:24px;
+              ">
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:11px;font-weight:600;
+                  letter-spacing:0.15em;color:#64748B;
+                  text-transform:uppercase;
+                  align-self:flex-start;
+                ">LIVE DEVICE STATUS</p>
+                
+                <!-- Device canvas -->
+                <canvas id="demo-device-canvas" 
+                        width="360" height="220"
+                        style="
+                          border-radius:12px;
+                          border:1px solid rgba(0,200,150,0.15);
+                          box-shadow:0 0 50px rgba(0,200,150,0.06);
+                          width:100%; max-width:360px;
+                        ">
+                </canvas>
+                
+                <!-- Status description card -->
+                <div id="demo-status-card" style="
+                  width:100%;
+                  padding:18px 20px;
+                  background:rgba(255,255,255,0.03);
+                  border-radius:12px;
+                  border:1px solid rgba(255,255,255,0.06);
+                ">
+                  <div id="demo-status-badge" style="
+                    font-family:monospace;
+                    font-size:11px;font-weight:600;
+                    letter-spacing:0.12em;
+                    color:#22C55E;
+                    margin-bottom:8px;
+                    text-transform:uppercase;
+                  ">NORMAL</div>
+                  <p id="demo-status-desc" style="
+                    font-family:'Inter',sans-serif;
+                    font-size:13px;color:#94A3B8;
+                    line-height:1.7; margin:0;
+                  ">All readings stable. Monitoring active.</p>
+                </div>
+                
+                <!-- Phone notification -->
+                <div style="width:100%">
+                  <p style="
+                    font-family:'Inter',sans-serif;
+                    font-size:11px;font-weight:600;
+                    letter-spacing:0.15em;color:#64748B;
+                    text-transform:uppercase;
+                    margin-bottom:12px;
+                  ">CAREGIVER NOTIFICATION</p>
+                  <canvas id="demo-phone-canvas"
+                          width="320" height="90"
+                          style="
+                            width:100%;
+                            border-radius:12px;
+                            border:1px solid rgba(255,255,255,0.06);
+                          ">
+                  </canvas>
+                </div>
+              </div>
+              
+              <!-- RIGHT: Timeline + Graph -->
+              <div style="
+                display:flex;
+                flex-direction:column;
+                gap:20px;
+              ">
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:11px;font-weight:600;
+                  letter-spacing:0.15em;color:#64748B;
+                  text-transform:uppercase;
+                ">RAJAN'S NIGHT — CLICK ANY MOMENT</p>
+                
+                <!-- Timeline beats -->
+                <div id="demo-timeline" style="
+                  display:flex;
+                  flex-direction:column;
+                  gap:8px;
+                "></div>
+                
+                <!-- CO2 Graph -->
+                <div style="
+                  background:rgba(255,255,255,0.02);
+                  border:1px solid rgba(255,255,255,0.06);
+                  border-radius:12px;
+                  padding:16px;
+                ">
+                  <p style="
+                    font-family:monospace;
+                    font-size:10px;color:#475569;
+                    margin-bottom:8px;letter-spacing:0.1em;
+                  ">CO₂ LEVEL (mmHg) — PERSONALISED BASELINE: 42</p>
+                  <canvas id="demo-co2-graph"
+                          width="400" height="120"
+                          style="width:100%;display:block">
+                  </canvas>
+                </div>
+                
+                <!-- Key insight box -->
+                <div id="demo-insight" style="
+                  padding:18px 20px;
+                  background:rgba(0,200,150,0.06);
+                  border:1px solid rgba(0,200,150,0.18);
+                  border-radius:12px;
+                ">
+                  <p style="
+                    font-family:'Inter',sans-serif;
+                    font-size:14px;color:#F1F5F9;
+                    line-height:1.7;margin:0;
+                  ">
+                    <span style="color:#00C896;font-weight:600">
+                      Key insight:
+                    </span>
+                    PulmoCare detected the problem at 2:11 AM —
+                    <strong style="color:#00C896">44 minutes</strong>
+                    before the critical threshold was reached.
+                  </p>
+                </div>
               </div>
             </div>
             
-            <!-- Interactive simulation -->
-            <div id="simulation-wrapper" class="glass-card">
-              
-              <!-- Left: Device + Phone display -->
-              <div id="device-display">
-                <canvas id="device-canvas" width="320" height="200"></canvas>
-                <div id="device-status-label" class="mono" style="margin-top: 10px; color: var(--primary-accent);"></div>
-                <div id="phone-mockup">
-                  <canvas id="phone-canvas" width="220" height="380"></canvas>
-                </div>
+            <!-- OUTCOME COMPARISON ROW -->
+            <div style="
+              display:grid;
+              grid-template-columns:repeat(3,1fr);
+              gap:20px;
+              margin-top:48px;
+            ">
+              <!-- Without PulmoCare -->
+              <div style="
+                padding:28px 24px;
+                background:rgba(239,68,68,0.05);
+                border:1px solid rgba(239,68,68,0.18);
+                border-radius:16px;
+              ">
+                <div style="
+                  font-size:28px;margin-bottom:12px;
+                ">🚑</div>
+                <h4 style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">Without PulmoCare</h4>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:13px;color:#94A3B8;
+                  line-height:1.75;margin-bottom:14px;
+                ">
+                  Family finds patient confused or unresponsive.
+                  Ambulance called. ICU admission.
+                  Mechanical ventilation required.
+                </p>
+                <div style="
+                  font-family:monospace;font-size:13px;
+                  color:#EF4444;font-weight:600;
+                ">$18,000+ treatment cost</div>
               </div>
               
-              <!-- Right: Timeline + Graph -->
-              <div id="timeline-panel">
-                <h3 style="margin-bottom: 1.5rem;">Rajan's night — an overnight crisis</h3>
-                <div id="beat-timeline"></div>
-                <div style="margin-top: 2rem;">
-                  <span class="label" style="font-size: 10px;">LIVE CO₂ TREND (mmHg)</span>
-                  <canvas id="co2-graph" width="420" height="130"></canvas>
-                </div>
-                <div id="outcome-label" style="margin-top: 1.5rem;"></div>
+              <!-- With PulmoCare Layer 0 -->
+              <div style="
+                padding:28px 24px;
+                background:rgba(34,197,94,0.05);
+                border:1px solid rgba(34,197,94,0.18);
+                border-radius:16px;
+              ">
+                <div style="font-size:28px;margin-bottom:12px">🏠</div>
+                <h4 style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">Layer 0 acted upon</h4>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:13px;color:#94A3B8;
+                  line-height:1.75;margin-bottom:14px;
+                ">
+                  Patient clears airway at 2:14 AM.
+                  CO₂ never rises. No escalation needed.
+                  Resumes sleep. No hospital visit.
+                </p>
+                <div style="
+                  font-family:monospace;font-size:13px;
+                  color:#22C55E;font-weight:600;
+                ">$0 cost · Crisis prevented</div>
               </div>
               
+              <!-- With PulmoCare Layer 2 -->
+              <div style="
+                padding:28px 24px;
+                background:rgba(245,158,11,0.05);
+                border:1px solid rgba(245,158,11,0.18);
+                border-radius:16px;
+              ">
+                <div style="font-size:28px;margin-bottom:12px">📱</div>
+                <h4 style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">Layer 2 — caregiver responds</h4>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:13px;color:#94A3B8;
+                  line-height:1.75;margin-bottom:14px;
+                ">
+                  Priya responds at 2:47 AM. Chest physio
+                  administered. CO₂ returns to baseline.
+                  No ambulance required.
+                </p>
+                <div style="
+                  font-family:monospace;font-size:13px;
+                  color:#F59E0B;font-weight:600;
+                ">Crisis averted at home</div>
+              </div>
             </div>
             
-            <!-- Outcome cards -->
-            <div id="outcome-cards-row" class="outcome-cards" style="margin-top: 4rem;">
-                <div class="glass-card" style="background: rgba(239, 68, 68, 0.06); border-color: rgba(239, 68, 68, 0.2);">
-                    <span class="label" style="color: var(--critical);">WITHOUT PULMOCARE</span>
-                    <h3 style="margin-bottom: 1rem;">ICU Admission</h3>
-                    <p class="text-secondary">Mechanical ventilation required. 4.2 day average stay.</p>
-                    <div class="mono" style="margin-top: 1.5rem; color: var(--critical); font-weight: 700;">$18,000 AVG COST</div>
-                </div>
-                <div class="glass-card" style="background: rgba(34, 197, 94, 0.06); border-color: rgba(34, 197, 94, 0.2);">
-                    <span class="label" style="color: var(--safe);">WITH PULMOCARE (L0)</span>
-                    <h3 style="margin-bottom: 1rem;">Home Clearance</h3>
-                    <p class="text-secondary">Airway cleared at home. No escalation. Patient resumes sleep.</p>
-                    <div class="mono" style="margin-top: 1.5rem; color: var(--safe); font-weight: 700;">$0 EXTRA COST</div>
-                </div>
-                <div class="glass-card" style="background: rgba(245, 158, 11, 0.06); border-color: rgba(245, 158, 11, 0.2);">
-                    <span class="label" style="color: var(--warning);">WITH PULMOCARE (L2)</span>
-                    <h3 style="margin-bottom: 1rem;">Early Intervention</h3>
-                    <p class="text-secondary">Caregiver responds. Managed at home with physiotherapy.</p>
-                    <div class="mono" style="margin-top: 1.5rem; color: var(--warning); font-weight: 700;">CRISIS AVERTED</div>
-                </div>
-            </div>
           </div>
         </section>
 
@@ -485,67 +741,320 @@
         </section>
 
         <!-- SECTION 9: ROADMAP -->
-        <section id="roadmap">
-            <div class="container">
-                <div class="demo-header">
-                    <span class="label">ROADMAP</span>
-                    <h1>From Concept to Clinic</h1>
-                </div>
-
-                <div class="roadmap-timeline">
-                    <div class="roadmap-phase active">
-                        <span class="label" style="font-size: 9px; margin-bottom: 0.5rem;">CURRENT STAGE</span>
-                        <h3>Phase 1: Bench Prototype</h3>
-                        <ul>
-                            <li>MEMS + CO₂ sensor wired to MCU</li>
-                            <li>Dual-stream firmware validated</li>
-                            <li>Research paper published</li>
-                        </ul>
-                        <span class="mono text-secondary">Q1–Q2 2025</span>
-                    </div>
-                    <div class="roadmap-phase">
-                        <span class="label" style="opacity: 0;">NEXT</span>
-                        <h3>Phase 2: Clinical Pilot</h3>
-                        <ul>
-                            <li>n=30–40 patient study</li>
-                            <li>Hospital partnership</li>
-                            <li>Lead time quantification</li>
-                        </ul>
-                        <span class="mono text-secondary">Q3 2025–Q1 2026</span>
-                    </div>
-                    <div class="roadmap-phase">
-                        <span class="label" style="opacity: 0;">FUTURE</span>
-                        <h3>Phase 3: Regulatory</h3>
-                        <ul>
-                            <li>FDA 510(k) Submission</li>
-                            <li>Miniaturised Form Factor</li>
-                            <li>Global Scaling</li>
-                        </ul>
-                        <span class="mono text-secondary">2026–2027</span>
-                    </div>
-                </div>
+        <section id="research-section" style="
+          padding: 100px 0;
+          background: #07101E;
+        ">
+          <div style="
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+          ">
+            
+            <!-- Header -->
+            <div style="text-align:center; margin-bottom:70px">
+              <p style="
+                font-family:'Inter',sans-serif;
+                font-size:11px;font-weight:600;
+                letter-spacing:0.2em;color:#00C896;
+                text-transform:uppercase;margin-bottom:14px;
+              ">VALIDATION & ROADMAP</p>
+              <h2 style="
+                font-family:'Syne',sans-serif;
+                font-size:clamp(32px,4vw,56px);
+                font-weight:800;color:#F1F5F9;
+                letter-spacing:-0.03em;line-height:1.1;
+              ">From concept to clinic.</h2>
             </div>
+            
+            <!-- Research paper callout -->
+            <div style="
+              display:flex;align-items:center;
+              gap:24px;padding:28px 32px;
+              background:rgba(0,200,150,0.05);
+              border:1px solid rgba(0,200,150,0.15);
+              border-radius:16px;margin-bottom:48px;
+            ">
+              <div style="
+                width:52px;height:52px;flex-shrink:0;
+                background:rgba(0,200,150,0.1);
+                border-radius:12px;
+                display:flex;align-items:center;
+                justify-content:center;font-size:24px;
+              ">📄</div>
+              <div style="flex:1">
+                <p style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:6px;
+                ">
+                  A Dual-Detection Wearable System for Continuous
+                  CO₂ Trend Monitoring and Acoustic Sputum
+                  Blockage Alerting in Patients with Compromised
+                  Pulmonary Function
+                </p>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:13px;color:#64748B;
+                ">
+                  Anmol Garg · VIPS New Delhi · 2025
+                  · Peer-reviewed research paper
+                </p>
+              </div>
+              <a href="#" style="
+                font-family:'Inter',sans-serif;
+                font-size:13px;font-weight:600;
+                color:#00C896;
+                border:1px solid rgba(0,200,150,0.3);
+                border-radius:8px;padding:10px 20px;
+                text-decoration:none;white-space:nowrap;
+                transition:background 0.2s;
+                flex-shrink:0;
+              "
+              onmouseover="this.style.background='rgba(0,200,150,0.1)'"
+              onmouseout="this.style.background='transparent'"
+              >Download →</a>
+            </div>
+            
+            <!-- Three phase timeline -->
+            <div style="
+              display:grid;
+              grid-template-columns:repeat(3,1fr);
+              gap:20px;
+            ">
+              
+              <!-- Phase 1 — Current (highlighted) -->
+              <div style="
+                padding:32px 28px;
+                background:rgba(0,200,150,0.06);
+                border:1px solid rgba(0,200,150,0.22);
+                border-radius:16px;
+                position:relative;
+              ">
+                <div style="
+                  position:absolute;top:20px;right:20px;
+                  background:#00C896;color:#07101E;
+                  font-family:'Inter',sans-serif;
+                  font-size:10px;font-weight:700;
+                  letter-spacing:0.1em;
+                  padding:3px 9px;border-radius:100px;
+                ">CURRENT</div>
+                
+                <div style="
+                  font-family:monospace;font-size:11px;
+                  color:#00C896;margin-bottom:10px;
+                ">PHASE 1 · Q1–Q2 2025</div>
+                
+                <h3 style="
+                  font-family:'Syne',sans-serif;
+                  font-size:20px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:16px;
+                ">Bench Prototype</h3>
+                
+                <ul style="
+                  list-style:none;padding:0;
+                  display:flex;flex-direction:column;gap:8px;
+                ">
+                  <li class="roadmap-item done">
+                    Research paper published
+                  </li>
+                  <li class="roadmap-item done">
+                    MEMS + CO₂ sensor integration
+                  </li>
+                  <li class="roadmap-item done">
+                    Dual-stream firmware developed
+                  </li>
+                  <li class="roadmap-item done">
+                    ICBHI dataset acoustic testing
+                  </li>
+                  <li class="roadmap-item done">
+                    Website + prototype demo built
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Phase 2 -->
+              <div style="
+                padding:32px 28px;
+                background:rgba(255,255,255,0.02);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:16px;
+              ">
+                <div style="
+                  font-family:monospace;font-size:11px;
+                  color:#64748B;margin-bottom:10px;
+                ">PHASE 2 · Q3 2025–Q1 2026</div>
+                
+                <h3 style="
+                  font-family:'Syne',sans-serif;
+                  font-size:20px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:16px;
+                ">Clinical Pilot Study</h3>
+                
+                <ul style="
+                  list-style:none;padding:0;
+                  display:flex;flex-direction:column;gap:8px;
+                ">
+                  <li class="roadmap-item pending">
+                    n=30–40 COPD patient study
+                  </li>
+                  <li class="roadmap-item pending">
+                    Hospital partnership
+                  </li>
+                  <li class="roadmap-item pending">
+                    Sensitivity/specificity validation
+                  </li>
+                  <li class="roadmap-item pending">
+                    Temporal lead time quantification
+                  </li>
+                  <li class="roadmap-item pending">
+                    Miniaturised wearable form factor
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- Phase 3 -->
+              <div style="
+                padding:32px 28px;
+                background:rgba(255,255,255,0.02);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:16px;
+              ">
+                <div style="
+                  font-family:monospace;font-size:11px;
+                  color:#64748B;margin-bottom:10px;
+                ">PHASE 3 · 2026–2027</div>
+                
+                <h3 style="
+                  font-family:'Syne',sans-serif;
+                  font-size:20px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:16px;
+                ">Regulatory & Scale</h3>
+                
+                <ul style="
+                  list-style:none;padding:0;
+                  display:flex;flex-direction:column;gap:8px;
+                ">
+                  <li class="roadmap-item pending">
+                    FDA 510(k) Class II submission
+                  </li>
+                  <li class="roadmap-item pending">
+                    India CDSCO regulatory pathway
+                  </li>
+                  <li class="roadmap-item pending">
+                    Manufacturing partner identification
+                  </li>
+                  <li class="roadmap-item pending">
+                    Federated learning personalisation
+                  </li>
+                  <li class="roadmap-item pending">
+                    Target retail price under ₹15,000
+                  </li>
+                </ul>
+              </div>
+              
+            </div>
+            
+          </div>
         </section>
 
         <!-- SECTION 10: TEAM -->
-        <section id="team">
-            <div class="container">
-                <div class="team-card glass-card">
-                    <div class="profile-img">
-                        <!-- Image placeholder -->
-                        <div style="width: 100%; height: 100%; background: linear-gradient(45deg, #07101E, #00C896); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 700;">AG</div>
-                    </div>
-                    <h2>Anmol Garg</h2>
-                    <p class="text-secondary">B.Tech — Artificial Intelligence & Data Science<br>Vivekananda Institute of Professional Studies</p>
-                    <div class="tags">
-                        <span class="tag">Machine Learning</span>
-                        <span class="tag">Signal Processing</span>
-                        <span class="tag">Biomedical Engineering</span>
-                        <span class="tag">Research</span>
-                    </div>
-                    <p style="margin-top: 1rem;">Designed the complete dual-detection architecture, developed the signal processing pipeline, published research, and built this end-to-end prototype.</p>
-                </div>
+        <section id="team-section" style="
+          padding: 100px 0;
+          background: #060E1C;
+        ">
+          <div style="
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 40px;
+            text-align: center;
+          ">
+            
+            <p style="
+              font-family: 'Inter', sans-serif;
+              font-size: 11px; font-weight: 600;
+              letter-spacing: 0.2em; color: #00C896;
+              text-transform: uppercase; margin-bottom: 14px;
+            ">THE TEAM</p>
+            
+            <h2 style="
+              font-family: 'Syne', sans-serif;
+              font-size: clamp(32px,4vw,52px);
+              font-weight: 800; color: #F1F5F9;
+              letter-spacing: -0.03em; margin-bottom: 60px;
+            ">Built by one person,<br/>for millions.</h2>
+            
+            <!-- Team card -->
+            <div style="
+              display: inline-block;
+              background: rgba(255,255,255,0.03);
+              border: 1px solid rgba(255,255,255,0.08);
+              border-radius: 24px;
+              padding: 44px 52px;
+              max-width: 560px;
+              width: 100%;
+            ">
+              <!-- Avatar placeholder -->
+              <div style="
+                width: 88px; height: 88px;
+                background: linear-gradient(
+                  135deg, #00C896 0%, #0066CC 100%);
+                border-radius: 50%;
+                margin: 0 auto 20px;
+                display: flex; align-items: center;
+                justify-content: center;
+                font-family: 'Syne', sans-serif;
+                font-size: 28px; font-weight: 800;
+                color: #07101E;
+              ">AG</div>
+              
+              <h3 style="
+                font-family: 'Syne', sans-serif;
+                font-size: 24px; font-weight: 800;
+                color: #F1F5F9; margin-bottom: 6px;
+                letter-spacing: -0.02em;
+              ">Anmol Garg</h3>
+              
+              <p style="
+                font-family: 'Inter', sans-serif;
+                font-size: 14px; color: #00C896;
+                font-weight: 500; margin-bottom: 4px;
+              ">B.Tech — Artificial Intelligence & Data Science</p>
+              
+              <p style="
+                font-family: 'Inter', sans-serif;
+                font-size: 13px; color: #64748B;
+                margin-bottom: 24px;
+              ">Vivekananda Institute of Professional Studies
+                 · New Delhi, India</p>
+              
+              <!-- Skill tags -->
+              <div style="
+                display: flex; flex-wrap: wrap;
+                gap: 8px; justify-content: center;
+                margin-bottom: 24px;
+              ">
+                <span class="skill-tag">Machine Learning</span>
+                <span class="skill-tag">Signal Processing</span>
+                <span class="skill-tag">Biomedical Systems</span>
+                <span class="skill-tag">WebGL / Three.js</span>
+                <span class="skill-tag">Research & Publication</span>
+              </div>
+              
+              <p style="
+                font-family: 'Inter', sans-serif;
+                font-size: 14px; color: #94A3B8;
+                line-height: 1.75; text-align: left;
+              ">
+                Designed the complete dual-detection architecture.
+                Developed the acoustic signal processing pipeline.
+                Published the foundational research paper.
+                Built this end-to-end prototype demonstration
+                — solo, in under 6 months.
+              </p>
             </div>
+            
+          </div>
         </section>
 
         <!-- SECTION 11: CLOSING -->
