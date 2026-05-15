@@ -109,17 +109,147 @@ let selectedBeat = 0;
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
-    initHeroTypewriter();
-    initImpactCounters();
+    initCounters();
     initThreeJS();
     initStickyScroll();
-    initDemoSimulation();
+    initDemoSection(); // Replaces initDemoSimulation
     initRevealAnimations();
     initParticles('hero-particles');
     initParticles('cta-particles');
 });
 
-// --- PARTICLES (LUNG BREATHING) ---
+// Wait for complete DOM + scripts before demo init
+function initDemoSection() {
+  const timeline = document.getElementById('demo-timeline');
+  if (!timeline) {
+    console.warn('demo-timeline not found, retrying...');
+    setTimeout(initDemoSection, 300);
+    return;
+  }
+  
+  // Verify DEMO_BEATS exists
+  if (typeof DEMO_BEATS === 'undefined' || 
+      !DEMO_BEATS.length) {
+    console.error('DEMO_BEATS not defined');
+    return;
+  }
+  
+  console.log('Demo initialising with', 
+    DEMO_BEATS.length, 'beats');
+  
+  buildDemoTimeline();
+  updateDemoSimulation();
+  
+  // Start animation loop
+  if (demoAnimFrame) cancelAnimationFrame(demoAnimFrame);
+  demoAnimate();
+  
+  console.log('Demo initialised successfully');
+  setupDemoObserver();
+}
+
+// Second attempt after full page load
+window.addEventListener('load', () => {
+  const timeline = document.getElementById('demo-timeline');
+  if (timeline && timeline.children.length <= 6) { // Check if only fallbacks exist
+    console.log('Demo re-initialising after load...');
+    initDemoSection();
+  }
+});
+
+// --- INTERACTIVE PROTOTYPE SIMULATION ---
+const DEMO_BEATS = [
+  {
+    time: '2:00 AM',
+    title: 'All readings stable',
+    status: 'NORMAL',
+    statusColor: '#22C55E',
+    oledState: 'normal',
+    co2: 42,
+    desc: 'Rajan is asleep. PulmoCare monitors continuously at his personal CO₂ baseline of 42 mmHg. No acoustic signal detected. Airways completely clear.',
+    notif: null,
+    graphPoints: [42,42,41,42,42]
+  },
+  {
+    time: '2:11 AM',
+    title: 'Rhonchi signal detected',
+    status: 'ACOUSTIC DETECTING',
+    statusColor: '#F59E0B',
+    oledState: 'detecting',
+    co2: 43,
+    desc: 'The MEMS microphone detects turbulent low-frequency sound (100–300 Hz range). Mucus is pooling in bronchial airways. Acoustic classifier confidence rising.',
+    notif: null,
+    graphPoints: [42,42,41,42,42,43,43,43]
+  },
+  {
+    time: '2:14 AM',
+    title: 'Layer 0 — Sputum alert fires',
+    status: 'SPUTUM ALERT',
+    statusColor: '#F59E0B',
+    oledState: 'amber',
+    co2: 44,
+    desc: '3 consecutive minutes of confirmed rhonchi signal. Layer 0 fires — the EARLIEST possible intervention. CO₂ has NOT yet risen. Patient prompted to clear airway.',
+    notif: {
+      title: 'Airways sound congested.',
+      body: 'Try airway clearance now — sit upright and perform huff coughing.',
+      color: '#F59E0B',
+      icon: '🫁'
+    },
+    graphPoints: [42,42,41,42,42,43,43,43,44,44]
+  },
+  {
+    time: '2:26 AM',
+    title: 'Layer 1 — CO₂ rising',
+    status: 'CO₂ RISING',
+    statusColor: '#EAB308',
+    oledState: 'yellow',
+    co2: 50,
+    desc: 'Patient did not respond to Layer 0. Blockage continues. CO₂ now 16% above personal baseline, sustained for 10+ minutes. Caregiver Priya notified via push notification.',
+    notif: {
+      title: 'Airways congested + CO₂ rising.',
+      body: 'Contact your medical provider now. Airway clearance has not resolved the problem.',
+      color: '#EAB308',
+      icon: '⚠️'
+    },
+    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50]
+  },
+  {
+    time: '2:47 AM',
+    title: 'Layer 2 — Critical alert',
+    status: '!! CRITICAL !!',
+    statusColor: '#EF4444',
+    oledState: 'red',
+    co2: 60,
+    desc: 'CO₂ 30% above baseline. Layer 2 fires. Continuous buzzer active. Urgent SMS sent to ALL registered caregivers. Priya enters the room immediately.',
+    notif: {
+      title: 'URGENT — CRITICAL ALERT',
+      body: 'CO₂ at critical level. Do not leave patient unsupervised. Call for help immediately.',
+      color: '#EF4444',
+      icon: '🆘'
+    },
+    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50,52,54,57,60]
+  },
+  {
+    time: '2:55 AM',
+    title: 'Recovering — crisis averted',
+    status: 'RECOVERING',
+    statusColor: '#22C55E',
+    oledState: 'normal',
+    co2: 44,
+    desc: 'Priya performs chest physiotherapy. Airways clearing. CO₂ returning to baseline. Device transitions back to green. No ambulance. No ICU. No hospital visit.',
+    notif: {
+      title: 'Patient recovering.',
+      body: 'CO₂ returning to baseline. Airways clearing. Continue monitoring.',
+      color: '#22C55E',
+      icon: '✅'
+    },
+    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50,52,54,57,60, 56,52,49,46,44]
+  }
+];
+
+let demoBeat = 0;
+let demoAnimT = 0;
+let demoAnimFrame = null;
 function initParticles(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -245,81 +375,85 @@ function initNavigation() {
   document.body.style.paddingTop = '64px';
 }
 
-// --- HERO TYPEWRITER ---
-function initHeroTypewriter() {
-    const text = "What if a wearable patch could save your father's life at 2 AM — before anyone knew something was wrong?";
-    const container = document.getElementById('hero-typewriter');
-    
-    if (!container) return;
-    const words = text.split(' ');
-    container.innerHTML = words.map(word => `<span style="opacity: 0; display: inline-block;">${word}&nbsp;</span>`).join('');
-    
-    gsap.to('#hero-typewriter span', {
-        opacity: 1,
-        duration: 0.1,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: '#hero',
-            start: "top center"
-        }
-    });
-}
 
-// --- IMPACT COUNTERS ---
-function initImpactCounters() {
-  const stripEl = document.getElementById('impact-strip');
-  if (!stripEl) return;
+function runCounterAnimation() {
+  const counterData = [
+    { id: null, el: null, target: 380, 
+      format: v => v + 'M' },
+    { id: null, el: null, target: 18000, 
+      format: v => '$' + v.toLocaleString() },
+    { id: null, el: null, target: 0, 
+      format: v => '0' },
+    { id: null, el: null, target: 44, 
+      format: v => v + ' min' },
+  ];
 
-  const heroObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        setTimeout(animateCounters, 600);
-        heroObserver.disconnect();
-      }
-    });
-  }, { threshold: 0.3 });
-
-  heroObserver.observe(stripEl);
-}
-
-function animateCounters() {
-  const counters = document.querySelectorAll('.impact-number');
+  // Select the four .impact-number elements in order
+  const numberEls = document.querySelectorAll(
+    '.impact-number'
+  );
   
-  counters.forEach(counter => {
-    const target = parseInt(counter.dataset.target);
-    const prefix = counter.dataset.prefix || '';
-    const suffix = counter.dataset.suffix || '';
-    const duration = 2000;
+  if (numberEls.length === 0) {
+    console.warn('PulmoCare: impact-number elements not found');
+    return;
+  }
+
+  numberEls.forEach((el, i) => {
+    if (!counterData[i]) return;
+    const { target, format } = counterData[i];
+    
+    if (target === 0) {
+      el.textContent = format(0);
+      return;
+    }
+    
+    const duration = 1800;
     const startTime = performance.now();
     
-    // Special case formatting based on clinical targets
-    function formatValue(n, tgt) {
-      if (tgt === 18000) return '$' + n.toLocaleString();
-      if (tgt === 380)   return n + 'M';
-      if (tgt === 0)     return '0';
-      if (tgt === 44)    return n + 'min';
-      return String(n);
-    }
-    
-    function update(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic for medical precision feel
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(eased * target);
+    function tick(now) {
+      const elapsed = now - startTime;
+      const rawProgress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const progress = 1 - Math.pow(1 - rawProgress, 3);
+      const current  = Math.round(progress * target);
+      el.textContent = format(current);
       
-      counter.textContent = formatValue(current, target);
-      
-      if (progress < 1) {
-        requestAnimationFrame(update);
+      if (rawProgress < 1) {
+        requestAnimationFrame(tick);
       } else {
-        counter.textContent = formatValue(target, target);
+        el.textContent = format(target);
       }
     }
     
-    requestAnimationFrame(update);
+    requestAnimationFrame(tick);
   });
+}
+
+// Trigger with IntersectionObserver on the strip
+function initCounters() {
+  const strip = document.getElementById('impact-strip');
+  if (!strip) {
+    // Fallback: run on page load after 800ms
+    setTimeout(runCounterAnimation, 800);
+    return;
+  }
+
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      setTimeout(runCounterAnimation, 200);
+      obs.disconnect();
+    }
+  }, { threshold: 0.2 });
+  
+  obs.observe(strip);
+  
+  // Fallback if already in viewport on load
+  setTimeout(() => {
+    const rect = strip.getBoundingClientRect();
+    if (rect.top < window.innerHeight) {
+      runCounterAnimation();
+    }
+  }, 500);
 }
 
 // --- THREE.JS DEVICE RENDER ---
@@ -456,108 +590,6 @@ function updateSolutionOLED(state, text) {
         dot.style.background = 'var(--critical)';
         label.innerText = text;
     }
-}
-
-// --- INTERACTIVE PROTOTYPE SIMULATION ---
-
-const DEMO_BEATS = [
-  {
-    time: '2:00 AM',
-    title: 'All readings stable',
-    status: 'NORMAL',
-    statusColor: '#22C55E',
-    oledState: 'normal',
-    co2: 42,
-    desc: 'Rajan is asleep. PulmoCare monitors continuously at his personal CO₂ baseline of 42 mmHg. No acoustic signal detected. Airways completely clear.',
-    notif: null,
-    graphPoints: [42,42,41,42,42]
-  },
-  {
-    time: '2:11 AM',
-    title: 'Rhonchi signal detected',
-    status: 'ACOUSTIC DETECTING',
-    statusColor: '#F59E0B',
-    oledState: 'detecting',
-    co2: 43,
-    desc: 'The MEMS microphone detects turbulent low-frequency sound (100–300 Hz range). Mucus is pooling in bronchial airways. Acoustic classifier confidence rising.',
-    notif: null,
-    graphPoints: [42,42,41,42,42,43,43,43]
-  },
-  {
-    time: '2:14 AM',
-    title: 'Layer 0 — Sputum alert fires',
-    status: 'SPUTUM ALERT',
-    statusColor: '#F59E0B',
-    oledState: 'amber',
-    co2: 44,
-    desc: '3 consecutive minutes of confirmed rhonchi signal. Layer 0 fires — the EARLIEST possible intervention. CO₂ has NOT yet risen. Patient prompted to clear airway.',
-    notif: {
-      title: 'Airways sound congested.',
-      body: 'Try airway clearance now — sit upright and perform huff coughing.',
-      color: '#F59E0B',
-      icon: '🫁'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44]
-  },
-  {
-    time: '2:26 AM',
-    title: 'Layer 1 — CO₂ rising',
-    status: 'CO₂ RISING',
-    statusColor: '#EAB308',
-    oledState: 'yellow',
-    co2: 50,
-    desc: 'Patient did not respond to Layer 0. Blockage continues. CO₂ now 16% above personal baseline, sustained for 10+ minutes. Caregiver Priya notified via push notification.',
-    notif: {
-      title: 'Airways congested + CO₂ rising.',
-      body: 'Contact your medical provider now. Airway clearance has not resolved the problem.',
-      color: '#EAB308',
-      icon: '⚠️'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50]
-  },
-  {
-    time: '2:47 AM',
-    title: 'Layer 2 — Critical alert',
-    status: '!! CRITICAL !!',
-    statusColor: '#EF4444',
-    oledState: 'red',
-    co2: 60,
-    desc: 'CO₂ 30% above baseline. Layer 2 fires. Continuous buzzer active. Urgent SMS sent to ALL registered caregivers. Priya enters the room immediately.',
-    notif: {
-      title: 'URGENT — CRITICAL ALERT',
-      body: 'CO₂ at critical level. Do not leave patient unsupervised. Call for help immediately.',
-      color: '#EF4444',
-      icon: '🆘'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50,52,54,57,60]
-  },
-  {
-    time: '2:55 AM',
-    title: 'Recovering — crisis averted',
-    status: 'RECOVERING',
-    statusColor: '#22C55E',
-    oledState: 'normal',
-    co2: 44,
-    desc: 'Priya performs chest physiotherapy. Airways clearing. CO₂ returning to baseline. Device transitions back to green. No ambulance. No ICU. No hospital visit.',
-    notif: {
-      title: 'Patient recovering.',
-      body: 'CO₂ returning to baseline. Airways clearing. Continue monitoring.',
-      color: '#22C55E',
-      icon: '✅'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50,52,54,57,60, 56,52,49,46,44]
-  }
-];
-
-let demoBeat = 0;
-let demoAnimT = 0;
-let demoAnimFrame = null;
-
-function initDemoSimulation() {
-  buildDemoTimeline();
-  updateDemoSimulation();
-  demoAnimate();
-  setupDemoObserver();
 }
 
 function buildDemoTimeline() {
@@ -796,6 +828,53 @@ function wrapText(ctx, text, maxWidth) {
     if (ctx.measureText(test).width > maxWidth && current) { lines.push(current.trim()); current = word + ' '; } else current = test;
   });
   if (current) lines.push(current.trim()); return lines;
+}
+
+// --- VIDEO PLAYER ENGINE ---
+function embedVideo(url) {
+  const wrapper = document.getElementById('video-placeholder-wrapper');
+  if (!wrapper) return;
+  
+  // Detect YouTube
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    const videoId = url.match(/(?:youtu\.be\/|v=)([^&\s]+)/)?.[1];
+    if (videoId) {
+      wrapper.innerHTML = `
+        <iframe 
+          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0"
+          style="width:100%;height:100%;border:none"
+          allow="autoplay;fullscreen"
+          allowfullscreen>
+        </iframe>
+      `;
+    }
+    return;
+  }
+  
+  // Direct video file
+  wrapper.innerHTML = `
+    <video 
+      src="${url}" 
+      controls autoplay
+      style="width:100%;height:100%;object-fit:cover">
+    </video>
+  `;
+}
+
+function playVideo() {
+  // Replace this URL with your actual video URL when you have it:
+  // embedVideo('https://youtube.com/watch?v=YOUR_ID');
+  
+  // For now, scroll to interactive simulation
+  const sim = document.getElementById('sim-grid');
+  if (sim) {
+    sim.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function showVideoModal() {
+  const url = prompt("Enter YouTube or direct video URL to embed:");
+  if (url) embedVideo(url);
 }
 
 function roundRect(ctx, x, y, w, h, r) {

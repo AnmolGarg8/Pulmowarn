@@ -41,28 +41,38 @@
             <div class="container">
                 <div class="hero-grid">
                     <div class="hero-content">
-                        <span class="label">SAMSUNG SOLVE FOR TOMORROW 2025</span>
-                        <h1 class="display-text" id="hero-typewriter"></h1>
-                        <div id="competition-badges" style="
-                          display: flex;
-                          gap: 10px;
-                          flex-wrap: wrap;
+
+                        <h1 id="hero-headline" style="
+                          font-family: 'Syne', sans-serif;
+                          font-size: clamp(36px, 5.5vw, 72px);
+                          font-weight: 800;
+                          color: #F1F5F9;
+                          letter-spacing: -0.035em;
+                          line-height: 1.12;
                           margin-bottom: 20px;
+                          max-width: 780px;
                         ">
-                          <div class="comp-badge">
-                            <span class="comp-badge-dot"></span>
-                            Samsung Solve for Tomorrow 2025
-                          </div>
-                          <div class="comp-badge">
-                            <span class="comp-badge-dot"></span>
-                            Microsoft Imagine Cup 2025
-                          </div>
-                          <div class="comp-badge">
-                            <span class="comp-badge-dot"></span>
-                            Smart India Hackathon 2025
-                          </div>
-                        </div>
-                        <p class="text-secondary">Catching the cause before the consequence.</p>
+                          What if a wearable patch<br/>
+                          could tell you<br/>
+                          <span style="color: #00C896">
+                            something was wrong<br/>
+                            44 minutes earlier?
+                          </span>
+                        </h1>
+
+                        <p id="hero-sub" style="
+                          font-family: 'Inter', sans-serif;
+                          font-size: clamp(16px, 1.8vw, 20px);
+                          color: #64748B;
+                          line-height: 1.75;
+                          max-width: 560px;
+                          margin-bottom: 36px;
+                        ">
+                          PulmoCare simultaneously monitors airway sputum 
+                          accumulation and blood CO₂ — the only home device 
+                          that catches the <em style="color:#94A3B8">cause</em> 
+                          before the <em style="color:#94A3B8">consequence</em>.
+                        </p>
                         
                         <div id="impact-strip">
                           <div class="impact-stat">
@@ -94,9 +104,64 @@
                             <div class="impact-sub">vs current standard</div>
                           </div>
                         </div>
-                        <div class="hero-btns">
-                            <a href="#demo" class="btn btn-primary">Watch the Demo →</a>
-                            <a href="#research" class="btn btn-outline">Read the Research</a>
+                        <div style="
+                          display: flex;
+                          gap: 14px;
+                          flex-wrap: wrap;
+                          align-items: center;
+                          margin-top: 32px;
+                        ">
+                          <a href="#demo-section" style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 14px 28px;
+                            background: #00C896;
+                            color: #07101E;
+                            font-family: 'Syne', sans-serif;
+                            font-size: 15px;
+                            font-weight: 700;
+                            border-radius: 10px;
+                            text-decoration: none;
+                            letter-spacing: 0.02em;
+                            transition: transform 0.15s, box-shadow 0.2s;
+                            box-shadow: 0 4px 24px rgba(0,200,150,0.3);
+                          "
+                          onmouseover="
+                            this.style.transform='translateY(-2px)';
+                            this.style.boxShadow='0 8px 32px rgba(0,200,150,0.45)';
+                          "
+                          onmouseout="
+                            this.style.transform='translateY(0)';
+                            this.style.boxShadow='0 4px 24px rgba(0,200,150,0.3)';
+                          ">
+                            ▶ Watch the Demo
+                          </a>
+                          
+                          <a href="#research-section" style="
+                            display: inline-flex;
+                            align-items: center;
+                            padding: 14px 28px;
+                            background: transparent;
+                            color: #94A3B8;
+                            font-family: 'Inter', sans-serif;
+                            font-size: 15px;
+                            font-weight: 500;
+                            border-radius: 10px;
+                            text-decoration: none;
+                            border: 1px solid rgba(255,255,255,0.12);
+                            transition: color 0.2s, border-color 0.2s;
+                          "
+                          onmouseover="
+                            this.style.color='#F1F5F9';
+                            this.style.borderColor='rgba(255,255,255,0.25)';
+                          "
+                          onmouseout="
+                            this.style.color='#94A3B8';
+                            this.style.borderColor='rgba(255,255,255,0.12)';
+                          ">
+                            Read the Research →
+                          </a>
                         </div>
                     </div>
                     <div class="hero-visual">
@@ -185,14 +250,26 @@
                     <div class="solution-left">
                         <div class="glass-card" style="padding: 1rem; text-align: center;">
                             <canvas id="solution-device-canvas" style="width: 100%; height: 300px;"></canvas>
-                            <div class="oled-screen" id="demo-oled">
-                                <div class="oled-status">
-                                    <div class="oled-dot pulsing" id="oled-dot"></div>
-                                    <span id="oled-text">SYSTEM NORMAL</span>
-                                </div>
-                                <div id="oled-data" style="font-family: 'JetBrains Mono'; color: var(--primary-accent); font-size: 24px; margin-top: 1rem;">40 mmHg</div>
-                                <div id="oled-visual" style="margin-top: 1rem;">
-                                    <canvas id="oled-chart" width="240" height="40"></canvas>
+                            <div id="demo-oled" style="text-align: center; margin-top: 1.5rem;">
+                                <div style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    padding: 6px 14px;
+                                    background: rgba(34,197,94,0.1);
+                                    border: 1px solid rgba(34,197,94,0.25);
+                                    border-radius: 8px;
+                                    font-family: monospace;
+                                    font-size: 12px;
+                                    color: #22C55E;
+                                    margin-bottom: 16px;
+                                ">
+                                    <div id="oled-dot" style="
+                                        width:8px;height:8px;border-radius:50%;
+                                        background:#22C55E;
+                                        animation: pulse 1.5s ease-in-out infinite;
+                                    "></div>
+                                    <span id="oled-text">SYSTEM NORMAL</span> · 40 mmHg
                                 </div>
                             </div>
                         </div>
@@ -270,6 +347,208 @@
                 how the device detects, alerts, and escalates —
                 in real time.
               </p>
+            </div>
+            
+            <!-- VIDEO CONTAINER -->
+            <div id="video-container" style="
+              max-width: 1100px;
+              margin: 0 auto 60px;
+              padding: 0 40px;
+            ">
+              <div id="video-wrapper" style="
+                position: relative;
+                width: 100%;
+                aspect-ratio: 16/9;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 1px solid rgba(0,200,150,0.15);
+                box-shadow: 0 0 80px rgba(0,200,150,0.06),
+                            0 40px 80px rgba(0,0,0,0.4);
+                background: #040C18;
+                cursor: pointer;
+              "
+              id="video-placeholder-wrapper"
+              onclick="playVideo()"
+              >
+                
+                <!-- Background grid pattern -->
+                <div style="
+                  position: absolute; inset: 0;
+                  background-image: 
+                    linear-gradient(rgba(0,200,150,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,200,150,0.03) 1px, transparent 1px);
+                  background-size: 40px 40px;
+                "></div>
+                
+                <!-- Centre content -->
+                <div style="
+                  position: absolute; inset: 0;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 20px;
+                ">
+                  <!-- Device icon -->
+                  <div style="
+                    width: 80px; height: 56px;
+                    background: rgba(0,200,150,0.1);
+                    border: 1px solid rgba(0,200,150,0.3);
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  ">
+                    <div style="
+                      width: 24px; height: 16px;
+                      background: #050D18;
+                      border-radius: 3px;
+                      border: 1px solid #00C896;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    ">
+                      <div style="
+                        width: 8px; height: 8px;
+                        border-radius: 50%;
+                        background: #22C55E;
+                        animation: oledPulse 2s ease-in-out infinite;
+                      "></div>
+                    </div>
+                  </div>
+                  
+                  <!-- Play button -->
+                  <div id="play-button" style="
+                    width: 72px; height: 72px;
+                    border-radius: 50%;
+                    background: rgba(0,200,150,0.15);
+                    border: 1.5px solid rgba(0,200,150,0.4);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: transform 0.2s, background 0.2s;
+                  "
+                  onmouseover="
+                    this.style.transform='scale(1.1)';
+                    this.style.background='rgba(0,200,150,0.25)';
+                  "
+                  onmouseout="
+                    this.style.transform='scale(1)';
+                    this.style.background='rgba(0,200,150,0.15)';
+                  ">
+                    <div style="
+                      width: 0;
+                      height: 0;
+                      border-top: 12px solid transparent;
+                      border-bottom: 12px solid transparent;
+                      border-left: 20px solid #00C896;
+                      margin-left: 4px;
+                    "></div>
+                  </div>
+                  
+                  <!-- Text -->
+                  <div style="text-align: center">
+                    <p style="
+                      font-family: 'Syne', sans-serif;
+                      font-size: 20px; font-weight: 700;
+                      color: #F1F5F9; margin-bottom: 8px;
+                    ">PulmoCare — Prototype Demonstration</p>
+                    <p style="
+                      font-family: 'Inter', sans-serif;
+                      font-size: 14px; color: #64748B;
+                      margin-bottom: 16px;
+                    ">2-minute walkthrough · Rajan's overnight 
+                       deterioration · Full alert sequence</p>
+                    
+                    <!-- Add video CTA -->
+                    <div style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      padding: 10px 20px;
+                      background: rgba(0,200,150,0.1);
+                      border: 1px solid rgba(0,200,150,0.25);
+                      border-radius: 8px;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 13px;
+                      font-weight: 600;
+                      color: #00C896;
+                      cursor: pointer;
+                    "
+                    onclick="event.stopPropagation(); showVideoModal()">
+                      📎 Add video URL to embed
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Duration badge -->
+                <div style="
+                  position: absolute;
+                  bottom: 16px; right: 16px;
+                  background: rgba(0,0,0,0.7);
+                  border-radius: 6px;
+                  padding: 4px 10px;
+                  font-family: monospace;
+                  font-size: 12px;
+                  color: #94A3B8;
+                ">2:07</div>
+                
+              </div>
+              
+              <!-- Below video: stat strip -->
+              <div style="
+                display: flex;
+                justify-content: center;
+                gap: 48px;
+                margin-top: 24px;
+                padding: 0 16px;
+                flex-wrap: wrap;
+              ">
+                <div style="text-align:center">
+                  <div style="
+                    font-family:'Syne',sans-serif;
+                    font-size:24px;font-weight:800;
+                    color:#00C896;margin-bottom:4px;
+                  ">44 min</div>
+                  <div style="
+                    font-family:'Inter',sans-serif;
+                    font-size:12px;color:#64748B;
+                  ">Earlier than crisis point</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="
+                    font-family:'Syne',sans-serif;
+                    font-size:24px;font-weight:800;
+                    color:#22C55E;margin-bottom:4px;
+                  ">$0</div>
+                  <div style="
+                    font-family:'Inter',sans-serif;
+                    font-size:12px;color:#64748B;
+                  ">If Layer 0 acted upon</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="
+                    font-family:'Syne',sans-serif;
+                    font-size:24px;font-weight:800;
+                    color:#F1F5F9;margin-bottom:4px;
+                  ">3-layer</div>
+                  <div style="
+                    font-family:'Inter',sans-serif;
+                    font-size:12px;color:#64748B;
+                  ">Graduated alert system</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="
+                    font-family:'Syne',sans-serif;
+                    font-size:24px;font-weight:800;
+                    color:#F1F5F9;margin-bottom:4px;
+                  ">24hr</div>
+                  <div style="
+                    font-family:'Inter',sans-serif;
+                    font-size:12px;color:#64748B;
+                  ">Continuous monitoring</div>
+                </div>
+              </div>
             </div>
             
             <!-- MAIN SIMULATION GRID -->
@@ -369,10 +648,91 @@
                 
                 <!-- Timeline beats -->
                 <div id="demo-timeline" style="
-                  display:flex;
-                  flex-direction:column;
-                  gap:8px;
-                "></div>
+                  display: flex;
+                  flex-direction: column;
+                  gap: 8px;
+                  min-height: 300px;
+                ">
+                  <!-- Static fallback — JS will replace these -->
+                  <div class="beat-fallback" style="
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(34,197,94,0.2);
+                    background: rgba(34,197,94,0.05);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 13px; color: #94A3B8;
+                    cursor: pointer;
+                  ">
+                    <span style="font-family:monospace;font-size:11px;
+                                 color:#22C55E">2:00 AM</span> — 
+                    All readings stable
+                  </div>
+                  <div class="beat-fallback" style="
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(255,255,255,0.06);
+                    background: rgba(255,255,255,0.02);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 13px; color: #94A3B8;
+                    cursor: pointer;
+                  ">
+                    <span style="font-family:monospace;font-size:11px;
+                                 color:#F59E0B">2:11 AM</span> — 
+                    Rhonchi signal detected
+                  </div>
+                  <div class="beat-fallback" style="
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(255,255,255,0.06);
+                    background: rgba(255,255,255,0.02);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 13px; color: #94A3B8;
+                    cursor: pointer;
+                  ">
+                    <span style="font-family:monospace;font-size:11px;
+                                 color:#F59E0B">2:14 AM</span> — 
+                    Layer 0 sputum alert fires
+                  </div>
+                  <div class="beat-fallback" style="
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(255,255,255,0.06);
+                    background: rgba(255,255,255,0.02);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 13px; color: #94A3B8;
+                    cursor: pointer;
+                  ">
+                    <span style="font-family:monospace;font-size:11px;
+                                 color:#EAB308">2:26 AM</span> — 
+                    Layer 1 — CO₂ rising
+                  </div>
+                  <div class="beat-fallback" style="
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(239,68,68,0.2);
+                    background: rgba(239,68,68,0.04);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 13px; color: #94A3B8;
+                    cursor: pointer;
+                  ">
+                    <span style="font-family:monospace;font-size:11px;
+                                 color:#EF4444">2:47 AM</span> — 
+                    Layer 2 — Critical alert
+                  </div>
+                  <div class="beat-fallback" style="
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(255,255,255,0.06);
+                    background: rgba(255,255,255,0.02);
+                    font-family: 'Inter', sans-serif;
+                    font-size: 13px; color: #94A3B8;
+                    cursor: pointer;
+                  ">
+                    <span style="font-family:monospace;font-size:11px;
+                                 color:#22C55E">2:55 AM</span> — 
+                    Recovering — crisis averted
+                  </div>
+                </div>
                 
                 <!-- CO2 Graph -->
                 <div style="
@@ -717,25 +1077,97 @@
                     </div>
                 </div>
 
-                <div class="comparison-container glass-card">
-                    <h3>PulmoCare vs Existing Solutions</h3>
-                    <table class="comparison-table">
-                        <thead>
-                            <tr class="mono">
-                                <th>Feature</th>
-                                <th>Pulse Oximeter</th>
-                                <th>SenTec (Clinical)</th>
-                                <th class="highlight-col" style="color: var(--primary-accent);">PulmoCare</th>
-                            </tr>
-                        </thead>
-                        <tbody class="mono">
-                            <tr><td>Detects CO₂</td><td style="color: var(--critical);">✗</td><td style="color: var(--primary-accent);">✓</td><td class="highlight-col" style="color: var(--primary-accent);">✓</td></tr>
-                            <tr><td>Detects Sputum</td><td style="color: var(--critical);">✗</td><td style="color: var(--critical);">✗</td><td class="highlight-col" style="color: var(--primary-accent);">✓</td></tr>
-                            <tr><td>Home Deployable</td><td style="color: var(--primary-accent);">✓</td><td style="color: var(--critical);">✗</td><td class="highlight-col" style="color: var(--primary-accent);">✓</td></tr>
-                            <tr><td>Under $500</td><td style="color: var(--primary-accent);">✓</td><td style="color: var(--critical);">✗</td><td class="highlight-col" style="color: var(--primary-accent);">✓</td></tr>
-                            <tr><td>Caregiver Alerts</td><td style="color: var(--critical);">✗</td><td style="color: var(--critical);">✗</td><td class="highlight-col" style="color: var(--primary-accent);">✓</td></tr>
-                        </tbody>
+                <div class="comparison-container" style="margin-top:40px">
+                    <h3 style="margin-bottom:20px">PulmoCare vs Existing Solutions</h3>
+                    <div style="overflow-x:auto">
+                    <table style="
+                      width: 100%;
+                      border-collapse: separate;
+                      border-spacing: 0;
+                      font-family: 'Inter', sans-serif;
+                    ">
+                      <thead>
+                        <tr>
+                          <th style="
+                            text-align:left;padding:14px 20px;
+                            background:rgba(255,255,255,0.03);
+                            border-bottom:1px solid rgba(255,255,255,0.08);
+                            font-size:12px;color:#64748B;
+                            font-weight:600;letter-spacing:0.1em;
+                            border-radius:10px 0 0 0;
+                          ">FEATURE</th>
+                          <th style="
+                            text-align:center;padding:14px 20px;
+                            background:rgba(255,255,255,0.03);
+                            border-bottom:1px solid rgba(255,255,255,0.08);
+                            font-size:12px;color:#64748B;
+                            font-weight:600;letter-spacing:0.1em;
+                          ">Pulse Oximeter</th>
+                          <th style="
+                            text-align:center;padding:14px 20px;
+                            background:rgba(255,255,255,0.03);
+                            border-bottom:1px solid rgba(255,255,255,0.08);
+                            font-size:12px;color:#64748B;
+                            font-weight:600;letter-spacing:0.1em;
+                          ">SenTec (Clinical)</th>
+                          <th style="
+                            text-align:center;padding:14px 20px;
+                            background:rgba(0,200,150,0.08);
+                            border-bottom:2px solid #00C896;
+                            border-left:1px solid rgba(0,200,150,0.2);
+                            border-right:1px solid rgba(0,200,150,0.2);
+                            font-size:12px;color:#00C896;
+                            font-weight:700;letter-spacing:0.1em;
+                            border-radius:0 10px 0 0;
+                          ">✦ PulmoCare</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="table-row">
+                          <td class="feat-cell">Detects CO₂</td>
+                          <td class="no-cell">✗</td>
+                          <td class="yes-cell">✓</td>
+                          <td class="pc-cell">✓</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="feat-cell">Detects Sputum</td>
+                          <td class="no-cell">✗</td>
+                          <td class="no-cell">✗</td>
+                          <td class="pc-cell">✓</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="feat-cell">Home Deployable</td>
+                          <td class="yes-cell">✓</td>
+                          <td class="no-cell">✗</td>
+                          <td class="pc-cell">✓</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="feat-cell">Under $500</td>
+                          <td class="yes-cell">✓</td>
+                          <td class="no-cell">✗</td>
+                          <td class="pc-cell">✓ (target)</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="feat-cell">Caregiver Alerts</td>
+                          <td class="no-cell">✗</td>
+                          <td class="no-cell">✗</td>
+                          <td class="pc-cell">✓</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="feat-cell">Personalised Baseline</td>
+                          <td class="no-cell">✗</td>
+                          <td class="no-cell">✗</td>
+                          <td class="pc-cell">✓</td>
+                        </tr>
+                        <tr class="table-row">
+                          <td class="feat-cell" style="border-radius:0 0 0 10px">Layered Alert Logic</td>
+                          <td class="no-cell">✗</td>
+                          <td class="no-cell">✗</td>
+                          <td class="pc-cell" style="border-radius:0 0 10px 0">✓</td>
+                        </tr>
+                      </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1052,6 +1484,90 @@
                 Built this end-to-end prototype demonstration
                 — solo, in under 6 months.
               </p>
+
+              <div style="
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 24px;
+                padding-top: 24px;
+                border-top: 1px solid rgba(255,255,255,0.07);
+              ">
+                <!-- Email -->
+                <a href="mailto:anmolgarg1605@gmail.com" 
+                   style="
+                  display: inline-flex; align-items: center; gap: 7px;
+                  padding: 9px 16px;
+                  background: rgba(255,255,255,0.04);
+                  border: 1px solid rgba(255,255,255,0.08);
+                  border-radius: 8px;
+                  font-family: 'Inter', sans-serif;
+                  font-size: 13px; font-weight: 500;
+                  color: #94A3B8; text-decoration: none;
+                  transition: color 0.2s, border-color 0.2s;
+                "
+                onmouseover="
+                  this.style.color='#F1F5F9';
+                  this.style.borderColor='rgba(255,255,255,0.2)';
+                "
+                onmouseout="
+                  this.style.color='#94A3B8';
+                  this.style.borderColor='rgba(255,255,255,0.08)';
+                ">
+                  ✉ anmolgarg1605@gmail.com
+                </a>
+                
+                <!-- LinkedIn -->
+                <a href="https://linkedin.com/in/anmolgarg8" 
+                   target="_blank"
+                   style="
+                  display: inline-flex; align-items: center; gap: 7px;
+                  padding: 9px 16px;
+                  background: rgba(255,255,255,0.04);
+                  border: 1px solid rgba(255,255,255,0.08);
+                  border-radius: 8px;
+                  font-family: 'Inter', sans-serif;
+                  font-size: 13px; font-weight: 500;
+                  color: #94A3B8; text-decoration: none;
+                  transition: color 0.2s, border-color 0.2s;
+                "
+                onmouseover="
+                  this.style.color='#0A66C2';
+                  this.style.borderColor='rgba(10,102,194,0.4)';
+                "
+                onmouseout="
+                  this.style.color='#94A3B8';
+                  this.style.borderColor='rgba(255,255,255,0.08)';
+                ">
+                  in LinkedIn
+                </a>
+                
+                <!-- GitHub -->
+                <a href="https://github.com/AnmolGarg8" 
+                   target="_blank"
+                   style="
+                  display: inline-flex; align-items: center; gap: 7px;
+                  padding: 9px 16px;
+                  background: rgba(255,255,255,0.04);
+                  border: 1px solid rgba(255,255,255,0.08);
+                  border-radius: 8px;
+                  font-family: 'Inter', sans-serif;
+                  font-size: 13px; font-weight: 500;
+                  color: #94A3B8; text-decoration: none;
+                  transition: color 0.2s, border-color 0.2s;
+                "
+                onmouseover="
+                  this.style.color='#F1F5F9';
+                  this.style.borderColor='rgba(255,255,255,0.25)';
+                "
+                onmouseout="
+                  this.style.color='#94A3B8';
+                  this.style.borderColor='rgba(255,255,255,0.08)';
+                ">
+                  ⌥ GitHub
+                </a>
+              </div>
             </div>
             
           </div>
@@ -1076,7 +1592,6 @@
         <div class="container">
             <div class="footer-content mono">
                 <p>PulmoCare · Anmol Garg · VIPS New Delhi · 2025</p>
-                <p style="font-size: 10px; color: var(--text-secondary);">Samsung Solve for Tomorrow | Microsoft Imagine Cup</p>
             </div>
         </div>
     </footer>

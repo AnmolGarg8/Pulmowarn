@@ -255,7 +255,7 @@ section {
 }
 
 .hero-content {
-  max-width: 650px;
+  max-width: 820px;
 }
 
 .hero-content h1 {
@@ -290,11 +290,11 @@ section {
 
 #impact-strip {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 0;
-  margin-top: 48px;
-  padding: 32px 40px;
+  margin: 48px 0;
+  padding: 32px 20px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
@@ -305,28 +305,33 @@ section {
 .impact-stat {
   flex: 1;
   text-align: center;
-  padding: 0 20px;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
 }
 
 .impact-number {
   font-family: 'Syne', sans-serif;
-  font-size: clamp(28px, 3.5vw, 44px);
+  font-size: clamp(32px, 4.2vw, 52px);
   font-weight: 800;
   color: #00C896;
-  line-height: 1.0;
-  margin-bottom: 6px;
-  letter-spacing: -0.03em;
+  line-height: 0.9;
+  margin-bottom: 12px;
+  letter-spacing: -0.04em;
   white-space: nowrap;
 }
 
 .impact-label {
   font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   color: #F1F5F9;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  line-height: 1.2;
 }
 
 .impact-sub {
@@ -800,148 +805,38 @@ section {
   padding-left: 1.25rem;
 }
 
-.roadmap-phase li::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  color: var(--primary-accent);
-}
-
-/* Team */
-.team-card {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.profile-img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: var(--card-surface);
-  margin: 0 auto 1.5rem;
-  border: 2px solid var(--primary-accent);
-  overflow: hidden;
-}
-
-.tags {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin: 1.5rem 0;
-}
-
-.tag {
-  background: rgba(0, 200, 150, 0.1);
-  color: var(--primary-accent);
-  padding: 0.25rem 0.75rem;
-  border-radius: 100px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Footer */
-footer {
-  padding: 4rem 0;
-  border-top: 1px solid var(--card-border);
-  text-align: center;
-}
-
-.footer-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .hero-grid, .simulation-panel, .specs-grid, .solution-sticky {
-    grid-template-columns: 1fr;
-    flex-direction: column;
-  }
-  
-  .solution-left {
-    position: relative;
-    top: 0;
-    width: 100%;
-  }
-  
-  .problem-cards, .research-grid, .roadmap-timeline, .outcome-cards {
-    grid-template-columns: 1fr;
-  }
-  
-  .display-text { font-size: 48px; }
-  .nav-links { display: none; }
-}
-
-/* Competition Badges */
-.comp-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  background: rgba(0,200,150,0.08);
-  border: 1px solid rgba(0,200,150,0.20);
-  border-radius: 100px;
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: #00C896;
-  letter-spacing: 0.04em;
-}
-
-.comp-badge-dot {
-  width: 5px; height: 5px;
-  background: #00C896;
-  border-radius: 50%;
-  animation: badgePulse 2s ease-in-out infinite;
-}
-
-@keyframes badgePulse {
+@keyframes oledPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
-/* Team Skill Tags */
-.skill-tag {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px; font-weight: 500;
-  color: #94A3B8;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 100px;
-  padding: 4px 12px;
+.table-row { transition: background 0.15s; }
+.table-row:hover td { 
+  background: rgba(255,255,255,0.025); 
 }
-
-/* Validation & Roadmap */
-.roadmap-item {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  color: #94A3B8;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  line-height: 1.5;
+.feat-cell {
+  padding: 13px 20px;
+  font-size: 14px; color: #94A3B8;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
 }
-
-.roadmap-item::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.yes-cell {
+  text-align: center; padding: 13px 20px;
+  font-size: 16px; color: #22C55E;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
 }
-
-.roadmap-item.done {
-  color: #F1F5F9;
+.no-cell {
+  text-align: center; padding: 13px 20px;
+  font-size: 16px; color: #EF4444;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
 }
-
-.roadmap-item.done::before {
-  background: #22C55E;
-  box-shadow: 0 0 6px rgba(34,197,94,0.5);
-}
-
-.roadmap-item.pending::before {
-  background: transparent;
-  border: 1.5px solid #334155;
+.pc-cell {
+  text-align: center; padding: 13px 20px;
+  font-size: 14px; font-weight: 600; color: #00C896;
+  border-bottom: 1px solid rgba(0,200,150,0.1);
+  background: rgba(0,200,150,0.05);
+  border-left: 1px solid rgba(0,200,150,0.15);
+  border-right: 1px solid rgba(0,200,150,0.15);
 }
