@@ -109,147 +109,17 @@ let selectedBeat = 0;
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
-    initCounters();
+    // initCounters(); // Replaced by initHeroCounters IIFE
     initThreeJS();
     initStickyScroll();
-    initDemoSection(); // Replaces initDemoSimulation
+    // initDemoSection(); // Moved to self-contained script in index.html
     initRevealAnimations();
     initParticles('hero-particles');
     initParticles('cta-particles');
 });
 
 // Wait for complete DOM + scripts before demo init
-function initDemoSection() {
-  const timeline = document.getElementById('demo-timeline');
-  if (!timeline) {
-    console.warn('demo-timeline not found, retrying...');
-    setTimeout(initDemoSection, 300);
-    return;
-  }
-  
-  // Verify DEMO_BEATS exists
-  if (typeof DEMO_BEATS === 'undefined' || 
-      !DEMO_BEATS.length) {
-    console.error('DEMO_BEATS not defined');
-    return;
-  }
-  
-  console.log('Demo initialising with', 
-    DEMO_BEATS.length, 'beats');
-  
-  buildDemoTimeline();
-  updateDemoSimulation();
-  
-  // Start animation loop
-  if (demoAnimFrame) cancelAnimationFrame(demoAnimFrame);
-  demoAnimate();
-  
-  console.log('Demo initialised successfully');
-  setupDemoObserver();
-}
-
-// Second attempt after full page load
-window.addEventListener('load', () => {
-  const timeline = document.getElementById('demo-timeline');
-  if (timeline && timeline.children.length <= 6) { // Check if only fallbacks exist
-    console.log('Demo re-initialising after load...');
-    initDemoSection();
-  }
-});
-
-// --- INTERACTIVE PROTOTYPE SIMULATION ---
-const DEMO_BEATS = [
-  {
-    time: '2:00 AM',
-    title: 'All readings stable',
-    status: 'NORMAL',
-    statusColor: '#22C55E',
-    oledState: 'normal',
-    co2: 42,
-    desc: 'Rajan is asleep. PulmoCare monitors continuously at his personal CO₂ baseline of 42 mmHg. No acoustic signal detected. Airways completely clear.',
-    notif: null,
-    graphPoints: [42,42,41,42,42]
-  },
-  {
-    time: '2:11 AM',
-    title: 'Rhonchi signal detected',
-    status: 'ACOUSTIC DETECTING',
-    statusColor: '#F59E0B',
-    oledState: 'detecting',
-    co2: 43,
-    desc: 'The MEMS microphone detects turbulent low-frequency sound (100–300 Hz range). Mucus is pooling in bronchial airways. Acoustic classifier confidence rising.',
-    notif: null,
-    graphPoints: [42,42,41,42,42,43,43,43]
-  },
-  {
-    time: '2:14 AM',
-    title: 'Layer 0 — Sputum alert fires',
-    status: 'SPUTUM ALERT',
-    statusColor: '#F59E0B',
-    oledState: 'amber',
-    co2: 44,
-    desc: '3 consecutive minutes of confirmed rhonchi signal. Layer 0 fires — the EARLIEST possible intervention. CO₂ has NOT yet risen. Patient prompted to clear airway.',
-    notif: {
-      title: 'Airways sound congested.',
-      body: 'Try airway clearance now — sit upright and perform huff coughing.',
-      color: '#F59E0B',
-      icon: '🫁'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44]
-  },
-  {
-    time: '2:26 AM',
-    title: 'Layer 1 — CO₂ rising',
-    status: 'CO₂ RISING',
-    statusColor: '#EAB308',
-    oledState: 'yellow',
-    co2: 50,
-    desc: 'Patient did not respond to Layer 0. Blockage continues. CO₂ now 16% above personal baseline, sustained for 10+ minutes. Caregiver Priya notified via push notification.',
-    notif: {
-      title: 'Airways congested + CO₂ rising.',
-      body: 'Contact your medical provider now. Airway clearance has not resolved the problem.',
-      color: '#EAB308',
-      icon: '⚠️'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50]
-  },
-  {
-    time: '2:47 AM',
-    title: 'Layer 2 — Critical alert',
-    status: '!! CRITICAL !!',
-    statusColor: '#EF4444',
-    oledState: 'red',
-    co2: 60,
-    desc: 'CO₂ 30% above baseline. Layer 2 fires. Continuous buzzer active. Urgent SMS sent to ALL registered caregivers. Priya enters the room immediately.',
-    notif: {
-      title: 'URGENT — CRITICAL ALERT',
-      body: 'CO₂ at critical level. Do not leave patient unsupervised. Call for help immediately.',
-      color: '#EF4444',
-      icon: '🆘'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50,52,54,57,60]
-  },
-  {
-    time: '2:55 AM',
-    title: 'Recovering — crisis averted',
-    status: 'RECOVERING',
-    statusColor: '#22C55E',
-    oledState: 'normal',
-    co2: 44,
-    desc: 'Priya performs chest physiotherapy. Airways clearing. CO₂ returning to baseline. Device transitions back to green. No ambulance. No ICU. No hospital visit.',
-    notif: {
-      title: 'Patient recovering.',
-      body: 'CO₂ returning to baseline. Airways clearing. Continue monitoring.',
-      color: '#22C55E',
-      icon: '✅'
-    },
-    graphPoints: [42,42,41,42,42,43,43,43,44,44, 45,46,47,48,50,50,52,54,57,60, 56,52,49,46,44]
-  }
-];
-
-let demoBeat = 0;
-let demoAnimT = 0;
-let demoAnimFrame = null;
+// Demo logic and data moved to index.html to ensure reliability.
 function initParticles(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -376,85 +246,7 @@ function initNavigation() {
 }
 
 
-function runCounterAnimation() {
-  const counterData = [
-    { id: null, el: null, target: 380, 
-      format: v => v + 'M' },
-    { id: null, el: null, target: 18000, 
-      format: v => '$' + v.toLocaleString() },
-    { id: null, el: null, target: 0, 
-      format: v => '0' },
-    { id: null, el: null, target: 44, 
-      format: v => v + ' min' },
-  ];
-
-  // Select the four .impact-number elements in order
-  const numberEls = document.querySelectorAll(
-    '.impact-number'
-  );
-  
-  if (numberEls.length === 0) {
-    console.warn('PulmoCare: impact-number elements not found');
-    return;
-  }
-
-  numberEls.forEach((el, i) => {
-    if (!counterData[i]) return;
-    const { target, format } = counterData[i];
-    
-    if (target === 0) {
-      el.textContent = format(0);
-      return;
-    }
-    
-    const duration = 1800;
-    const startTime = performance.now();
-    
-    function tick(now) {
-      const elapsed = now - startTime;
-      const rawProgress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
-      const progress = 1 - Math.pow(1 - rawProgress, 3);
-      const current  = Math.round(progress * target);
-      el.textContent = format(current);
-      
-      if (rawProgress < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        el.textContent = format(target);
-      }
-    }
-    
-    requestAnimationFrame(tick);
-  });
-}
-
-// Trigger with IntersectionObserver on the strip
-function initCounters() {
-  const strip = document.getElementById('impact-strip');
-  if (!strip) {
-    // Fallback: run on page load after 800ms
-    setTimeout(runCounterAnimation, 800);
-    return;
-  }
-
-  const obs = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) {
-      setTimeout(runCounterAnimation, 200);
-      obs.disconnect();
-    }
-  }, { threshold: 0.2 });
-  
-  obs.observe(strip);
-  
-  // Fallback if already in viewport on load
-  setTimeout(() => {
-    const rect = strip.getBoundingClientRect();
-    if (rect.top < window.innerHeight) {
-      runCounterAnimation();
-    }
-  }, 500);
-}
+// initCounters and runCounterAnimation replaced by initHeroCounters at bottom of file.
 
 // --- THREE.JS DEVICE RENDER ---
 function initThreeJS() {
@@ -592,243 +384,7 @@ function updateSolutionOLED(state, text) {
     }
 }
 
-function buildDemoTimeline() {
-  const container = document.getElementById('demo-timeline');
-  if (!container) return;
-  container.innerHTML = '';
-  
-  DEMO_BEATS.forEach((beat, i) => {
-    const isActive = i === demoBeat;
-    const div = document.createElement('div');
-    div.style.cssText = `
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 1px solid ${isActive ? beat.statusColor + '33' : 'rgba(255,255,255,0.05)'};
-      background: ${isActive ? beat.statusColor + '0D' : 'rgba(255,255,255,0.02)'};
-      cursor: pointer;
-      transition: all 0.2s;
-    `;
-    
-    div.innerHTML = `
-      <div style="width:10px;height:10px;border-radius:50%;background:${beat.statusColor};flex-shrink:0;box-shadow:${isActive ? '0 0 8px ' + beat.statusColor : 'none'};"></div>
-      <div style="flex:1">
-        <div style="font-family:monospace;font-size:11px;color:${beat.statusColor};margin-bottom:2px;">${beat.time}</div>
-        <div style="font-family:'Inter',sans-serif;font-size:13px;color:${isActive ? '#F1F5F9' : '#64748B'};">${beat.title}</div>
-      </div>
-      <div style="font-family:monospace;font-size:9px;padding:3px 7px;border-radius:4px;border:1px solid ${beat.statusColor}33;color:${beat.statusColor};white-space:nowrap;">${beat.status}</div>
-    `;
-    
-    div.addEventListener('click', () => {
-      demoBeat = i;
-      updateDemoSimulation();
-      buildDemoTimeline();
-    });
-    
-    container.appendChild(div);
-  });
-}
-
-function updateStatusCard(beat) {
-  const badge = document.getElementById('demo-status-badge');
-  const desc  = document.getElementById('demo-status-desc');
-  const card  = document.getElementById('demo-status-card');
-  
-  if (badge) {
-    badge.textContent = beat.status;
-    badge.style.color = beat.statusColor;
-  }
-  if (desc)  desc.textContent = beat.desc;
-  if (card)  card.style.borderColor = beat.statusColor + '22';
-}
-
-function drawDemoDevice(t) {
-  const canvas = document.getElementById('demo-device-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const beat = DEMO_BEATS[demoBeat];
-  
-  ctx.fillStyle = '#08101E';
-  ctx.fillRect(0, 0, W, H);
-  
-  ctx.fillStyle = '#EDEDEB';
-  demoRoundRect(ctx, 30, 20, W-60, H-40, 14);
-  ctx.fill();
-  
-  ctx.strokeStyle = '#00C896';
-  ctx.lineWidth = 2.5;
-  demoRoundRect(ctx, 30, 20, W-60, H-40, 14);
-  ctx.stroke();
-  
-  ctx.fillStyle = '#060D18';
-  demoRoundRect(ctx, 55, 38, W-110, H-76, 7);
-  ctx.fill();
-  
-  demoDrawOLED(ctx, 55, 38, W-110, H-76, beat, t);
-}
-
-function demoDrawOLED(ctx, x, y, w, h, beat, t) {
-  const cx = x + w/2, cy = y + h/2;
-  
-  for (let sy = y+1; sy < y+h; sy += 3) {
-    ctx.fillStyle = 'rgba(0,200,150,0.018)';
-    ctx.fillRect(x, sy, w, 1);
-  }
-  
-  if (beat.oledState === 'normal' || beat.oledState === 'detecting') {
-    const pulse = 0.55 + Math.sin(t * 1.8) * 0.45;
-    const dotR  = 14 + pulse * 5;
-    const g = ctx.createRadialGradient(x+22, cy, 0, x+22, cy, dotR+8);
-    g.addColorStop(0, `rgba(34,197,94,${pulse * 0.9})`);
-    g.addColorStop(1, 'rgba(34,197,94,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(x+22, cy, dotR+8, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = `rgba(34,197,94,${0.7 + pulse*0.3})`;
-    ctx.beginPath(); ctx.arc(x+22, cy, dotR, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#22C55E';
-    ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-    ctx.fillText(beat.oledState === 'normal' ? 'NORMAL' : 'DETECTING', x+44, cy - 10);
-    ctx.font = '10px monospace'; ctx.fillStyle = '#166534';
-    ctx.fillText('CO2: ' + beat.co2 + ' mmHg', x+44, cy+6);
-    ctx.fillText(beat.oledState === 'normal' ? 'AIRWAYS: CLEAR' : 'PATTERN FOUND', x+44, cy+20);
-  } else if (beat.oledState === 'amber' || beat.oledState === 'yellow') {
-    const col = beat.oledState === 'amber' ? '#F59E0B' : '#EAB308';
-    const blink = Math.sin(t * 4.2) > 0;
-    ctx.fillStyle = blink ? col : '#78420A';
-    ctx.beginPath(); ctx.arc(x+20, cy, 13, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = col;
-    ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-    ctx.fillText(beat.status, x+42, cy-10);
-    ctx.font = '9px monospace'; ctx.fillStyle = '#92600A';
-    ctx.fillText('CO2: ' + beat.co2 + ' mmHg', x+42, cy+5);
-    ctx.fillText('CLEAR AIRWAY', x+42, cy+19);
-  } else if (beat.oledState === 'red') {
-    const blink = Math.sin(t * 6.5) > 0;
-    if (blink) { ctx.fillStyle = 'rgba(239,68,68,0.14)'; ctx.fillRect(x, y, w, h); }
-    ctx.fillStyle = blink ? '#EF4444' : '#7F1D1D';
-    ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('!! CRITICAL !!', cx, cy - 14);
-    ctx.font = '10px monospace'; ctx.fillStyle = blink ? '#FCA5A5' : '#DC2626';
-    ctx.fillText('CO2: ' + beat.co2 + ' mmHg', cx, cy + 4);
-    ctx.fillText('CALL FOR HELP', cx, cy + 19);
-    ctx.textAlign = 'left';
-  }
-}
-
-function drawDemoPhone() {
-  const canvas = document.getElementById('demo-phone-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const beat = DEMO_BEATS[demoBeat];
-  
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0A1220';
-  demoRoundRect(ctx, 0, 0, W, H, 10);
-  ctx.fill();
-  
-  if (!beat.notif) {
-    ctx.fillStyle = '#334155'; ctx.font = '12px Inter, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('No notifications', W/2, H/2 + 4); ctx.textAlign = 'left';
-    return;
-  }
-  
-  const n = beat.notif;
-  ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.strokeStyle = n.color + '30';
-  demoRoundRect(ctx, 10, 8, W-20, H-16, 8); ctx.fill(); ctx.stroke();
-  ctx.font = '14px sans-serif'; ctx.fillText(n.icon, 18, 30);
-  ctx.fillStyle = n.color; ctx.font = 'bold 10px monospace'; ctx.fillText('PulmoCare', 38, 30);
-  ctx.fillStyle = '#475569'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
-  ctx.fillText(beat.time, W-14, 30); ctx.textAlign = 'left';
-  ctx.fillStyle = '#F1F5F9'; ctx.font = 'bold 12px Inter, sans-serif'; ctx.fillText(n.title, 18, 50);
-  ctx.fillStyle = '#64748B'; ctx.font = '10px Inter, sans-serif';
-  wrapText(ctx, n.body, W-36).forEach((line, i) => ctx.fillText(line, 18, 66 + i*13));
-}
-
-function drawDemoCO2() {
-  const canvas = document.getElementById('demo-co2-graph');
-  if (!canvas) return;
-  const W = canvas.width, H = canvas.height;
-  canvas.width = W;
-  const ctx = canvas.getContext('2d');
-  const P = { t:12, r:12, b:24, l:36 }, gW = W-P.l-P.r, gH = H-P.t-P.b;
-  const minV = 36, maxV = 68;
-  const toX = i => P.l + (i / 24) * gW;
-  const toY = v => P.t + gH - ((v-minV)/(maxV-minV))*gH;
-  
-  ctx.fillStyle = 'rgba(239,68,68,0.06)'; ctx.fillRect(P.l, toY(55), gW, toY(maxV)-toY(55));
-  ctx.fillStyle = 'rgba(245,158,11,0.06)'; ctx.fillRect(P.l, toY(50), gW, toY(55)-toY(50));
-  
-  [[42,'#22C55E','baseline'],[50,'#EAB308','L1'],[55,'#EF4444','L2']].forEach(([v, col, lbl]) => {
-    ctx.strokeStyle = col + '50'; ctx.setLineDash([3,5]); ctx.beginPath();
-    ctx.moveTo(P.l, toY(v)); ctx.lineTo(P.l+gW, toY(v)); ctx.stroke();
-    ctx.fillStyle = col + '80'; ctx.font = '8px monospace'; ctx.fillText(lbl, P.l+gW-18, toY(v)-3);
-  });
-  ctx.setLineDash([]);
-  
-  const allPts = [];
-  for (let b = 0; b <= demoBeat; b++) DEMO_BEATS[b].graphPoints.forEach(v => allPts.push(v));
-  
-  for (let i = 1; i < allPts.length; i++) {
-    const v = allPts[i];
-    ctx.strokeStyle = v >= 55 ? '#EF4444' : v >= 50 ? '#EAB308' : v >= 46 ? '#F59E0B' : '#22C55E';
-    ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(toX(i-1), toY(allPts[i-1])); ctx.lineTo(toX(i), toY(allPts[i])); ctx.stroke();
-  }
-  
-  const last = allPts[allPts.length-1], lx = toX(allPts.length-1), ly = toY(last);
-  ctx.fillStyle = DEMO_BEATS[demoBeat].statusColor; ctx.beginPath(); ctx.arc(lx, ly, 4.5, 0, Math.PI*2); ctx.fill();
-  ctx.font = 'bold 9px monospace'; ctx.fillText(last + ' mmHg', lx-30, ly-7);
-}
-
-function demoRoundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath(); ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r); ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h); ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
-}
-
-function updateDemoSimulation() {
-  const beat = DEMO_BEATS[demoBeat];
-  updateStatusCard(beat);
-  drawDemoPhone();
-  drawDemoCO2();
-}
-
-function demoAnimate() {
-  demoAnimT += 0.04;
-  drawDemoDevice(demoAnimT);
-  demoAnimFrame = requestAnimationFrame(demoAnimate);
-}
-
-let autoPlayInterval = null;
-function setupDemoObserver() {
-  const demoObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        if (!autoPlayInterval) {
-          autoPlayInterval = setInterval(() => {
-            demoBeat = (demoBeat + 1) % DEMO_BEATS.length;
-            updateDemoSimulation();
-            buildDemoTimeline();
-          }, 3000);
-        }
-      } else {
-        if (autoPlayInterval) { clearInterval(autoPlayInterval); autoPlayInterval = null; }
-      }
-    });
-  }, { threshold: 0.3 });
-  const demoSection = document.getElementById('demo-section');
-  if (demoSection) demoObserver.observe(demoSection);
-}
-
-function wrapText(ctx, text, maxWidth) {
-  const words = text.split(' '), lines = []; let current = '';
-  words.forEach(word => {
-    const test = current + word + ' ';
-    if (ctx.measureText(test).width > maxWidth && current) { lines.push(current.trim()); current = word + ' '; } else current = test;
-  });
-  if (current) lines.push(current.trim()); return lines;
-}
+// Interactive demo functions removed. Logic is now in index.html for zero-dependency execution.
 
 // --- VIDEO PLAYER ENGINE ---
 function embedVideo(url) {
@@ -911,3 +467,121 @@ function initRevealAnimations() {
         }
     });
 }
+
+(function initHeroCounters() {
+  // Hardcoded counter definitions — no data attributes needed
+  const COUNTER_DEFS = [
+    {
+      selector: '.impact-number:nth-child(1)',
+      target: 380,
+      format: function(v) { return v + 'M'; }
+    },
+    {
+      selector: '.impact-number:nth-child(2)', 
+      target: 18000,
+      format: function(v) { 
+        return '$' + v.toLocaleString('en-US'); 
+      }
+    },
+    {
+      selector: '.impact-number:nth-child(3)',
+      target: 0,
+      format: function(v) { return '0'; }
+    },
+    {
+      selector: '.impact-number:nth-child(4)',
+      target: 44,
+      format: function(v) { return v + ' min'; }
+    }
+  ];
+
+  // Also try by index on all .impact-number elements
+  function runCounters() {
+    const allCounters = document.querySelectorAll(
+      '.impact-number'
+    );
+    
+    if (allCounters.length === 0) {
+      console.warn('No .impact-number elements found');
+      return;
+    }
+
+    const DURATION = 2000; // 2 seconds
+
+    allCounters.forEach(function(el, index) {
+      var def = COUNTER_DEFS[index];
+      if (!def) return;
+      
+      var target = def.target;
+      var format = def.format;
+      
+      // Show zero first
+      el.textContent = format(0);
+      
+      if (target === 0) return; // stays at 0
+      
+      var startTime = null;
+      
+      function animate(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var elapsed = timestamp - startTime;
+        var rawProgress = Math.min(elapsed / DURATION, 1);
+        
+        // Ease out cubic
+        var progress = 1 - Math.pow(1 - rawProgress, 3);
+        var current = Math.round(progress * target);
+        
+        el.textContent = format(current);
+        
+        if (rawProgress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          el.textContent = format(target);
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    });
+  }
+
+  // Method 1: IntersectionObserver
+  var strip = document.getElementById('impact-strip');
+  
+  if (strip && 'IntersectionObserver' in window) {
+    var hasRun = false;
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !hasRun) {
+        hasRun = true;
+        setTimeout(runCounters, 150);
+        obs.disconnect();
+      }
+    }, { threshold: 0.1 });
+    obs.observe(strip);
+  }
+  
+  // Method 2: Fallback timer — always runs after 1.2s
+  setTimeout(function() {
+    var allCounters = document.querySelectorAll(
+      '.impact-number'
+    );
+    // Check if any still show zero
+    var anyZero = false;
+    allCounters.forEach(function(el) {
+      if (el.textContent === '0M' || 
+          el.textContent === '$0' || 
+          el.textContent === '0min') {
+        anyZero = true;
+      }
+    });
+    if (anyZero) runCounters();
+  }, 1200);
+  
+  // Method 3: On scroll — if user scrolls before timer
+  var scrollRan = false;
+  window.addEventListener('scroll', function() {
+    if (scrollRan) return;
+    scrollRan = true;
+    setTimeout(runCounters, 100);
+  }, { once: true, passive: true });
+
+})();
