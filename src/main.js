@@ -192,7 +192,7 @@ function initNavigation() {
   const nav = document.getElementById('main-nav');
   if (!nav) return;
 
-  // Scroll effect
+  // Scroll effect (background blur on scroll)
   window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
       nav.classList.add('scrolled');
@@ -201,33 +201,40 @@ function initNavigation() {
     }
   });
 
-  // Active link highlighting
-  const navSections = [
-    { id: 'problem-section',  link: 'Problem'  },
-    { id: 'solution-section', link: 'Solution' },
-    { id: 'demo-section',     link: 'Demo'     },
-    { id: 'research-section', link: 'Research' },
-    { id: 'team-section',     link: 'Team'     },
-  ];
-
+  // 1. Fixed IntersectionObserver for active link highlighting
   const navObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-        const activeLink = Array.from(document.querySelectorAll('.nav-link')).find(l => 
-          l.textContent.trim() === navSections.find(s => s.id === entry.target.id)?.link
+        // Remove active from all links
+        document.querySelectorAll('.nav-link')
+          .forEach(l => l.classList.remove('active'));
+        
+        // Find matching link using href attribute
+        const sectionId = entry.target.id;
+        const matchingLink = document.querySelector(
+          `.nav-link[href="#${sectionId}"]`
         );
-        if (activeLink) activeLink.classList.add('active');
+        if (matchingLink) {
+          matchingLink.classList.add('active');
+        }
       }
     });
-  }, { threshold: 0.4 });
+  }, { 
+    threshold: 0.5,
+    rootMargin: '-64px 0px 0px 0px'
+  });
 
-  navSections.forEach(({ id }) => {
+  // Observe ONLY content sections, NOT the hero
+  const navTargets = [
+    'problem-section', 'solution-section',
+    'demo-section', 'research-section', 'team-section'
+  ];
+  navTargets.forEach(id => {
     const el = document.getElementById(id);
     if (el) navObserver.observe(el);
   });
 
-  // Smooth scroll for nav links
+  // 2. Universal Smooth Scroll (including Nav CTA)
   document.querySelectorAll('.nav-link, #nav-cta').forEach(link => {
     link.addEventListener('click', e => {
       const href = link.getAttribute('href');
@@ -240,6 +247,15 @@ function initNavigation() {
       }
     });
   });
+
+  // 3. Scroll Progress Bar
+  window.addEventListener('scroll', function() {
+    var scrollTop = window.scrollY;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var progress  = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    var bar = document.getElementById('scroll-progress-bar');
+    if (bar) bar.style.width = Math.min(progress, 100) + '%';
+  }, { passive: true });
 
   // Add top padding to body for fixed nav
   document.body.style.paddingTop = '64px';
@@ -583,5 +599,201 @@ function initRevealAnimations() {
     scrollRan = true;
     setTimeout(runCounters, 100);
   }, { once: true, passive: true });
+
+
+// --- HERO DEVICE RENDERING ---
+function drawHeroDevice(t) {
+  var canvas = document.getElementById('hero-device-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  
+  ctx.clearRect(0, 0, W, H);
+  
+  // Device dimensions — centred
+  var dW = 280, dH = 160;
+  var dX = (W - dW) / 2;
+  var dY = (H - dH) / 2;
+  var r  = 18; // corner radius
+  
+  // Shadow / depth layer
+  ctx.shadowColor = 'rgba(0,200,150,0.25)';
+  ctx.shadowBlur  = 40;
+  ctx.shadowOffsetY = 8;
+  
+  // Device body — off-white medical plastic
+  var bodyGrad = ctx.createLinearGradient(dX, dY, dX, dY+dH);
+  bodyGrad.addColorStop(0,   '#F5F5F3');
+  bodyGrad.addColorStop(0.5, '#EDEDEB');
+  bodyGrad.addColorStop(1,   '#D8D8D6');
+  ctx.fillStyle = bodyGrad;
+  rrectHero(ctx, dX, dY, dW, dH, r);
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur  = 0;
+  ctx.shadowOffsetY = 0;
+  
+  // Teal edge highlight (top)
+  ctx.strokeStyle = '#00C896';
+  ctx.lineWidth   = 3;
+  rrectHero(ctx, dX, dY, dW, dH, r);
+  ctx.stroke();
+  
+  // Side depth (3D bevel effect)
+  ctx.fillStyle = '#BFBFBD';
+  rrectHero(ctx, dX+2, dY+dH-6, dW-4, 6, 3);
+  ctx.fill();
+  
+  // Surface texture line (subtle)
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(dX+20, dY+dH*0.42);
+  ctx.lineTo(dX+dW-20, dY+dH*0.42);
+  ctx.stroke();
+  
+  // OLED screen area
+  var sX = dX+55, sY = dY+22;
+  var sW = dW-90, sH = dH-44;
+  
+  // Screen bezel (dark inset)
+  ctx.fillStyle = '#0A0F18';
+  rrectHero(ctx, sX-2, sY-2, sW+4, sH+4, 6);
+  ctx.fill();
+  
+  // Screen surface
+  ctx.fillStyle = '#050B15';
+  rrectHero(ctx, sX, sY, sW, sH, 5);
+  ctx.fill();
+  
+  // Screen content — animated based on time
+  drawDeviceScreen(ctx, sX, sY, sW, sH, t);
+  
+  // Sensor dot (left of screen)
+  var dotX = dX + 30, dotY = dY + dH/2;
+  
+  // Sensor housing
+  ctx.fillStyle = '#2A3040';
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 11, 0, Math.PI*2);
+  ctx.fill();
+  
+  // Sensor inner
+  var pulse = 0.5 + Math.sin(t*2.2)*0.5;
+  var sg = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 9);
+  sg.addColorStop(0, 'rgba(0,200,150,' + (0.7+pulse*0.3) + ')');
+  sg.addColorStop(1, 'rgba(0,100,80,0.3)');
+  ctx.fillStyle = sg;
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 9, 0, Math.PI*2);
+  ctx.fill();
+  
+  // USB-C port (bottom centre)
+  ctx.fillStyle = '#CCCCCA';
+  rrectHero(ctx, dX+dW/2-12, dY+dH-8, 24, 5, 2);
+  ctx.fill();
+  ctx.fillStyle = '#AAAAAA';
+  rrectHero(ctx, dX+dW/2-8, dY+dH-7, 16, 3, 1);
+  ctx.fill();
+  
+  // Annotation dots — floating labels
+  var annots = [
+    { x: dX+55,     y: dY+10, label: 'MEMS Mic',   side:'above' },
+    { x: dX+dW-20,  y: dY+40, label: 'CO₂ Sensor', side:'right' },
+    { x: dX+dW-10,  y: dY+dH-20, label: 'BLE 5.0', side:'right'},
+  ];
+  
+  annots.forEach(function(ann) {
+    var ao = 0.5 + Math.sin(t*1.3 + ann.x)*0.5;
+    
+    // Dot
+    ctx.fillStyle = 'rgba(0,200,150,' + (0.7+ao*0.3) + ')';
+    ctx.beginPath();
+    ctx.arc(ann.x, ann.y, 4, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Line + label
+    ctx.strokeStyle = 'rgba(0,200,150,' + (0.4+ao*0.2) + ')';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,4]);
+    ctx.beginPath();
+    if (ann.side === 'above') {
+      ctx.moveTo(ann.x, ann.y);
+      ctx.lineTo(ann.x, ann.y - 28);
+    } else {
+      ctx.moveTo(ann.x, ann.y);
+      ctx.lineTo(ann.x + 30, ann.y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    ctx.fillStyle = 'rgba(0,200,150,' + (0.7+ao*0.3) + ')';
+    ctx.font = '9px monospace';
+    ctx.textAlign = ann.side === 'right' ? 'left' : 'center';
+    if (ann.side === 'above') {
+      ctx.fillText(ann.label, ann.x, ann.y - 32);
+    } else {
+      ctx.fillText(ann.label, ann.x + 34, ann.y + 3);
+    }
+    ctx.textAlign = 'left';
+  });
+}
+
+function drawDeviceScreen(ctx, x, y, w, h, t) {
+  var cx = x + w/2;
+  var cy = y + h/2;
+  
+  // Scanline effect
+  for (var sy = y; sy < y+h; sy += 3) {
+    ctx.fillStyle = 'rgba(0,200,150,0.012)';
+    ctx.fillRect(x, sy, w, 1);
+  }
+  
+  // Status dot — green pulse
+  var pulse = 0.5 + Math.sin(t*2.1)*0.5;
+  var dotGlow = ctx.createRadialGradient(x+22, cy, 0, x+22, cy, 14+pulse*4);
+  dotGlow.addColorStop(0, 'rgba(34,197,94,' + (0.85+pulse*0.15) + ')');
+  dotGlow.addColorStop(1, 'rgba(34,197,94,0)');
+  ctx.fillStyle = dotGlow;
+  ctx.beginPath();
+  ctx.arc(x+22, cy, 16+pulse*4, 0, Math.PI*2);
+  ctx.fill();
+  
+  // Text content
+  ctx.fillStyle = '#22C55E';
+  ctx.font = 'bold 12px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('NORMAL', x+44, cy-9);
+  
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#166534';
+  ctx.fillText('CO\u2082: 42 mmHg', x+44, cy+5);
+  ctx.fillText('AIRWAYS: CLEAR', x+44, cy+18);
+  ctx.fillText('LAYER 0: SILENT', x+44, cy+31);
+  ctx.textAlign = 'left';
+}
+
+function rrectHero(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+// Start the hero device animation loop
+var heroT = 0;
+function heroDeviceLoop() {
+  heroT += 0.035;
+  drawHeroDevice(heroT);
+  requestAnimationFrame(heroDeviceLoop);
+}
+heroDeviceLoop();
 
 })();

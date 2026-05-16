@@ -4,10 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PulmoCare | Advanced Respiratory Monitoring</title>
-    <meta name="description" content="PulmoCare: A dual-detection wearable system for continuous CO2 trend monitoring and acoustic sputum blockage alerting.">
+    
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
     <link rel="stylesheet" href="./src/style.css">
+
+    <!-- SEO -->
+    <meta name="description" content="PulmoCare — A dual-detection wearable system for continuous CO₂ trend monitoring and acoustic sputum blockage alerting. The first home device that catches the cause before the consequence.">
+
+    <!-- Open Graph for sharing -->
+    <meta property="og:title" content="PulmoCare | Catching the cause before the consequence">
+    <meta property="og:description" content="A wearable patch that monitors sputum and CO₂ simultaneously — detecting respiratory crises 44 minutes earlier.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pulmocare-flame.vercel.app">
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PulmoCare — Wearable Respiratory Monitor">
 </head>
 <body>
+    <div id="scroll-progress-bar" style="
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: linear-gradient(
+        90deg, #00C896 0%, #00E5B0 100%);
+      z-index: 9999;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px rgba(0,200,150,0.5);
+    "></div>
     <nav id="main-nav">
       <div id="nav-inner">
         
@@ -36,147 +65,356 @@
 
     <main>
         <!-- SECTION 1: HERO -->
-        <section id="hero" class="hero">
-            <canvas id="hero-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.3;"></canvas>
-            <div class="container">
-                <div class="hero-grid">
-                    <div class="hero-content">
-                        <div id="competition-badges">
-                          <div class="badge-pill">
-                            <span class="badge-dot"></span>
-                            Samsung Solve for Tomorrow 2025
-                          </div>
-                          <div class="badge-pill">
-                            <span class="badge-dot"></span>
-                            National Finalist
-                          </div>
-                          <div class="badge-pill">
-                            <span class="badge-dot"></span>
-                            Healthcare Innovation
-                          </div>
-                        </div>
+<section id="hero-section" style="
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 130px 0 60px;
+  position: relative;
+  overflow: hidden;
+">
+  <div style="
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: 60px;
+    align-items: center;
+  ">
+    
+    <!-- LEFT: Text content -->
+    <div>
+      <!-- Trust Indicator -->
+      <div style="
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: rgba(0,200,150,0.06);
+        border: 1px solid rgba(0,200,150,0.18);
+        border-radius: 100px;
+        margin-bottom: 24px;
+      ">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L8.8 5.2L13.5 5.6L10 8.7L11 13.3L7 11L3 13.3L4 8.7L0.5 5.6L5.2 5.2L7 1Z" fill="#00C896" opacity="0.7"/>
+        </svg>
+        <span style="
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          color: #00C896;
+          text-transform: uppercase;
+        ">Peer-Reviewed Research · VIPS New Delhi · 2025</span>
+      </div>
 
-                        <h1 style="
-                          font-family: 'Syne', sans-serif;
-                          font-size: clamp(38px, 5.5vw, 72px);
-                          font-weight: 800;
-                          color: #F1F5F9;
-                          letter-spacing: -0.035em;
-                          line-height: 1.12;
-                          margin: 20px 0 16px;
-                          max-width: 760px;
-                        ">
-                          What if a wearable patch<br/>
-                          could warn you<br/>
-                          <span style="color: #00C896;">
-                            44 minutes before<br/>the crisis?
-                          </span>
-                        </h1>
+      <!-- Category Label -->
+      <p style="
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        color: #00C896;
+        text-transform: uppercase;
+        margin: 0 0 20px;
+      ">Advanced Respiratory Monitoring</p>
+      
+      <!-- Hero headline — FIXED SIZE -->
+      <h1 style="
+        font-family: 'Syne', sans-serif;
+        font-size: clamp(36px, 4.2vw, 58px);
+        font-weight: 800;
+        color: #F1F5F9;
+        letter-spacing: -0.035em;
+        line-height: 1.10;
+        margin: 0 0 20px;
+        max-width: 600px;
+      ">
+        What if a wearable patch<br/>
+        could warn you<br/>
+        <span style="color:#00C896">
+          44 minutes before<br/>the crisis?
+        </span>
+      </h1>
+      
+      <!-- Tagline -->
+      <p style="
+        font-family: 'Inter', sans-serif;
+        font-size: 17px;
+        color: #64748B;
+        line-height: 1.75;
+        max-width: 480px;
+        margin: 0 0 36px;
+      ">
+        PulmoCare simultaneously monitors airway sputum 
+        accumulation and blood CO₂ — the only home device 
+        that catches the <em style="color:#94A3B8;
+        font-style:normal;font-weight:500">cause</em> 
+        before the <em style="color:#94A3B8;
+        font-style:normal;font-weight:500">consequence</em>.
+      </p>
+      
+      <!-- CTA buttons -->
+      <div style="
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 48px;
+      ">
+        <a href="#demo-section" style="
+          display:inline-flex;align-items:center;gap:9px;
+          padding:14px 28px;
+          background:#00C896;
+          color:#07101E;
+          font-family:'Syne',sans-serif;
+          font-size:15px;font-weight:700;
+          border-radius:10px;text-decoration:none;
+          letter-spacing:0.02em;
+          transition:transform 0.15s,box-shadow 0.2s;
+          box-shadow:0 4px 24px rgba(0,200,150,0.30);
+        "
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(0,200,150,0.45)'"
+        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 24px rgba(0,200,150,0.30)'">
+          ▶ Watch the Demo
+        </a>
+        
+        <a href="#research-section" style="
+          display:inline-flex;align-items:center;
+          padding:14px 28px;
+          background:transparent;color:#94A3B8;
+          font-family:'Inter',sans-serif;
+          font-size:15px;font-weight:500;
+          border-radius:10px;text-decoration:none;
+          border:1px solid rgba(255,255,255,0.12);
+          transition:color 0.2s,border-color 0.2s;
+        "
+        onmouseover="this.style.color='#F1F5F9';this.style.borderColor='rgba(255,255,255,0.28)'"
+        onmouseout="this.style.color='#94A3B8';this.style.borderColor='rgba(255,255,255,0.12)'">
+          Read the Research →
+        </a>
+      </div>
+      
+      <!-- Impact strip — HORIZONTAL, COMPACT -->
+      <div id="impact-strip" style="
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        overflow: hidden;
+        max-width: 580px;
+      ">
+        <div style="
+          padding: 18px 16px;
+          border-right:1px solid rgba(255,255,255,0.07);
+          text-align:center;
+        ">
+          <div class="impact-number" style="
+            font-family:'Syne',sans-serif;
+            font-size:26px;font-weight:800;
+            color:#00C896;line-height:1;
+            margin-bottom:5px;
+          ">380M</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;font-weight:600;
+            color:#F1F5F9;letter-spacing:0.1em;
+            text-transform:uppercase;margin-bottom:2px;
+          ">COPD Patients</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;color:#475569;
+          ">at risk nightly</div>
+        </div>
+        
+        <div style="
+          padding: 18px 16px;
+          border-right:1px solid rgba(255,255,255,0.07);
+          text-align:center;
+        ">
+          <div class="impact-number" style="
+            font-family:'Syne',sans-serif;
+            font-size:26px;font-weight:800;
+            color:#00C896;line-height:1;
+            margin-bottom:5px;
+          ">$18K</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;font-weight:600;
+            color:#F1F5F9;letter-spacing:0.1em;
+            text-transform:uppercase;margin-bottom:2px;
+          ">ICU Cost</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;color:#475569;
+          ">per episode</div>
+        </div>
+        
+        <div style="
+          padding: 18px 16px;
+          border-right:1px solid rgba(255,255,255,0.07);
+          text-align:center;
+        ">
+          <div class="impact-number" style="
+            font-family:'Syne',sans-serif;
+            font-size:26px;font-weight:800;
+            color:#EF4444;line-height:1;
+            margin-bottom:5px;
+          ">Zero</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;font-weight:600;
+            color:#F1F5F9;letter-spacing:0.1em;
+            text-transform:uppercase;margin-bottom:2px;
+          ">Home CO₂ Monitor</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;color:#475569;
+          ">under $500 exists</div>
+        </div>
+        
+        <div style="
+          padding: 18px 16px;
+          text-align:center;
+        ">
+          <div class="impact-number" style="
+            font-family:'Syne',sans-serif;
+            font-size:26px;font-weight:800;
+            color:#00C896;line-height:1;
+            margin-bottom:5px;
+          ">44m</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;font-weight:600;
+            color:#F1F5F9;letter-spacing:0.1em;
+            text-transform:uppercase;margin-bottom:2px;
+          ">Earlier Alert</div>
+          <div style="
+            font-family:'Inter',sans-serif;
+            font-size:10px;color:#475569;
+          ">vs current standard</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- RIGHT: Device 3D canvas -->
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+    ">
+      <!-- Device render area -->
+      <div style="
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+      ">
+        <!-- Glow behind device -->
+        <div style="
+          position:absolute;
+          top:50%;left:50%;
+          transform:translate(-50%,-50%);
+          width:280px;height:280px;
+          background:radial-gradient(
+            circle, 
+            rgba(0,200,150,0.12) 0%, 
+            transparent 70%
+          );
+          pointer-events:none;
+          animation:haloBreath 3s ease-in-out infinite;
+        "></div>
+        
+        <!-- Device canvas — drawn by JavaScript -->
+        <canvas id="hero-device-canvas"
+          width="420" height="280"
+          style="
+            width:100%;display:block;
+            position:relative;z-index:1;
+          ">
+        </canvas>
+        
+        <!-- Status badge below device -->
+        <div style="
+          margin-top:16px;
+          display:flex;align-items:center;gap:10px;
+          justify-content:center;
+        ">
+          <div id="hero-oled-badge" style="
+            display:inline-flex;align-items:center;gap:8px;
+            padding:8px 16px;
+            background:rgba(34,197,94,0.08);
+            border:1px solid rgba(34,197,94,0.22);
+            border-radius:8px;
+            font-family:monospace;font-size:12px;
+            color:#22C55E;
+          ">
+            <div id="hero-status-dot" style="
+              width:8px;height:8px;border-radius:50%;
+              background:#22C55E;
+              animation:dotPulse 1.8s ease-in-out infinite;
+            "></div>
+            <span id="hero-status-text">SYSTEM NORMAL</span>
+            <span style="
+              padding-left:8px;
+              border-left:1px solid rgba(34,197,94,0.2);
+              color:#166534;
+            ">42 mmHg</span>
+          </div>
+        </div>
+        
+        <!-- Mini alert preview -->
+        <div id="hero-alert-preview" style="
+          margin-top:12px;
+          padding:12px 16px;
+          background:rgba(255,255,255,0.03);
+          border:1px solid rgba(255,255,255,0.07);
+          border-radius:10px;
+          font-family:'Inter',sans-serif;
+          font-size:12px;color:#475569;
+          text-align:center;
+          line-height:1.6;
+        ">
+          <span style="color:#00C896;font-weight:600">
+            Click the demo below
+          </span>
+          to see Rajan's overnight crisis unfold in real time
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</section>
 
-                        <p style="
-                          font-family: 'Inter', sans-serif;
-                          font-size: clamp(16px, 1.8vw, 20px);
-                          color: #64748B;
-                          line-height: 1.75;
-                          max-width: 540px;
-                          margin-bottom: 36px;
-                        ">
-                          PulmoCare simultaneously monitors airway sputum 
-                          accumulation and blood CO₂ — the only home device 
-                          that catches the cause before the consequence.
-                        </p>
-                        
-                        <div id="impact-strip">
-                          <div class="impact-stat">
-                            <div class="impact-number" data-target="380">0M</div>
-                            <div class="impact-label">COPD patients</div>
-                            <div class="impact-sub">at risk every night</div>
-                          </div>
-                          <div class="impact-divider"></div>
-                          <div class="impact-stat">
-                            <div class="impact-number" data-target="18000">$0</div>
-                            <div class="impact-label">ICU admission cost</div>
-                            <div class="impact-sub">per COPD crisis episode</div>
-                          </div>
-                          <div class="impact-divider"></div>
-                          <div class="impact-stat">
-                            <div class="impact-number" data-target="0">0</div>
-                            <div class="impact-label">Home CO₂ monitors</div>
-                            <div class="impact-sub">exist for under $500</div>
-                          </div>
-                          <div class="impact-divider"></div>
-                          <div class="impact-stat">
-                            <div class="impact-number" data-target="44">0min</div>
-                            <div class="impact-label">Earlier detection</div>
-                            <div class="impact-sub">vs current standard</div>
-                          </div>
-                        </div>
-                        <div style="
-                          display: flex;
-                          gap: 14px;
-                          flex-wrap: wrap;
-                          align-items: center;
-                          margin-top: 32px;
-                        ">
-                          <a href="#demo-section" style="
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 8px;
-                            padding: 14px 28px;
-                            background: #00C896;
-                            color: #07101E;
-                            font-family: 'Syne', sans-serif;
-                            font-size: 15px;
-                            font-weight: 700;
-                            border-radius: 10px;
-                            text-decoration: none;
-                            letter-spacing: 0.02em;
-                            transition: transform 0.15s, box-shadow 0.2s;
-                            box-shadow: 0 4px 24px rgba(0,200,150,0.3);
-                          "
-                          onmouseover="
-                            this.style.transform='translateY(-2px)';
-                            this.style.boxShadow='0 8px 32px rgba(0,200,150,0.45)';
-                          "
-                          onmouseout="
-                            this.style.transform='translateY(0)';
-                            this.style.boxShadow='0 4px 24px rgba(0,200,150,0.3)';
-                          ">
-                            ▶ Watch the Demo
-                          </a>
-                          
-                          <a href="#research-section" style="
-                            display: inline-flex;
-                            align-items: center;
-                            padding: 14px 28px;
-                            background: transparent;
-                            color: #94A3B8;
-                            font-family: 'Inter', sans-serif;
-                            font-size: 15px;
-                            font-weight: 500;
-                            border-radius: 10px;
-                            text-decoration: none;
-                            border: 1px solid rgba(255,255,255,0.12);
-                            transition: color 0.2s, border-color 0.2s;
-                          "
-                          onmouseover="
-                            this.style.color='#F1F5F9';
-                            this.style.borderColor='rgba(255,255,255,0.25)';
-                          "
-                          onmouseout="
-                            this.style.color='#94A3B8';
-                            this.style.borderColor='rgba(255,255,255,0.12)';
-                          ">
-                            Read the Research →
-                          </a>
-                        </div>
-                    </div>
-                    <div class="hero-visual">
-                        <canvas id="device-canvas-hero"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
+<style>
+@keyframes bdgPulse {
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.4;transform:scale(0.8)}
+}
+@keyframes haloBreath {
+  0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
+}
+@keyframes dotPulse {
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.35;transform:scale(0.75)}
+}
+
+@media (max-width: 900px) {
+  #hero-section > div {
+    grid-template-columns: 1fr !important;
+  }
+  #hero-section > div > div:last-child {
+    display: none !important;
+  }
+}
+</style>
 
         <!-- SECTION 2: THE PROBLEM -->
         <section id="problem-section" class="problem">
@@ -1581,6 +1819,86 @@ if (document.readyState === 'loading') {
                         </div>
                     </div>
                 </div>
+
+                <div style="
+                  margin-top: 32px;
+                  padding: 24px 28px;
+                  background: rgba(255,153,0,0.05);
+                  border: 1px solid rgba(255,153,0,0.15);
+                  border-radius: 14px;
+                  display: grid;
+                  grid-template-columns: 44px 1fr;
+                  gap: 18px;
+                  align-items: start;
+                ">
+                  <div style="
+                    width:44px;height:44px;
+                    background:rgba(255,153,0,0.1);
+                    border-radius:10px;
+                    display:flex;align-items:center;
+                    justify-content:center;font-size:22px;
+                  ">☁</div>
+                  <div>
+                    <h4 style="
+                      font-family:'Syne',sans-serif;
+                      font-size:16px;font-weight:700;
+                      color:#F1F5F9;margin-bottom:8px;
+                    ">Cloud Architecture (Phase 2+)</h4>
+                    <p style="
+                      font-family:'Inter',sans-serif;
+                      font-size:14px;color:#94A3B8;
+                      line-height:1.75;margin-bottom:12px;
+                    ">
+                      Patient data streams via BLE to smartphone, 
+                      then to AWS IoT Core for real-time processing.
+                      Amazon Timestream stores time-series CO₂ and 
+                      acoustic data. AWS Lambda handles alert 
+                      escalation logic. Amazon SNS delivers SMS to 
+                      caregivers. All data encrypted at rest (AES-256) 
+                      and in transit (TLS 1.3). HIPAA-eligible 
+                      architecture on AWS GovCloud (US).
+                    </p>
+                    <div style="
+                      display:flex;flex-wrap:wrap;gap:8px;
+                    ">
+                      <span style="
+                        font-family:monospace;font-size:11px;
+                        color:#FF9900;
+                        background:rgba(255,153,0,0.08);
+                        border:1px solid rgba(255,153,0,0.2);
+                        padding:3px 10px;border-radius:4px;
+                      ">AWS IoT Core</span>
+                      <span style="
+                        font-family:monospace;font-size:11px;
+                        color:#FF9900;
+                        background:rgba(255,153,0,0.08);
+                        border:1px solid rgba(255,153,0,0.2);
+                        padding:3px 10px;border-radius:4px;
+                      ">Amazon Timestream</span>
+                      <span style="
+                        font-family:monospace;font-size:11px;
+                        color:#FF9900;
+                        background:rgba(255,153,0,0.08);
+                        border:1px solid rgba(255,153,0,0.2);
+                        padding:3px 10px;border-radius:4px;
+                      ">AWS Lambda</span>
+                      <span style="
+                        font-family:monospace;font-size:11px;
+                        color:#FF9900;
+                        background:rgba(255,153,0,0.08);
+                        border:1px solid rgba(255,153,0,0.2);
+                        padding:3px 10px;border-radius:4px;
+                      ">Amazon SNS</span>
+                      <span style="
+                        font-family:monospace;font-size:11px;
+                        color:#FF9900;
+                        background:rgba(255,153,0,0.08);
+                        border:1px solid rgba(255,153,0,0.2);
+                        padding:3px 10px;border-radius:4px;
+                      ">HIPAA Eligible</span>
+                    </div>
+                  </div>
+                </div>
             </div>
         </section>
 
@@ -1623,7 +1941,17 @@ if (document.readyState === 'loading') {
                         </div>
                         <div>
                             <h3>PulmoCare: A Dual-Detection Wearable System</h3>
-                            <p class="text-secondary">Author: Anmol Garg · VIPS New Delhi · 2025</p>
+                            <p class="text-secondary">
+                              Author: Anmol Garg · VIPS New Delhi · 2025 · 11 pages · ~18 min read · 
+                              <span style="
+                                font-family:monospace;font-size:11px;
+                                color:#00C896;
+                                background:rgba(0,200,150,0.08);
+                                border:1px solid rgba(0,200,150,0.2);
+                                padding:2px 8px;border-radius:4px;
+                                margin-left:4px;
+                              ">IEEE FORMAT</span>
+                            </p>
                         </div>
                     </div>
                     <div style="
@@ -2240,12 +2568,77 @@ tr:hover .pctd {
         </section>
     </main>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content mono">
-                <p>PulmoCare · Anmol Garg · VIPS New Delhi · 2025</p>
-            </div>
+    <footer style="
+      padding: 40px 40px 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: #040B15;
+    ">
+      <div style="
+        max-width:1200px;margin:0 auto;
+        display:flex;justify-content:space-between;
+        align-items:center;flex-wrap:wrap;gap:16px;
+      ">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="
+            width:28px;height:28px;
+            background:#00C896;border-radius:6px;
+            display:flex;align-items:center;
+            justify-content:center;
+            font-family:'Syne',sans-serif;
+            font-size:11px;font-weight:800;color:#07101E;
+          ">PC</div>
+          <span style="
+            font-family:'Syne',sans-serif;
+            font-size:15px;font-weight:700;color:#F1F5F9;
+          ">PulmoCare</span>
         </div>
+        
+        <div style="
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: #475569;
+          text-align: center;
+        ">
+          Anmol Garg · B.Tech AI & Data Science · 
+          Vivekananda Institute of Professional Studies, 
+          New Delhi · 2025
+        </div>
+        
+        <div style="
+          display:flex;gap:16px;align-items:center;
+        ">
+          <a href="#demo-section" style="
+            font-family:'Inter',sans-serif;
+            font-size:12px;color:#475569;
+            text-decoration:none;
+            transition:color 0.2s;
+          "
+          onmouseover="this.style.color='#00C896'"
+          onmouseout="this.style.color='#475569'">
+            Demo
+          </a>
+          <a href="#research-section" style="
+            font-family:'Inter',sans-serif;
+            font-size:12px;color:#475569;
+            text-decoration:none;
+            transition:color 0.2s;
+          "
+          onmouseover="this.style.color='#00C896'"
+          onmouseout="this.style.color='#475569'">
+            Research
+          </a>
+          <a href="#team-section" style="
+            font-family:'Inter',sans-serif;
+            font-size:12px;color:#475569;
+            text-decoration:none;
+            transition:color 0.2s;
+          "
+          onmouseover="this.style.color='#00C896'"
+          onmouseout="this.style.color='#475569'">
+            Team
+          </a>
+        </div>
+      </div>
     </footer>
 
     <script type="module" src="./src/main.js"></script>
