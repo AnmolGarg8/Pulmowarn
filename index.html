@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PulmoCare | Advanced Respiratory Monitoring</title>
+    <title>PulmoCare | Catching the cause before the consequence</title>
     
     <!-- Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="./src/style.css">
 
     <!-- SEO -->
-    <meta name="description" content="PulmoCare — A dual-detection wearable system for continuous CO₂ trend monitoring and acoustic sputum blockage alerting. The first home device that catches the cause before the consequence.">
+    <meta name="description" content="PulmoCare — A dual-detection wearable patch that monitors airway sputum accumulation and blood CO₂ simultaneously. The only home device that detects respiratory crises 44 minutes before they become emergencies.">
 
     <!-- Open Graph for sharing -->
     <meta property="og:title" content="PulmoCare | Catching the cause before the consequence">
@@ -50,9 +50,11 @@
         <div id="nav-links">
           <a href="#problem-section"   class="nav-link">Problem</a>
           <a href="#solution-section"  class="nav-link">Solution</a>
+          <a href="#how-it-works"      class="nav-link">How It Works</a>
           <a href="#demo-section"      class="nav-link">Demo</a>
           <a href="#research-section"  class="nav-link">Research</a>
           <a href="#team-section"      class="nav-link">Team</a>
+          <a href="#faq-section"       class="nav-link">FAQ</a>
         </div>
         
         <!-- CTA -->
@@ -386,7 +388,17 @@
         </div>
       </div>
     </div>
-    
+    <!-- Bottom gradient closure -->
+    <div style="
+      position:absolute;bottom:0;left:0;right:0;
+      height:80px;
+      background:linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(6,14,28,0.6) 100%
+      );
+      pointer-events:none;
+    "></div>
   </div>
 </section>
 
@@ -578,7 +590,7 @@
         </section>
         
         <section id="how-it-works" style="
-          padding: 100px 0;
+          padding: 96px 0;
           background: #060E1C;
         ">
           <div style="
@@ -587,8 +599,7 @@
             padding: 0 40px;
           ">
             
-            <!-- Header -->
-            <div style="text-align:center;margin-bottom:64px">
+            <div style="text-align:center;margin-bottom:60px">
               <p style="
                 font-family:'Inter',sans-serif;
                 font-size:11px;font-weight:600;
@@ -600,170 +611,158 @@
                 font-size:clamp(30px,4vw,50px);
                 font-weight:800;color:#F1F5F9;
                 letter-spacing:-0.03em;margin-bottom:14px;
+                line-height:1.12;
               ">Three steps. One night. Zero ICU.</h2>
               <p style="
                 font-family:'Inter',sans-serif;
                 font-size:17px;color:#64748B;
                 max-width:520px;margin:0 auto;
                 line-height:1.75;
-              ">
-                PulmoCare works silently overnight,
-                escalating only when the patient truly 
-                needs intervention.
+              ">PulmoCare works silently overnight, escalating 
+              only when the patient truly needs intervention.
               </p>
             </div>
             
-            <!-- Three steps -->
+            <!-- Steps grid -->
             <div style="
               display:grid;
-              grid-template-columns:1fr 48px 1fr 48px 1fr;
-              align-items:start;
+              grid-template-columns:1fr auto 1fr auto 1fr;
               gap:0;
+              align-items:start;
             ">
               
-              <!-- STEP 1 -->
+              <!-- Step 1 -->
               <div style="
-                padding:32px 28px;
+                padding:32px 24px;
                 background:rgba(255,255,255,0.03);
                 border:1px solid rgba(255,255,255,0.08);
                 border-radius:16px;
                 text-align:center;
-                position:relative;
               ">
                 <div style="
-                  width:52px;height:52px;
-                  background:rgba(0,200,150,0.1);
+                  width:56px;height:56px;
+                  background:rgba(0,200,150,0.10);
                   border:1px solid rgba(0,200,150,0.25);
                   border-radius:14px;
                   display:flex;align-items:center;
                   justify-content:center;
                   margin:0 auto 20px;
-                  font-size:22px;
+                  font-size:24px;
                 ">🎙</div>
                 <div style="
                   font-family:monospace;font-size:11px;
                   color:#00C896;letter-spacing:0.12em;
-                  margin-bottom:8px;
-                ">STEP 01</div>
+                  margin-bottom:8px;text-transform:uppercase;
+                ">Step 01</div>
                 <h3 style="
                   font-family:'Syne',sans-serif;
                   font-size:20px;font-weight:700;
                   color:#F1F5F9;margin-bottom:12px;
                   line-height:1.2;
-                ">Patch worn<br/>on throat</h3>
+                ">Patch applied<br/>before sleep</h3>
                 <p style="
                   font-family:'Inter',sans-serif;
                   font-size:14px;color:#64748B;
                   line-height:1.75;margin-bottom:16px;
-                ">
-                  Patient applies the PulmoCare patch before 
-                  sleep. MEMS microphone begins continuous 
-                  acoustic monitoring. CO₂ sensor establishes 
-                  the personal baseline in 30 minutes.
-                </p>
+                ">The PulmoCare patch is applied to the 
+                throat or upper chest. MEMS microphone 
+                begins continuous acoustic monitoring. 
+                CO₂ sensor establishes a personal baseline 
+                in 30 minutes.</p>
                 <div style="
                   font-family:monospace;font-size:11px;
-                  color:#475569;
-                  padding:6px 12px;
+                  color:#475569;padding:6px 12px;
                   background:rgba(255,255,255,0.03);
-                  border-radius:6px;
-                  display:inline-block;
-                ">Placement: throat or upper chest</div>
+                  border-radius:6px;display:inline-block;
+                ">Setup time: 30 minutes</div>
               </div>
               
-              <!-- Arrow 1 -->
+              <!-- Arrow -->
               <div style="
                 display:flex;align-items:center;
-                justify-content:center;height:80px;
-                margin-top:100px;
-              ">
-                <div style="
-                  color:#00C896;font-size:24px;opacity:0.4;
-                ">→</div>
-              </div>
+                justify-content:center;
+                padding:0 12px;margin-top:90px;
+                color:#00C896;font-size:22px;opacity:0.35;
+              ">→</div>
               
-              <!-- STEP 2 -->
+              <!-- Step 2 -->
               <div style="
-                padding:32px 28px;
+                padding:32px 24px;
                 background:rgba(255,255,255,0.03);
                 border:1px solid rgba(255,255,255,0.08);
                 border-radius:16px;
                 text-align:center;
               ">
                 <div style="
-                  width:52px;height:52px;
+                  width:56px;height:56px;
                   background:rgba(245,158,11,0.10);
                   border:1px solid rgba(245,158,11,0.25);
                   border-radius:14px;
                   display:flex;align-items:center;
                   justify-content:center;
                   margin:0 auto 20px;
-                  font-size:22px;
-                ">🔍</div>
+                  font-size:24px;
+                ">🔬</div>
                 <div style="
                   font-family:monospace;font-size:11px;
                   color:#F59E0B;letter-spacing:0.12em;
-                  margin-bottom:8px;
-                ">STEP 02</div>
+                  margin-bottom:8px;text-transform:uppercase;
+                ">Step 02</div>
                 <h3 style="
                   font-family:'Syne',sans-serif;
                   font-size:20px;font-weight:700;
                   color:#F1F5F9;margin-bottom:12px;
                   line-height:1.2;
-                ">Device detects<br/>the warning</h3>
+                ">Device detects<br/>the early warning</h3>
                 <p style="
                   font-family:'Inter',sans-serif;
                   font-size:14px;color:#64748B;
                   line-height:1.75;margin-bottom:16px;
-                ">
-                  Mucus accumulates. The MEMS mic detects 
-                  100–300 Hz rhonchi turbulence. After 3 
-                  consecutive minutes the Layer 0 amber alert 
-                  fires — before CO₂ has risen at all.
-                </p>
+                ">Mucus accumulates in the airways. The MEMS 
+                mic detects the 100–300 Hz rhonchi turbulence 
+                signature. After 3 consecutive minutes of 
+                confirmed signal, Layer 0 fires — before 
+                CO₂ has risen at all.</p>
                 <div style="
                   font-family:monospace;font-size:11px;
-                  color:#F59E0B;
-                  padding:6px 12px;
+                  color:#F59E0B;padding:6px 12px;
                   background:rgba(245,158,11,0.08);
                   border:1px solid rgba(245,158,11,0.2);
-                  border-radius:6px;
-                  display:inline-block;
+                  border-radius:6px;display:inline-block;
                 ">44 minutes before crisis point</div>
               </div>
               
-              <!-- Arrow 2 -->
+              <!-- Arrow -->
               <div style="
                 display:flex;align-items:center;
-                justify-content:center;height:80px;
-                margin-top:100px;
-              ">
-                <div style="color:#00C896;font-size:24px;opacity:0.4">→</div>
-              </div>
+                justify-content:center;
+                padding:0 12px;margin-top:90px;
+                color:#00C896;font-size:22px;opacity:0.35;
+              ">→</div>
               
-              <!-- STEP 3 -->
+              <!-- Step 3 -->
               <div style="
-                padding:32px 28px;
+                padding:32px 24px;
                 background:rgba(255,255,255,0.03);
                 border:1px solid rgba(255,255,255,0.08);
                 border-radius:16px;
                 text-align:center;
               ">
                 <div style="
-                  width:52px;height:52px;
+                  width:56px;height:56px;
                   background:rgba(34,197,94,0.10);
                   border:1px solid rgba(34,197,94,0.25);
                   border-radius:14px;
                   display:flex;align-items:center;
                   justify-content:center;
                   margin:0 auto 20px;
-                  font-size:22px;
+                  font-size:24px;
                 ">🛡</div>
                 <div style="
                   font-family:monospace;font-size:11px;
                   color:#22C55E;letter-spacing:0.12em;
-                  margin-bottom:8px;
-                ">STEP 03</div>
+                  margin-bottom:8px;text-transform:uppercase;
+                ">Step 03</div>
                 <h3 style="
                   font-family:'Syne',sans-serif;
                   font-size:20px;font-weight:700;
@@ -774,47 +773,41 @@
                   font-family:'Inter',sans-serif;
                   font-size:14px;color:#64748B;
                   line-height:1.75;margin-bottom:16px;
-                ">
-                  Patient self-clears airway. If escalation 
-                  continues, caregiver is notified. If critical, 
-                  SMS fires to all contacts. Chain broken 
-                  before ICU admission.
-                </p>
+                ">Patient clears their airway. If escalation 
+                continues, caregiver is notified. If critical, 
+                SMS fires to all contacts. The chain breaks 
+                before ICU admission becomes necessary.</p>
                 <div style="
                   font-family:monospace;font-size:11px;
-                  color:#22C55E;
-                  padding:6px 12px;
+                  color:#22C55E;padding:6px 12px;
                   background:rgba(34,197,94,0.08);
                   border:1px solid rgba(34,197,94,0.2);
-                  border-radius:6px;
-                  display:inline-block;
+                  border-radius:6px;display:inline-block;
                 ">$0 cost if Layer 0 acted upon</div>
               </div>
               
             </div>
             
-            <!-- Bottom callout -->
+            <!-- Bottom insight -->
             <div style="
-              margin-top:48px;
+              margin-top:40px;
               padding:22px 28px;
-              background:rgba(0,200,150,0.05);
-              border:1px solid rgba(0,200,150,0.14);
-              border-radius:14px;
-              text-align:center;
+              background:rgba(0,200,150,0.04);
+              border:1px solid rgba(0,200,150,0.13);
+              border-radius:14px;text-align:center;
             ">
               <p style="
                 font-family:'Inter',sans-serif;
                 font-size:15px;color:#94A3B8;
                 line-height:1.75;margin:0;
-              ">
-                The best outcome is when 
+              ">The best outcome is when
                 <strong style="color:#00C896">
                   Layer 0 is all that fires.
                 </strong>
-                Patient clears their own airway. 
-                CO₂ never rises. No caregiver needed. 
-                No hospital. PulmoCare's primary goal is 
-                to make escalation unnecessary.
+                Patient clears airway. CO₂ never rises. 
+                No caregiver needed. No hospital. 
+                PulmoCare's primary goal is to make 
+                escalation unnecessary.
               </p>
             </div>
             
@@ -2033,99 +2026,81 @@ if (document.readyState === 'loading') {
                         </table>
                     </div>
 
-                    <!-- Device Cost Section -->
                     <div style="
-                      grid-column: 1 / -1;
                       display:grid;
-                      grid-template-columns:1fr 1fr 1fr;
-                      gap:16px;
-                      margin:32px 0;
+                      grid-template-columns:repeat(3,1fr);
+                      gap:16px;margin:32px 0;
                     ">
-                      <!-- BOM cost -->
                       <div style="
-                        padding:24px 20px;
+                        padding:24px 20px;text-align:center;
                         background:rgba(0,200,150,0.05);
                         border:1px solid rgba(0,200,150,0.15);
                         border-radius:14px;
-                        text-align:center;
                       ">
                         <div style="
                           font-family:'Syne',sans-serif;
-                          font-size:32px;font-weight:800;
+                          font-size:30px;font-weight:800;
                           color:#00C896;margin-bottom:6px;
                         ">~$45</div>
                         <div style="
                           font-family:'Inter',sans-serif;
-                          font-size:12px;font-weight:600;
+                          font-size:11px;font-weight:600;
                           color:#F1F5F9;letter-spacing:0.1em;
                           text-transform:uppercase;margin-bottom:6px;
                         ">Bill of Materials</div>
                         <div style="
                           font-family:'Inter',sans-serif;
-                          font-size:12px;color:#64748B;
-                          line-height:1.6;
-                        ">
-                          Component cost at prototype scale.
-                          Drops to ~$18 at 10,000 units/year.
-                        </div>
+                          font-size:12px;color:#64748B;line-height:1.6;
+                        ">At prototype scale. Drops to ~$18 at 
+                        10,000 units per year.</div>
                       </div>
                       
-                      <!-- Target retail -->
                       <div style="
-                        padding:24px 20px;
+                        padding:24px 20px;text-align:center;
                         background:rgba(255,255,255,0.03);
                         border:1px solid rgba(255,255,255,0.08);
                         border-radius:14px;
-                        text-align:center;
                       ">
                         <div style="
                           font-family:'Syne',sans-serif;
-                          font-size:32px;font-weight:800;
+                          font-size:30px;font-weight:800;
                           color:#F1F5F9;margin-bottom:6px;
                         ">₹12,999</div>
                         <div style="
                           font-family:'Inter',sans-serif;
-                          font-size:12px;font-weight:600;
+                          font-size:11px;font-weight:600;
                           color:#F1F5F9;letter-spacing:0.1em;
                           text-transform:uppercase;margin-bottom:6px;
                         ">Target Retail Price</div>
                         <div style="
                           font-family:'Inter',sans-serif;
-                          font-size:12px;color:#64748B;
-                          line-height:1.6;
-                        ">
-                          Phase 3 target. ~$155 USD.
-                          Accessible to middle-income households.
-                        </div>
+                          font-size:12px;color:#64748B;line-height:1.6;
+                        ">Phase 3 target. ~$155 USD. Accessible to 
+                        middle-income households.</div>
                       </div>
                       
-                      <!-- vs hospital cost -->
                       <div style="
-                        padding:24px 20px;
-                        background:rgba(239,68,68,0.05);
-                        border:1px solid rgba(239,68,68,0.15);
+                        padding:24px 20px;text-align:center;
+                        background:rgba(34,197,94,0.05);
+                        border:1px solid rgba(34,197,94,0.15);
                         border-radius:14px;
-                        text-align:center;
                       ">
                         <div style="
                           font-family:'Syne',sans-serif;
-                          font-size:32px;font-weight:800;
+                          font-size:30px;font-weight:800;
                           color:#22C55E;margin-bottom:6px;
                         ">116×</div>
                         <div style="
                           font-family:'Inter',sans-serif;
-                          font-size:12px;font-weight:600;
+                          font-size:11px;font-weight:600;
                           color:#F1F5F9;letter-spacing:0.1em;
                           text-transform:uppercase;margin-bottom:6px;
                         ">Cheaper Than One ICU Visit</div>
                         <div style="
                           font-family:'Inter',sans-serif;
-                          font-size:12px;color:#64748B;
-                          line-height:1.6;
-                        ">
-                          One prevented ICU admission pays for 
-                          116 PulmoCare devices.
-                        </div>
+                          font-size:12px;color:#64748B;line-height:1.6;
+                        ">One prevented ICU admission pays for 
+                        116 PulmoCare devices.</div>
                       </div>
                     </div>
 
@@ -2289,22 +2264,27 @@ if (document.readyState === 'loading') {
                             </p>
                         </div>
                     </div>
-                    <div style="
-                      display: inline-flex;
-                      align-items: center;
-                      gap: 8px;
-                      padding: 10px 20px;
-                      background: rgba(255,255,255,0.04);
-                      border: 1px solid rgba(255,255,255,0.1);
-                      border-radius: 8px;
-                      font-family: 'Inter', sans-serif;
-                      font-size: 13px; font-weight: 500;
-                      color: #64748B;
-                      cursor: default;
-                    ">
-                      <span style="font-size:11px">📎</span>
-                      Available upon request — contact team below
-                    </div>
+                    <a href="mailto:anmol.garg@vips.edu?subject=PulmoCare Research Paper Request"
+                       style="
+                         display: inline-flex;
+                         align-items: center;
+                         gap: 7px;
+                         padding: 10px 18px;
+                         background: transparent;
+                         border: 1px solid rgba(0,200,150,0.22);
+                         border-radius: 8px;
+                         font-family: 'Inter', sans-serif;
+                         font-size: 13px;
+                         font-weight: 500;
+                         color: #00C896;
+                         text-decoration: none;
+                         transition: background 0.2s;
+                       "
+                       onmouseover="this.style.background='rgba(0,200,150,0.08)'"
+                       onmouseout="this.style.background='transparent'"
+                    >
+                      ✉ Request the paper
+                    </a>
                 </div>
 
                 <!-- Clinical Perspective / Validation -->
@@ -2463,6 +2443,11 @@ if (document.readyState === 'loading') {
                         <h2 class="display-text mono" style="font-size: 48px;">380M</h2>
                         <span class="label-sm">COPD Patients Globally</span>
                         <p class="text-secondary" style="font-size: 14px;">Each facing this risk every night at home.</p>
+                        <div style="
+                          margin-top:8px;
+                          font-family:monospace;font-size:10px;
+                          color:#334155;
+                        ">Source: WHO Fact Sheet, 2023</div>
                     </div>
                     <div class="glass-card" style="border-bottom: 4px solid var(--primary-accent);">
                         <h2 class="display-text mono" style="font-size: 48px;">$18,000</h2>
@@ -2473,6 +2458,11 @@ if (document.readyState === 'loading') {
                         <h2 class="display-text mono" style="font-size: 48px;">3.2M</h2>
                         <span class="label-sm">ANNUAL DEATHS</span>
                         <p class="text-secondary" style="font-size: 14px;">Many from preventable overnight deterioration.</p>
+                        <div style="
+                          margin-top:8px;
+                          font-family:monospace;font-size:10px;
+                          color:#334155;
+                        ">Source: WHO Global Health Estimates, 2023</div>
                     </div>
                     <div class="glass-card" style="border-bottom: 4px solid var(--primary-accent);">
                         <h2 class="display-text mono" style="font-size: 48px;">$0</h2>
@@ -2678,6 +2668,27 @@ tr:hover .pctd {
                   Blockage Alerting in Patients with Compromised
                   Pulmonary Function
                 </p>
+              <a href="mailto:anmol.garg@vips.edu?subject=PulmoCare Research Paper Request"
+                 style="
+                   display: inline-flex;
+                   align-items: center;
+                   gap: 7px;
+                   padding: 10px 18px;
+                   background: transparent;
+                   border: 1px solid rgba(0,200,150,0.22);
+                   border-radius: 8px;
+                   font-family: 'Inter', sans-serif;
+                   font-size: 13px;
+                   font-weight: 500;
+                   color: #00C896;
+                   text-decoration: none;
+                   transition: background 0.2s;
+                 "
+                 onmouseover="this.style.background='rgba(0,200,150,0.08)'"
+                 onmouseout="this.style.background='transparent'"
+              >
+                ✉ Request the paper
+              </a>
                 <p style="
                   font-family:'Inter',sans-serif;
                   font-size:13px;color:#64748B;
@@ -2846,6 +2857,168 @@ tr:hover .pctd {
           </div>
         </section>
 
+        <section id="faq-section" style="
+          padding:96px 0;
+          background:#07101E;
+        ">
+          <div style="
+            max-width:800px;margin:0 auto;padding:0 40px;
+          ">
+            <div style="text-align:center;margin-bottom:56px">
+              <p style="
+                font-family:'Inter',sans-serif;
+                font-size:11px;font-weight:600;
+                letter-spacing:0.22em;color:#00C896;
+                text-transform:uppercase;margin-bottom:14px;
+              ">FREQUENTLY ASKED</p>
+              <h2 style="
+                font-family:'Syne',sans-serif;
+                font-size:clamp(28px,4vw,44px);
+                font-weight:800;color:#F1F5F9;
+                letter-spacing:-0.03em;
+              ">Questions we always get</h2>
+            </div>
+            
+            <div style="
+              display:flex;flex-direction:column;gap:12px;
+            ">
+              
+              <!-- Q1 -->
+              <div style="
+                padding:24px 26px;
+                background:rgba(255,255,255,0.03);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:14px;
+              ">
+                <div style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">Is PulmoCare FDA approved?</div>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:14px;color:#64748B;
+                  line-height:1.75;margin:0;
+                ">PulmoCare is currently in the pre-clinical 
+                prototype phase. The regulatory pathway 
+                identified is FDA 510(k) Class II medical 
+                device clearance, with predicate comparison 
+                available for both the acoustic monitoring 
+                and CO₂ sensing modalities. Regulatory 
+                submission is planned for Phase 3 
+                (2026–2027) following clinical validation.</p>
+              </div>
+              
+              <!-- Q2 -->
+              <div style="
+                padding:24px 26px;
+                background:rgba(255,255,255,0.03);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:14px;
+              ">
+                <div style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">Has it been tested on real patients?</div>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:14px;color:#64748B;
+                  line-height:1.75;margin:0;
+                ">The current stage is bench-level prototype 
+                validation. The acoustic classifier has been 
+                tested against the publicly available ICBHI 
+                2017 Respiratory Sound Database. A pilot 
+                clinical study with n=30–40 COPD patients 
+                is planned for Phase 2 (Q3 2025–Q1 2026) 
+                in partnership with a hospital respiratory 
+                medicine department.</p>
+              </div>
+              
+              <!-- Q3 -->
+              <div style="
+                padding:24px 26px;
+                background:rgba(255,255,255,0.03);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:14px;
+              ">
+                <div style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">Why not just use a pulse oximeter?</div>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:14px;color:#64748B;
+                  line-height:1.75;margin:0;
+                ">Pulse oximeters measure oxygen saturation 
+                (SpO₂). They are completely blind to CO₂. 
+                A patient on supplemental oxygen can maintain 
+                SpO₂ of 97–98% while their blood CO₂ climbs 
+                steadily toward narcotic levels. Additionally, 
+                pulse oximeters have no mechanism to detect 
+                sputum accumulation. PulmoCare monitors the 
+                two variables a pulse oximeter misses entirely.</p>
+              </div>
+              
+              <!-- Q4 -->
+              <div style="
+                padding:24px 26px;
+                background:rgba(255,255,255,0.03);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:14px;
+              ">
+                <div style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">How is patient data kept private?</div>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:14px;color:#64748B;
+                  line-height:1.75;margin:0;
+                ">The device itself processes all signals 
+                locally on the ARM Cortex-M4 MCU — raw audio 
+                and CO₂ readings are never transmitted. Only 
+                alert events and anonymised trend summaries 
+                are sent via BLE to the companion app. 
+                Cloud storage (Phase 2+) uses AES-256 
+                encryption at rest and TLS 1.3 in transit on 
+                a HIPAA-eligible AWS architecture. Patient 
+                data is never sold or shared with third 
+                parties.</p>
+              </div>
+              
+              <!-- Q5 -->
+              <div style="
+                padding:24px 26px;
+                background:rgba(255,255,255,0.03);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:14px;
+              ">
+                <div style="
+                  font-family:'Syne',sans-serif;
+                  font-size:16px;font-weight:700;
+                  color:#F1F5F9;margin-bottom:10px;
+                ">When can I get one?</div>
+                <p style="
+                  font-family:'Inter',sans-serif;
+                  font-size:14px;color:#64748B;
+                  line-height:1.75;margin:0;
+                ">PulmoCare is not yet commercially available. 
+                We are actively seeking clinical partners, 
+                investors, and institutional support to 
+                accelerate Phase 2 validation. If you are 
+                a respiratory medicine clinician, hospital 
+                administrator, or investor, please reach out 
+                directly. Target commercial availability 
+                is 2027 subject to regulatory clearance.</p>
+              </div>
+              
+            </div>
+          </div>
+        </section>
+
         <!-- SECTION 10: TEAM -->
         <section id="team-section" style="
           padding: 100px 0;
@@ -2925,7 +3098,7 @@ tr:hover .pctd {
                 <span class="skill-tag">Machine Learning</span>
                 <span class="skill-tag">Signal Processing</span>
                 <span class="skill-tag">Biomedical Systems</span>
-                <span class="skill-tag">WebGL / Three.js</span>
+                <span class="skill-tag">Embedded Systems</span>
                 <span class="skill-tag">Research & Publication</span>
               </div>
               
