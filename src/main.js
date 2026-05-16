@@ -402,52 +402,7 @@ function updateSolutionOLED(state, text) {
 
 // Interactive demo functions removed. Logic is now in index.html for zero-dependency execution.
 
-// --- VIDEO PLAYER ENGINE ---
-function embedVideo(url) {
-  const wrapper = document.getElementById('video-placeholder-wrapper');
-  if (!wrapper) return;
-  
-  // Detect YouTube
-  if (url.includes('youtube.com') || url.includes('youtu.be')) {
-    const videoId = url.match(/(?:youtu\.be\/|v=)([^&\s]+)/)?.[1];
-    if (videoId) {
-      wrapper.innerHTML = `
-        <iframe 
-          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0"
-          style="width:100%;height:100%;border:none"
-          allow="autoplay;fullscreen"
-          allowfullscreen>
-        </iframe>
-      `;
-    }
-    return;
-  }
-  
-  // Direct video file
-  wrapper.innerHTML = `
-    <video 
-      src="${url}" 
-      controls autoplay
-      style="width:100%;height:100%;object-fit:cover">
-    </video>
-  `;
-}
 
-function playVideo() {
-  // Replace this URL with your actual video URL when you have it:
-  // embedVideo('https://youtube.com/watch?v=YOUR_ID');
-  
-  // For now, scroll to interactive simulation
-  const sim = document.getElementById('sim-grid');
-  if (sim) {
-    sim.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-function showVideoModal() {
-  const url = prompt("Enter YouTube or direct video URL to embed:");
-  if (url) embedVideo(url);
-}
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath(); ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r); ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h); ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
