@@ -227,7 +227,7 @@ function initNavigation() {
   // Observe ONLY content sections, NOT the hero
   const navTargets = [
     'problem-section', 'solution-section',
-    'demo-section', 'research-section', 'team-section'
+    'demo-section', 'research-section'
   ];
   navTargets.forEach(id => {
     const el = document.getElementById(id);
