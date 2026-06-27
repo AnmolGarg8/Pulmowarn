@@ -299,147 +299,47 @@
             font-size:10px;color:#475569;
           ">vs current standard</div>
         </div>
-     <!-- RIGHT: Device 3D canvas inside premium dashboard card -->
+      </div>
+    </div>
+    
+    <!-- RIGHT: Device 3D canvas -->
     <div style="
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 20px;
       position: relative;
-      width: 100%;
     ">
-      <!-- Decorative tech circles behind -->
+      <!-- Device render area -->
       <div style="
-        position: absolute;
-        top: -40px; right: -40px;
-        width: 200px; height: 200px;
-        border-radius: 50%;
-        border: 1px dashed rgba(0, 200, 150, 0.12);
-        pointer-events: none;
-        z-index: 0;
-      "></div>
-      <div style="
-        position: absolute;
-        bottom: -50px; left: -50px;
-        width: 260px; height: 260px;
-        border-radius: 50%;
-        border: 1px dashed rgba(0, 200, 150, 0.08);
-        pointer-events: none;
-        z-index: 0;
-      "></div>
-
-      <!-- Dashboard Wrapper Card -->
-      <div class="glass-card" style="
         position: relative;
-        z-index: 1;
         width: 100%;
-        max-width: 480px;
-        padding: 24px;
-        background: rgba(6, 14, 28, 0.5);
-        border: 1px solid rgba(0, 200, 150, 0.15);
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 
-                    inset 0 0 30px rgba(0, 200, 150, 0.04);
-        border-radius: 20px;
+        max-width: 420px;
       ">
-        <!-- Card Header -->
+        <!-- Glow behind device -->
         <div style="
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          padding-bottom: 12px;
-        ">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="
-              width: 7px; height: 7px;
-              border-radius: 50%;
-              background: #22C55E;
-              animation: dotPulse 1.8s ease-in-out infinite;
-            "></div>
-            <span style="
-              font-family: 'Inter', sans-serif;
-              font-size: 11px;
-              font-weight: 700;
-              letter-spacing: 0.08em;
-              color: #94A3B8;
-              text-transform: uppercase;
-            ">Active Diagnostic Stream</span>
-          </div>
-          <span style="
-            font-family: monospace;
-            font-size: 10px;
-            color: #475569;
-          ">PC-PATCH_v1.0</span>
-        </div>
-
-        <!-- Canvas Container -->
-        <div style="
-          position: relative;
-          width: 100%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        ">
-          <!-- Glow behind device -->
-          <div style="
-            position:absolute;
-            top:50%;left:50%;
-            transform:translate(-50%,-50%);
-            width:280px;height:280px;
-            background:radial-gradient(
-              circle, 
-              rgba(0,200,150,0.15) 0%, 
-              transparent 70%
-            );
-            pointer-events:none;
-            animation:haloBreath 3s ease-in-out infinite;
-          "></div>
-          
-          <!-- Device canvas — drawn by JavaScript -->
-          <canvas id="hero-device-canvas"
-            width="420" height="280"
-            style="
-              width:100%;display:block;
-              position:relative;z-index:1;
-            ">
-          </canvas>
-        </div>
-
-        <!-- Telemetry Stats Panel -->
-        <div style="
-          width: 100%;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin-top: 16px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
-          padding-top: 16px;
-        ">
-          <div style="
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 10px;
-            padding: 10px 14px;
-            text-align: left;
+          position:absolute;
+          top:50%;left:50%;
+          transform:translate(-50%,-50%);
+          width:280px;height:280px;
+          background:radial-gradient(
+            circle, 
+            rgba(0,200,150,0.12) 0%, 
+            transparent 70%
+          );
+          pointer-events:none;
+          animation:haloBreath 3s ease-in-out infinite;
+        "></div>
+        
+        <!-- Device canvas — drawn by JavaScript -->
+        <canvas id="hero-device-canvas"
+          width="420" height="280"
+          style="
+            width:100%;display:block;
+            position:relative;z-index:1;
           ">
-            <span style="font-family:'Inter',sans-serif;font-size:9px;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:3px">Sputum Sensor</span>
-            <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#00C896">Acoustic MEMS</span>
-          </div>
-          <div style="
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 10px;
-            padding: 10px 14px;
-            text-align: left;
-          ">
-            <span style="font-family:'Inter',sans-serif;font-size:9px;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:3px">CO₂ Monitoring</span>
-            <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#00C896">Transcutaneous</span>
-          </div>
-        </div>
-
-      </div>
-    </div>     
+        </canvas>
+        
 
       </div>
     </div>
