@@ -23,7 +23,7 @@ const BEATS = [
     statusColor: '#22C55E',
     deviceState: 'normal',
     co2: 42,
-    description: 'Rajan is asleep. PulmoCare monitors continuously. CO₂ at personal baseline of 42 mmHg. Airways completely clear.',
+    description: 'Rajan is asleep. PulmoWarn monitors continuously. CO₂ at personal baseline of 42 mmHg. Airways completely clear.',
     notification: null,
     co2Points: [42, 42, 42, 41, 42]
   },
@@ -47,7 +47,7 @@ const BEATS = [
     co2: 44,
     description: '3 consecutive minutes of confirmed rhonchi signal. Layer 0 fires — earliest possible intervention. CO₂ has not yet risen above baseline.',
     notification: {
-      app: 'PulmoCare',
+      app: 'PulmoWarn',
       title: 'Airways sound congested.',
       body: 'Try airway clearance now — sit upright, slow deep breath, huff coughing.',
       color: '#F59E0B'
@@ -63,7 +63,7 @@ const BEATS = [
     co2: 50,
     description: 'Rajan did not respond to the Layer 0 alert. Blockage remains. CO₂ now 16% above personal baseline and sustained for 10+ minutes. Caregiver Priya notified via push notification.',
     notification: {
-      app: 'PulmoCare',
+      app: 'PulmoWarn',
       title: 'Airways congested + CO₂ rising.',
       body: 'Airway clearance has not resolved the problem. Contact your medical provider now.',
       color: '#EAB308'
@@ -79,7 +79,7 @@ const BEATS = [
     co2: 60,
     description: 'CO₂ now 30% above baseline. Layer 2 fires. Continuous buzzer active. Urgent SMS sent to ALL registered caregivers. Priya enters the room immediately.',
     notification: {
-      app: 'PulmoCare — URGENT',
+      app: 'PulmoWarn — URGENT',
       title: 'CRITICAL ALERT',
       body: 'CO₂ at critical level. Immediate medical evaluation required. Do not leave patient.',
       color: '#EF4444'
@@ -95,7 +95,7 @@ const BEATS = [
     co2: 44,
     description: 'Priya helps Rajan sit upright and perform chest physiotherapy. Airways clearing. CO₂ returning to baseline. Device transitions back to green. No ambulance. No hospital.',
     notification: {
-      app: 'PulmoCare',
+      app: 'PulmoWarn',
       title: 'Patient recovering.',
       body: 'CO₂ returning to baseline. Airways clearing. Continue monitoring.',
       color: '#22C55E'

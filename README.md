@@ -1,11 +1,11 @@
-# 🫁 PulmoCare — The First Step
+# 🫁 PulmoWarn — The First Step
 
 **A professional, interactive demonstration of early respiratory deterioration monitoring.**
 
-PulmoCare is an innovative medical device concept designed to detect respiratory failure *before* it becomes a crisis. By monitoring both the cause (sputum accumulation via acoustic sensing) and the consequence (CO₂ narcosis via transcutaneous sensing) simultaneously, PulmoCare provides a critical window for intervention.
+PulmoWarn is an innovative medical device concept designed to detect respiratory failure *before* it becomes a crisis. By monitoring both the cause (sputum accumulation via acoustic sensing) and the consequence (CO₂ narcosis via transcutaneous sensing) simultaneously, PulmoWarn provides a critical window for intervention.
 
 ## 🚀 Live Demo
-Watch the **Interactive Patient Simulation** to see how PulmoCare's 3-layer alert system tracks vitals and escalates warnings in real-time.
+Watch the **Interactive Patient Simulation** to see how PulmoWarn's 3-layer alert system tracks vitals and escalates warnings in real-time.
 
 ## 🎯 The Problem
 - **300 Million** COPD patients globally.
@@ -27,7 +27,7 @@ Watch the **Interactive Patient Simulation** to see how PulmoCare's 3-layer aler
 
 ## 🏗 Project Structure
 ```
-Pulmocare/
+Pulmowarn/
 ├── index.html      # Main landing page & UI structure
 ├── src/
 │   ├── main.js     # Simulation engine & interaction logic
@@ -42,4 +42,4 @@ B.Tech AI & Data Science
 Vivekananda Institute of Professional Studies, New Delhi
 
 ---
-*"Every deterioration has a first step. PulmoCare is designed to find it."*
+*"Every deterioration has a first step. PulmoWarn is designed to find it."*
