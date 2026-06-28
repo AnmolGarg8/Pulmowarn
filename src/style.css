@@ -171,13 +171,7 @@ section {
 
 #nav-logo-mark {
   width: 32px; height: 32px;
-  background: #00C896;
-  border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-size: 12px; font-weight: 800;
-  color: #07101E;
-  letter-spacing: 0.05em;
 }
 
 #nav-logo-text {

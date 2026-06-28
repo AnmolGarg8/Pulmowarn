@@ -39,7 +39,28 @@
         
         <!-- Logo -->
         <a href="#" id="nav-logo">
-          <div id="nav-logo-mark">PW</div>
+          <div id="nav-logo-mark">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="lung-left" x1="5" y1="6" x2="14.5" y2="24.5" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00C896" />
+                  <stop offset="100%" stop-color="#0055AA" />
+                </linearGradient>
+                <linearGradient id="lung-right" x1="27" y1="6" x2="17.5" y2="24.5" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00C896" />
+                  <stop offset="100%" stop-color="#0055AA" />
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path d="M12.5 6C8.5 6 5.5 9 5.5 13C5.5 18.5 11 23 13.5 24.5C14 24.8 14.5 24.5 14.5 24V9C14.5 7.3 13.6 6 12.5 6Z" fill="url(#lung-left)" opacity="0.85" />
+              <path d="M19.5 6C23.5 6 26.5 9 26.5 13C26.5 18.5 21 23 18.5 24.5C18 24.8 17.5 24.5 17.5 24V9C17.5 7.3 18.4 6 19.5 6Z" fill="url(#lung-right)" opacity="0.85" />
+              <path d="M16 4V9" stroke="#00C896" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+              <path d="M7 16H11.5L13.5 11L15.5 21L17.5 13.5L19.5 17L21 16H25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+            </svg>
+          </div>
           <span id="nav-logo-text">PulmoWarn</span>
         </a>
         
@@ -2945,14 +2966,28 @@ tr:hover .pctd {
         align-items:center;flex-wrap:wrap;gap:16px;
       ">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="
-            width:28px;height:28px;
-            background:#00C896;border-radius:6px;
-            display:flex;align-items:center;
-            justify-content:center;
-            font-family:'Syne',sans-serif;
-            font-size:11px;font-weight:800;color:#07101E;
-          ">PW</div>
+          <div style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="lung-left-footer" x1="5" y1="6" x2="14.5" y2="24.5" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00C896" />
+                  <stop offset="100%" stop-color="#0055AA" />
+                </linearGradient>
+                <linearGradient id="lung-right-footer" x1="27" y1="6" x2="17.5" y2="24.5" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00C896" />
+                  <stop offset="100%" stop-color="#0055AA" />
+                </linearGradient>
+                <filter id="glow-footer" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <path d="M12.5 6C8.5 6 5.5 9 5.5 13C5.5 18.5 11 23 13.5 24.5C14 24.8 14.5 24.5 14.5 24V9C14.5 7.3 13.6 6 12.5 6Z" fill="url(#lung-left-footer)" opacity="0.85" />
+              <path d="M19.5 6C23.5 6 26.5 9 26.5 13C26.5 18.5 21 23 18.5 24.5C18 24.8 17.5 24.5 17.5 24V9C17.5 7.3 18.4 6 19.5 6Z" fill="url(#lung-right-footer)" opacity="0.85" />
+              <path d="M16 4V9" stroke="#00C896" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+              <path d="M7 16H11.5L13.5 11L15.5 21L17.5 13.5L19.5 17L21 16H25" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-footer)" />
+            </svg>
+          </div>
           <span style="
             font-family:'Syne',sans-serif;
             font-size:15px;font-weight:700;color:#F1F5F9;
