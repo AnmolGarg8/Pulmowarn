@@ -360,8 +360,147 @@
             position:relative;z-index:1;
           ">
         </canvas>
-        
+      </div>
 
+      <!-- Live Telemetry & Specs Card -->
+      <div style="
+        width: 100%;
+        max-width: 420px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 20px;
+        box-sizing: border-box;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        backdrop-filter: blur(10px);
+        margin-top: -10px;
+        position: relative;
+        z-index: 2;
+      ">
+        <!-- Header -->
+        <div style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          padding-bottom: 12px;
+          margin-bottom: 16px;
+        ">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="
+              width: 8px; height: 8px;
+              border-radius: 50%;
+              background: #00C896;
+              box-shadow: 0 0 8px #00C896;
+              animation: dotPulse 1.5s infinite;
+            "></div>
+            <span style="
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 11px;
+              font-weight: 600;
+              color: #00C896;
+              letter-spacing: 0.05em;
+              text-transform: uppercase;
+            ">Live Device Telemetry</span>
+          </div>
+          <span style="
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #475569;
+          ">ID: PW-9082_ACTIVE</span>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 16px;
+        ">
+          <!-- Metric 1: Sputum -->
+          <div style="
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+          ">
+            <div style="font-size: 10px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 4px; font-family: 'Inter', sans-serif;">Acoustic Sputum</div>
+            <div style="display: flex; align-items: baseline; gap: 4px;">
+              <span id="hero-telemetry-sputum" style="font-size: 20px; font-weight: 800; color: #F1F5F9; font-family: 'Syne', sans-serif;">CLEAR</span>
+              <span style="font-size: 10px; color: #00C896; font-family: monospace;">(100Hz)</span>
+            </div>
+            <div style="
+              margin-top: 6px;
+              height: 3px;
+              background: rgba(255,255,255,0.05);
+              border-radius: 2px;
+              overflow: hidden;
+            ">
+              <div id="hero-telemetry-sputum-bar" style="width: 15%; height: 100%; background: #00C896; transition: width 0.5s ease;"></div>
+            </div>
+          </div>
+          
+          <!-- Metric 2: CO2 -->
+          <div style="
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 12px;
+          ">
+            <div style="font-size: 10px; font-weight: 600; color: #64748B; text-transform: uppercase; margin-bottom: 4px; font-family: 'Inter', sans-serif;">tcPCO₂ Level</div>
+            <div style="display: flex; align-items: baseline; gap: 4px;">
+              <span id="hero-telemetry-co2" style="font-size: 20px; font-weight: 800; color: #F1F5F9; font-family: 'Syne', sans-serif;">42.0</span>
+              <span style="font-size: 10px; color: #64748B; font-family: monospace;">mmHg</span>
+            </div>
+            <div style="
+              margin-top: 6px;
+              height: 3px;
+              background: rgba(255,255,255,0.05);
+              border-radius: 2px;
+              overflow: hidden;
+            ">
+              <div id="hero-telemetry-co2-bar" style="width: 42%; height: 100%; background: #00C896; transition: width 0.5s ease;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specifications / Info List -->
+        <div style="
+          background: rgba(0, 200, 150, 0.02);
+          border: 1px solid rgba(0, 200, 150, 0.08);
+          border-radius: 10px;
+          padding: 12px;
+        ">
+          <div style="
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #00C896;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          ">Key Technical Attributes</div>
+          
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-family: 'Inter', sans-serif;">
+              <span style="color: #64748B;">Form Factor</span>
+              <span style="color: #94A3B8; font-weight: 500;">Ultralight Throat Patch (&lt;35g)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-family: 'Inter', sans-serif;">
+              <span style="color: #64748B;">Sensors</span>
+              <span style="color: #94A3B8; font-weight: 500;">Acoustic MEMS + Transcutaneous</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-family: 'Inter', sans-serif;">
+              <span style="color: #64748B;">Power Management</span>
+              <span style="color: #94A3B8; font-weight: 500;">24h Rechargeable, Qi Wireless</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-family: 'Inter', sans-serif;">
+              <span style="color: #64748B;">Local Processor</span>
+              <span style="color: #94A3B8; font-weight: 500;">ARM Cortex-M4 DSP Core</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <!-- Bottom gradient closure -->
@@ -3035,17 +3174,45 @@ tr:hover .pctd {
     <script type="module" src="./src/main.js"></script>
     <script>
     (function(){
+      // Scroll Progress Bar
       var bar = document.getElementById('scroll-progress');
-      if(!bar) return;
-      window.addEventListener('scroll', function(){
-        var d = document.documentElement;
-        var scrolled = d.scrollTop || document.body.scrollTop;
-        var total = (d.scrollHeight || document.body.scrollHeight)
-                    - d.clientHeight;
-        bar.style.width = (total > 0 
-          ? Math.min(scrolled/total*100, 100) 
-          : 0) + '%';
-      }, {passive:true});
+      if(bar) {
+        window.addEventListener('scroll', function(){
+          var d = document.documentElement;
+          var scrolled = d.scrollTop || document.body.scrollTop;
+          var total = (d.scrollHeight || document.body.scrollHeight)
+                      - d.clientHeight;
+          bar.style.width = (total > 0 
+            ? Math.min(scrolled/total*100, 100) 
+            : 0) + '%';
+        }, {passive:true});
+      }
+
+      // Dynamic Hero Telemetry Simulation
+      (function() {
+        var sputumValEl = document.getElementById('hero-telemetry-sputum');
+        var sputumBarEl = document.getElementById('hero-telemetry-sputum-bar');
+        var co2ValEl = document.getElementById('hero-telemetry-co2');
+        var co2BarEl = document.getElementById('hero-telemetry-co2-bar');
+        
+        if (!sputumValEl) return;
+        
+        setInterval(function() {
+          if (sputumValEl && sputumBarEl) {
+            var hz = Math.floor(92 + Math.random() * 21);
+            sputumValEl.nextElementSibling.textContent = '(' + hz + 'Hz)';
+            var pct = Math.floor(13 + Math.random() * 6);
+            sputumBarEl.style.width = pct + '%';
+          }
+          
+          if (co2ValEl && co2BarEl) {
+            var co2 = (41.6 + Math.random() * 0.8).toFixed(1);
+            co2ValEl.textContent = co2;
+            var co2Pct = (co2 / 100) * 100;
+            co2BarEl.style.width = co2Pct + '%';
+          }
+        }, 2200);
+      })();
     })();
     </script>
 </body>
